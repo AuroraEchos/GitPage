@@ -1,0 +1,618 @@
+<!doctype html>
+<html style='font-size:14px !important'>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
+.mac-os-11 { --title-bar-height: 28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { white-space: pre-wrap; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+thead, tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+svg { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  #write > p:nth-child(1) { margin-top: 0px; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+  figure { overflow-x: visible; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.reversefootnote { font-family: ui-monospace, sans-serif; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+mjx-container { break-inside: avoid; }
+.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
+.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
+.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
+.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
+.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
+.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left: 0.25em solid rgb(0, 0, 0); }
+.md-alert-text-note { color: rgb(9, 105, 218); }
+.md-alert-text-important { color: rgb(130, 80, 223); }
+.md-alert-text-warning { color: rgb(154, 103, 0); }
+.md-alert-text-tip { color: rgb(31, 136, 61); }
+.md-alert-text-caution { color: rgb(207, 34, 46); }
+.md-alert-text { font-size: 0.9rem; font-weight: 700; }
+.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
+.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+/* open-sans-regular - latin-ext_latin */
+  /* open-sans-italic - latin-ext_latin */
+    /* open-sans-700 - latin-ext_latin */
+    /* open-sans-700italic - latin-ext_latin */
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+
+@media only screen and (min-width: 1400px) {
+	#write {
+		max-width: 1024px;
+	}
+}
+
+@media only screen and (min-width: 1800px) {
+	#write {
+		max-width: 1200px;
+	}
+}
+
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+/*@media print {
+    .typora-export h1,
+    .typora-export h2 {
+        border-bottom: none;
+        padding-bottom: initial;
+    }
+
+    .typora-export h1::after,
+    .typora-export h2::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-top: -96px;
+        border-top: 1px solid #eee;
+    }
+}*/
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table th:first-child,
+table td:first-child {
+    margin-top: 0;
+}
+table th:last-child,
+table td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    pre {
+        page-break-inside: avoid;
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.mac-os #write{
+    caret-color: AccentColor;
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+/*.html-for-mac {
+    --item-hover-bg-color: #E6F0FE;
+}*/
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+    opacity: 0.4;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+.menu-item-container a.menu-style-btn {
+    background-color: #f5f8fa;
+    background-image: linear-gradient( 180deg , hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0)); 
+}
+
+
+
+</style><title>Multimodal Fusion on Low-quality Data A Comprehensive Survey</title>
+</head>
+<body class='typora-export'><div class='typora-export-content'>
+<div id='write'  class=''><h3 id='multimodal-fusion-on-low-quality-data-a-comprehensive-survey'><em><span>Multimodal Fusion on Low-quality Data: A Comprehensive Survey</span></em></h3><p><span>-- Qingyang Zhang etc. </span></p><p><span>多模态融合的目标是整合多种模态的信息以实现更加精准的预测，但是在低质量数据条件下多模态融合仍然存在巨大的挑战，具体表现为四个方面：</span></p><ol start='' ><li><p><span>数据被噪声严重污染；</span></p></li><li><p><span>某些模态缺失；</span></p></li><li><p><span>不同模态之间的质量、属性等存在显著差异；</span></p></li><li><p><span>每种模态的质量随着样本是动态变化的；</span></p></li></ol><p><span>对于人类而言，我们对世界的感知是极其精准的，即便有些感官信号不可靠，我们仍然可以通过其他模态的信息一步步拼凑出整个的场景。直观来说，更好的融合不同模态的信息能够获得更好的性能，然而，我们逐渐的意识到人工智能模型经常被低质量数据中的虚假性和偏差所误导。最近的一些研究从理论和经验上都证实传统的多模态融合方案可能无法处理一些低质量的多模态数据。文章用 </span><strong><span>数据质量维度</span></strong><span> 将多模态学习中最棘手的实际问题归类为四种典型情形，这种系统性归纳极具价值：</span></p><figure class='table-figure'><table><thead><tr><th><span>挑战类别</span></th><th><span>定义</span></th><th><span>挑战核心</span></th><th><span>技术难点</span></th></tr></thead><tbody><tr><td><strong><span>Noisy</span></strong></td><td><span>含有异质噪声的多模态数据</span></td><td><span>噪声不可预测，且跨模态影响不对称</span></td><td><span>如何发现并压制不一致噪声</span></td></tr><tr><td><strong><span>Incomplete</span></strong></td><td><span>某些模态缺失</span></td><td><span>模型必须具备 </span><strong><span>部分信息也能推理</span></strong><span> 的能力</span></td><td><span>训练时模态组合不一致，测试时更具挑战</span></td></tr><tr><td><strong><span>Imbalanced</span></strong></td><td><span>不同模态的重要性和表现力差异大</span></td><td><span>容易被强模态“主导”导致模型学不到弱模态的价值</span></td><td><span>如何防止模型“捷径学习”</span></td></tr><tr><td><strong><span>Quality-varying</span></strong></td><td><span>模态质量随样本变化而波动</span></td><td><span>模型要能 </span><strong><span>自适应动态权重调整</span></strong></td><td><span>信息选择机制要足够灵活</span></td></tr></tbody></table></figure><p><img src="/posts/20250515/x1.png"  /></p><p><span>下面我们将逐个进行讨论。</span></p><h4 id='learning-on-noisy-multimodal-data'><span>Learning on Noisy Multimodal Data</span></h4><p><span>在现实生活中收集多模态数据会不可避免地引入一些噪声，这些噪声可能来源于传感器的误差、环境干扰等。例如视觉模态的信息会引入电子噪声导致细节丢失，音频模态的信息会因为环境因素导致失真。</span></p><p><span>在真实应用中，多模态数据的噪声可以大致分为两类：</span></p><ol start='' ><li><p><strong><span>模态内部的噪声：</span></strong><span>这类噪声发生在单一模态的内部属于低层感知噪声，例如上述提到的视觉和音频，这类噪声的挑战在于噪声的形式多样、模态依赖性强且不易统一建模。</span></p></li><li><p><strong><span>跨模态噪声：</span></strong><span>这类噪声通常体现在模态之间的语义不一致，例如图像和文本描述不匹配、不同模态对同一对象的空间位置对不齐等，相比感知噪声，这类噪声更难识别，且对多模态对齐与融合影响极大。</span></p></li></ol><p><span>那么我们该如何采取方法处理这两类噪声？</span></p><p><span>面对单模态噪声，最直观的策略是：</span><strong><span>融合其它模态的优势，提升抗噪性能。</span></strong><span>一个经典思路是通过 </span><strong><span>变分建模（Variational Modeling）</span></strong><span> 同时实现多模态信息融合与去噪。近年来，多个研究工作在此基础上引入了更强的表示能力，如：</span></p><ul><li><p><strong><span>SATV（Structure Adaptive Total Variation）</span></strong><span>：自适应结构保持；</span></p></li><li><p><strong><span>Attention机制 + 双尺度融合</span></strong><span>：增强模态间互补特性；</span></p></li><li><p><strong><span>Wavelet域 + 图结构建模</span></strong><span>：融合空间与频域信息。</span></p></li></ul><p><span>这些方法在医学影像、多传感器感知、遥感图像中取得了优异表现。</span></p><p><span>跨模态语义不一致的问题，更像是“认知偏差”而非感知偏差。因此，它的处理方式也更高阶，主要可分为三类：</span></p><ol start='' ><li><p><span>规则过滤（Rules-based Filtering）</span></p><p><span>该方法适用于先验知识明确的场景，一个非常典型的做法就是数据清洗，筛掉不一致的样本，这类方法的优点是可控性强，缺点是泛化能力弱。</span></p></li><li><p><span>模型修正（Model-based Rectifying）</span></p><p><span>该方法是让模型自己判断哪些配对是错的，然后主动修正，例如</span><strong><span>NCR（Noisy Correspondence Rectifier）</span></strong><span>根据 loss 的学习曲线将样本划分为干净/噪声，然后引导模型进行配对修复。这是当前视觉-语言领域的主流策略，适用于大规模训练数据中“标签不可靠”的问题。</span></p></li><li><p><span>鲁棒正则化（Noise-robust Regularization）</span></p><p><span>如果不能完全识别错误配对，那就让模型变得“对错都能忍”。例如</span><strong><span>NLIP</span></strong><span>引入“噪声自适应正则项”，降低模型对错误匹配的敏感性，这类方法更强调在预训练阶段提升模型的“内在稳定性”，是面向大模型训练的重要方向。</span></p></li></ol><p><span>多模态学习的现实之路从来不平坦，而“噪声”就是最大的绊脚石之一。幸运的是，随着我们对模态间关系理解的加深，各种鲁棒技术正在不断成熟，从数学优化、深度学习到大模型辅助，每一层都在发力。面对噪声，我们不应试图回避，而应学会如何“聆听其中的真相”。</span></p><h4 id='incomplete-multimodal-learning'><span>Incomplete multimodal Learning</span></h4><p><span>显然在实际应用中由于数据传输、存储丢失等意外因素，可能导致我们所收集到的数据不完整，某些模态可能缺失。举个具体的例子，在推荐系统中，某些用户的浏览行为历史和信用评分信息可能并不总是可用的。针对这一问题，不完全多模态学习应运而生，旨在探索部分缺失模态的不完整多模态数据的信息，近年来引起了越来越多的研究兴趣。当前的研究焦点围绕是否补全缺失模态分为两大类：</span></p><ol start='' ><li><p><span>基于补全</span></p></li><li><p><span>无补全</span></p></li></ol><p><span>即使模态缺失，也能尽可能挖掘现有模态的信息，完成感知、识别或预测任务。</span></p><p><span>第一个解决策略就是把缺失的模态补出来，这是最直觉的想法，而在这一策略下，又细分为两种方法：</span></p><ol start='' ><li><p><span>模型无关补全（Model-Agnostic）</span></p><p><span>最简单的方法是用 0 或均值填补（zero/mean imputation）。虽然常作为 baseline，但性能不理想。一些改进方式包括给填补值设置更低的权重（避免污染优化）、基于图或核相似性进行插值或者采用动态权重机制区分可信/不可信模态。</span></p></li><li><p><span>模型驱动补全（Model-Specific）</span></p><p><span>该方法的思路是设计网络直接恢复缺失模态：</span></p><p><span> 图/核补全类：</span></p><ul><li><p><span>核方法如 CKL、SLIM-K，通过相似性关系还原缺失模态的核矩阵；</span></p></li><li><p><span>图补全方法则从其他模态借用图结构，还原局部或全局关系。</span></p></li></ul><p><span>原始数据补全类：</span></p><ul><li><p><strong><span>VIGAN</span></strong><span>：GAN 生成缺失模态，再用 Autoencoder 精修；</span></p></li><li><p><strong><span>RecFormer</span></strong><span>：利用自注意力机制，重建缺失模态 + 表征提取；</span></p></li><li><p><strong><span>SURE</span></strong><span>：用对比学习提升补全鲁棒性，正负样本构造精妙；</span></p></li><li><p><strong><span>UIMC</span></strong><span>：引入不确定性建模，对补全结果建模为分布，而非单点。</span></p></li></ul></li></ol><p><span>值得一提的是：一些方法开始引入“原型”（prototype）表示，帮助模型在缺失状态下重建“代表性”的模态特征。</span></p><p><span>第二个解决策略就是无需补全，与其费尽补，不如好好用已有的：</span></p><ol start='' ><li><p><span>潜在表示学习</span></p><p><span>这类方法试图找到多模态的</span><strong><span>公共潜在空间</span></strong><span>，即便不是每个样本都完整。代表方法：</span></p><ul><li><p><span>PMVC、IMG、SLIM 等矩阵分解类；</span></p></li><li><p><span>加入</span><strong><span>加权机制</span></strong><span>，屏蔽缺失数据带来的负面影响；</span></p></li><li><p><span>一些方法通过局部对齐和稀疏建模，增强鲁棒性。</span></p></li></ul></li><li><p><span>图学习方法</span></p><p><span>该方法的核心问题是：</span><strong><span>如何从不完整模态中提取图结构关系？</span></strong><span>方法包括：</span></p><ul><li><p><span>从可用模态构建图，再合并为共识图；</span></p></li><li><p><span>对每个模态分别建图，再通过对齐或正则手段融合；</span></p></li><li><p><span>分割为若干完整子集，构建子图后用图神经网络联合学习。</span></p></li></ul></li><li><p><span>核学习方法</span></p><p><span>该方法将数据投射到核空间，再挖掘其相似性结构。例如：</span></p><ul><li><p><span>Late fusion 方法联合缺失表示和共识表示；</span></p></li><li><p><span>EERIMVC 方法将“初始共识表示”作为先验，优化后续聚类；</span></p></li><li><p><span>一些方法将标签与核表示联合建模，提升分类性能。</span></p></li></ul></li><li><p><span>深度学习方法</span></p><p><span>深度方法具有天然的灵活性，尤其适用于高维、多模态、不规则缺失的数据。常见结构：</span></p><ul><li><p><span>Autoencoder + Graph + Mask；</span></p></li><li><p><span>对比学习（如 SURE）；</span></p></li><li><p><span>Transformer + 模态注意力（如 MMCFormer）；</span></p></li><li><p><span>无需补全、无需显式融合的模型。</span></p></li></ul></li></ol><p><span>不完整多模态学习正处于高速发展期。相比传统多模态学习，它更加贴近现实，挑战也更大。我们应从两条路径思考：</span></p><ul><li><p><span>补：补全得更准、更稳、更可靠；</span></p></li><li><p><span>不补：观其已知，极致榨干每一份信息。</span></p></li></ul><p><span>不怕模态缺失，关键是能重构知识结构。</span></p><p><img src="/posts/20250515/imputation.png" referrerpolicy="no-referrer"></p><h4 id='balanced-multimodal-learning'><span>Balanced Multimodal Learning</span></h4><p><span>我们用视频、音频、文本、传感器数据等不同模态的信息，让模型像人类一样从多个角度去理解世界。理论上，这是“1+1&gt;2”的好事，但在实践中，我们常常发现它变成了“强者更强，弱者掉队”：模型会黏着最容易学、信息量最大的模态不放，其他模态反而被忽视。</span></p><p><span>这就是 </span><strong><span>模态不平衡</span></strong><span>（Modality Imbalance）问题：</span></p><ul><li><p><span>有的模态</span><strong><span>学得快</span></strong><span>（收敛速度快），有的模态</span><strong><span>学得慢</span></strong><span>。</span></p></li><li><p><span>有的模态</span><strong><span>信息量足</span></strong><span>（高质量），有的模态</span><strong><span>噪声多</span></strong><span>（低质量）。</span>
+<span> 如果不处理好，这些差异不仅不能互补，还会让多模态模型的表现比不上最强的单模态模型。</span></p></li></ul><p><span>Balanced Multimodal Learning 关注 </span><strong><span>多模态学习中不同模态在学习特性（learning property）与数据质量（data quality）上的差异</span></strong><span>，并试图通过不同策略平衡这种不均衡，从而避免模型过度依赖某一模态、提升整体性能。</span></p><ol><li><p><span>Learning Property Discrepancy</span></p><p><strong><span>问题来源</span></strong></p><p><span>不同模态的输入形式、特征空间、收敛速度不同（如视频 vs. 音频）。</span></p><p><span>联合训练（joint training）如果用统一的 loss，很可能会忽略这种差异。</span></p><p><strong><span>导致现象：</span></strong></p><ul><li><p><span>模型过早拟合部分模态</span></p></li><li><p><span>甚至联合模型不如性能最好的单模态模型</span></p></li></ul><p><strong><span>解决策略</span></strong></p><ol><li><p><strong><span>Learning-objective-based</span></strong></p><ul><li><p><span>在总 loss 之外引入 </span><strong><span>单模态 loss</span></strong></p></li><li><p><span>动态调整 loss 权重（如根据 overfitting-to-generalization ratio）来匹配不同模态的收敛速度。</span></p></li></ul></li><li><p><strong><span>Optimization-based</span></strong></p><ul><li><p><span>在反向传播时给不同模态不同学习率（λᵢ）</span></p></li><li><p><span>收敛快的模态用低学习率，延长其训练周期。</span></p></li></ul></li><li><p><strong><span>Architecture-based</span></strong></p><ul><li><p><span>在融合阶段随机 drop 收敛快的模态路径（如 late fusion 时随机屏蔽分支）</span></p></li><li><p><span>在低层 cross-modal 融合时增加交互（如低层特征中心连接）。</span></p></li></ul></li></ol></li><li><p><span>Quality Discrepancy</span></p><p><strong><span>问题来源</span></strong></p><ul><li><p><span>同一事件的不同模态，信息量差别大（例如视频信息很丰富，音频是嘈杂街道声）。</span></p></li><li><p><span>神经网络的“贪婪”特性会优先利用高质量模态 → 低质量模态训练不足（under-optimization）。</span></p></li></ul><p><strong><span>解决策略</span></strong></p><ol><li><p><strong><span>Learning-objective-based</span></strong></p><ul><li><p><span>增加额外 loss，专门提升低质量模态（如多模态对比学习、知识蒸馏、self-distillation、正则化防止单一模态依赖等）。</span></p></li></ul></li><li><p><strong><span>Optimization-based</span></strong></p><ul><li><p><span>动态调节梯度幅度（gradient magnitude modulation）</span></p></li><li><p><span>或修正梯度方向（gradient direction refinement）以减少高质量模态干扰。</span></p></li></ul></li><li><p><strong><span>Architecture-based</span></strong></p><ul><li><p><span>特定的模块设计平衡模态贡献（如 Multimodal Temporal Attention、Variational Feature Fusion）。</span></p></li></ul></li><li><p><strong><span>Data-augmentation-based</span></strong></p><ul><li><p><span>额外单独训练低质量模态分支</span></p></li><li><p><span>适当屏蔽高质量模态输入</span></p></li><li><p><span>细粒度（sample-level）模态贡献度评估（如 Shapley 值）并动态采样。</span></p></li></ul></li></ol></li></ol><h4 id='dynamic-multimodal-fusion'><span>Dynamic Multimodal Fusion</span></h4><p><img src="/posts/20250515/dynamic.png" referrerpolicy="no-referrer"></p><p><span>不同模态在不同环境、时间、场景下的信息质量和任务相关性会变化（如夜间热成像优于RGB，白天反之）。而我们的目标是</span></p><p><span>适应模态质量的动态变化，</span><strong><span>有选择地整合最有任务价值的信息</span></strong><span>，而不是固定加权或简单拼接。</span></p><h4 id='三大方法路线'><span>三大方法路线</span></h4><p><strong><span>1. 启发式（Heuristic）动态融合</span></strong></p><ul><li><p><strong><span>思路</span></strong><span>：基于任务先验知识或场景经验人为设定融合规则。</span></p></li><li><p><strong><span>典型方式</span></strong><span>：</span></p><ul><li><p><strong><span>环境条件驱动</span></strong><span>：如根据光照条件动态切换RGB/热成像权重（夜间热成像优先）。</span></p></li><li><p><strong><span>网络特性驱动</span></strong><span>：利用 BN scaling factor、激活强度（l1-norm）等衡量特征通道的重要性。</span></p></li><li><p><strong><span>任务模块驱动</span></strong><span>：如 AdaMML 用轻量策略网络动态选择视频片段的模态，DynMM 同时做模态级与融合级决策。</span></p></li></ul></li><li><p><strong><span>优缺点</span></strong><span>：</span></p><ul><li><p><span>优：易解释、实现简单。</span></p></li><li><p><span>缺：依赖先验假设，泛化能力有限。</span></p></li></ul></li></ul><p><strong><span>2. 基于注意力（Attention-based）动态融合</span></strong></p><ul><li><p><strong><span>思路</span></strong><span>：学习模态质量评估与特征加权规则，而不是人工设定。</span></p></li><li><p><strong><span>类型</span></strong><span>：</span></p><ul><li><p><strong><span>自注意力（Self-Attention）</span></strong><span>：捕捉模态内和模态间依赖（如 MCSAN 在情感识别中动态关注语音/文本）。</span></p></li><li><p><strong><span>通道注意力（Channel Attention）</span></strong><span>：如 MMTM 融合时用 squeeze-excitation 重标定通道重要性。</span></p></li><li><p><strong><span>空间注意力（Spatial Attention）</span></strong><span>：如 CSSA 模块在多模态目标检测中对空间位置加权。</span></p></li><li><p><strong><span>Transformer 融合</span></strong><span>：</span></p><ul><li><p><span>限制交互范围（Fusion Bottlenecks）</span></p></li><li><p><span>共享 Transformer 参数进行时空跨模态建模</span></p></li><li><p><span>动态剔除无信息 token 进行替换</span></p></li><li><p><span>测试时针对模态损坏进行鲁棒融合（confidence-aware loss）</span></p></li></ul></li></ul></li><li><p><strong><span>优缺点</span></strong><span>：</span></p><ul><li><p><span>优：灵活、端到端可训练、可迁移。</span></p></li><li><p><span>缺：需要更多数据与计算资源，注意力可能偏向高信噪比模态而忽略弱模态潜在信息。</span></p></li></ul></li></ul><ol start='3' ><li><p><strong><span>不确定性感知（Uncertainty-aware）动态融合</span></strong></p></li></ol><ul><li><p><strong><span>思路</span></strong><span>：显式建模每个模态的</span><strong><span>预测不确定性</span></strong><span>，以此作为动态加权依据。</span></p></li><li><p><strong><span>典型建模方法</span></strong><span>：</span></p><ul><li><p><strong><span>主观逻辑（Subjective Logic）+ D-S 证据理论</span></strong><span>：如 TMC，根据模态不确定性动态整合。</span></p></li><li><p><strong><span>熵（Entropy）</span></strong><span>：UNO 用多种熵度量选择最保守的加权策略。</span></p></li><li><p><strong><span>高斯分布</span></strong><span>：DUA-Net 在无监督场景下用方差衡量模态置信度。</span></p></li><li><p><strong><span>正态-逆伽马（NIG）分布</span></strong><span>：同时建模认知不确定性（epistemic）和数据不确定性（aleatoric）。</span></p></li><li><p><strong><span>预测置信度（Confidence Calibration）</span></strong><span>：MCP、TCP，Multimodal Dynamics 用 sparse gating + TCP 进行特征/模态选择。</span></p></li></ul></li><li><p><strong><span>理论支持</span></strong><span>：</span></p><ul><li><p><span>不确定性感知融合可以在理论上获得更紧的泛化误差界（generalization bound），权重与误差的协方差应为负数，代表越不确定的模态权重越低。</span></p></li></ul></li></ul><p><span>动态融合关注模态质量随</span><strong><span>样本/时间/空间</span></strong><span>的变化，这种现象在真实应用中普遍存在但常被忽视。</span></p><p><span>研究潜力：</span></p><ol><li><p><span>将动态融合原则引入大规模多模态模型（如 CLIP）。</span></p></li><li><p><span>面向特定应用（如自动驾驶、医学影像）设计场景专用的动态融合策略。</span></p></li><li><p><span>在医学影像中，可以做更细粒度的动态融合（如病理路径级融合）提升可解释性。</span></p></li></ol><p><span>关键挑战：</span></p><ul><li><p><span>如何低延迟地评估模态质量。</span></p></li><li><p><span>如何防止动态策略过拟合场景分布。</span></p></li><li><p><span>如何平衡鲁棒性与信息保留。</span></p></li></ul><h4 id='conclusion'><span>Conclusion</span></h4><p><span>总结了</span><strong><span>多模态学习在真实环境（in the wild）中的四大挑战</span></strong><span>：</span></p><ol><li><p><strong><span>Noisy</span></strong><span>（噪声模态数据）</span></p></li><li><p><strong><span>Partial</span></strong><span>（不完整模态数据）</span></p></li><li><p><strong><span>Unbalanced</span></strong><span>（模态间数据量不平衡）</span></p></li><li><p><strong><span>Quality-varying</span></strong><span>（模态质量随时间、场景等变化）</span></p></li></ol><p><span>并且提到：</span></p><ul><li><p><span>噪声模态数据的研究历史较长，但近年的表示学习与模态转换需求催生了大量新算法和应用。</span></p></li><li><p><span>低质量多模态数据的挑战不仅存在于</span><strong><span>融合任务</span></strong><span>，还包括</span><strong><span>对齐任务（如检索）以及基础模型（如 CLIP）</span></strong><span>。</span></p></li><li><p><span>低质量问题并不限于上述四类，还包括更复杂的对抗性扰动（adversarial）等形式。</span></p></li></ul></div></div>
+</body>
+</html>
