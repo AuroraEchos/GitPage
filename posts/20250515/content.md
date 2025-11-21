@@ -18,7 +18,7 @@
 | **Imbalanced**      | 不同模态的重要性和表现力差异大 | 容易被强模态“主导”导致模型学不到弱模态的价值 | 如何防止模型“捷径学习”               |
 | **Quality-varying** | 模态质量随样本变化而波动       | 模型要能 **自适应动态权重调整**              | 信息选择机制要足够灵活               |
 
-<img src="/posts/20250515/x1.png"  />
+<img src="x1.png"  />
 
 下面我们将逐个进行讨论。
 
@@ -132,7 +132,7 @@
 
 不怕模态缺失，关键是能重构知识结构。
 
-![](/posts/20250515/imputation.png)
+![](imputation.png)
 
 #### Balanced Multimodal Learning
 
@@ -194,7 +194,7 @@ Balanced Multimodal Learning 关注 **多模态学习中不同模态在学习特
 
 #### Dynamic Multimodal Fusion
 
-![](/posts/20250515/dynamic.png)
+![](dynamic.png)
 
 不同模态在不同环境、时间、场景下的信息质量和任务相关性会变化（如夜间热成像优于RGB，白天反之）。而我们的目标是
 

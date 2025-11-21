@@ -81,10 +81,10 @@ $$
 
 经过 4 层残差块：
 $$
-h_1 &= \text{ResBlock}(X), \\
-h_2 &= \text{ResBlock}(h_1), \\
-h_3 &= \text{ResBlock}(h_2), \\
-h_4 &= \text{ResBlock}(h_3), \\
+h_1 = \text{ResBlock}(X), \\
+h_2 = \text{ResBlock}(h_1), \\
+h_3 = \text{ResBlock}(h_2), \\
+h_4 = \text{ResBlock}(h_3), \\
 $$
 池化：
 $$

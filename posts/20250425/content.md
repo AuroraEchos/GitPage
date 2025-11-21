@@ -52,7 +52,7 @@ PointNet++ 的目标非常明确：
    - 使用 skip connection 将底层细节与高层语义融合；
    - 多层 MLP 进行融合处理，得到高分辨率输出。
 
-![](/home/wenhaoliu/Project/Github/MyBlog/posts/20250425/PointNet++X2.png)
+![PointNet++X2](PointNet++X2.png)
 
 **多尺度分组策略：MSG and MRG**
 
@@ -63,7 +63,7 @@ PointNet++ 的目标非常明确：
 
 MSG 效果更强，MRG 更轻量，二者可以根据任务需求灵活选择。
 
-![](/home/wenhaoliu/Project/Github/MyBlog/posts/20250425/PointNet++X3.png)
+![PointNet++X3](PointNet++X3.png)
 
 #### 总结
 

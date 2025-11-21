@@ -100,7 +100,7 @@ T-Net 结构和主干网络几乎相同，最终输出的是一个可学习的�
 
 模型结构图如下：
 
-![](/home/wenhaoliu/Project/Github/MyBlog/posts/20250420/pointnet.png)
+![point](pointnet.png)
 
 #### 总结：
 

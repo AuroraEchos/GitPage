@@ -15,7 +15,7 @@
 
 整体架构如图所示，图a为提出的 LS 卷积模块，右侧为提出的 LSNet。
 
-![](/home/wenhaoliu/Project/MyBlog/posts/20250612/LSNet.png)
+![](LSNet.png)
 
 LSNet 的基础构建单元是 **LS（Large-Small）块**。它是一种新颖的特征提取模块，核心思想是将大范围感知和局部聚合分开处理。一个完整的 LS 块主要由以下几部分组成：
 

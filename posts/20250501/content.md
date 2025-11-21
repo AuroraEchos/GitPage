@@ -14,7 +14,7 @@ ViT 在模型设计方面最大的特点是：**以最小修改将标准 NLP Tra
 
 ViT 没有采用 CNN 的局部感知、权重共享等“视觉先验”，而是把图像看作一个**patch 序列**，每个 patch 类似于 NLP 中的“词”。整个模型几乎完全照搬 BERT 的架构，只在输入处理和位置编码上做了适配性调整。
 
-![](/home/wenhaoliu/Project/Github/MyBlog/posts/20250501/ViT.png)
+![ViT](ViT.png)
 
 我们从输入到输出，逐步分析其设计构成。
 
