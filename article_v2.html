@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading... | Wenhao Liu</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" /> 
+
+    <style>
+        /* --- 1. 核心配色系统 (简化为纯黑白灰) --- */
+        :root {
+            --bg-body: #ffffff;      /* 页面背景：纯白 */
+            --text-main: #222;       /* 正文：深灰 */
+            --text-muted: #666;      /* 次要文字 */
+            --primary: #0077cc;      /* 主色调：经典蓝色链接 */
+            --border: #ccc;          /* 边框：浅灰 */
+            --code-bg: #f4f4f4;      /* 代码块背景：浅灰 */
+            --inline-code-bg: #eee;  /* 行内代码背景 */
+        }
+
+        /* 移除 Dark Mode 相关的 CSS 变量，专注于 Light Mode */
+
+        /* --- 2. 全局重置 --- */
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            padding: 40px 20px; /* 增加页面整体边距 */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.7; /* 适当的行高 */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 滚动条美化和深色模式适配全部移除 */
+        
+        /* --- 3. 布局架构 (纯垂直居中) --- */
+        .layout-wrapper {
+            max-width: 800px; /* 与主页宽度保持一致 */
+            margin: 0 auto;
+            min-height: 100vh;
+            display: block; /* 移除 Flex */
+        }
+
+        /* 顶部导航 */
+        .nav-bar {
+            margin-bottom: 2.5rem;
+            text-align: left; /* 导航左对齐 */
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0; /* 移除 padding 和背景色 */
+            border-radius: 0;
+            background: transparent;
+            border-bottom: 1px dotted transparent; /* 使用虚线实现简约 hover 效果 */
+        }
+        .back-btn:hover {
+            color: var(--primary);
+            background: transparent;
+            border-bottom-color: var(--primary);
+            transform: none; /* 移除位移效果 */
+        }
+        .back-btn span { margin-left: 6px; }
+
+        /* 核心：移除 paper-card 样式，内容直接展示 */
+        main {
+            padding: 0; /* 移除所有 padding，让内容流式展示 */
+            background-color: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+        }
+
+        /* --- 4. Markdown 正文排版 (Typography) --- */
+        .markdown-body {
+            font-size: 1rem;
+        }
+
+        /* 标题 */
+        .markdown-body h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border); /* 简单的下划线分隔 */
+            color: var(--text-main);
+        }
+
+        .markdown-body h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            border-bottom: 1px dotted #eee;
+        }
+
+        .markdown-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .markdown-body h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        /* 段落与列表 */
+        .markdown-body p { margin-bottom: 1.5rem; color: var(--text-main); font-size: 1rem;}
+        .markdown-body ul, .markdown-body ol { margin-bottom: 1.5rem; padding-left: 1.5rem; font-size: 1rem;}
+        .markdown-body li { margin-bottom: 0.5rem; color: var(--text-main); }
+
+        /* 链接 */
+        .markdown-body a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px dotted var(--primary); /* 虚线下划线 */
+            transition: color 0.2s;
+        }
+        .markdown-body a:hover { color: #004499; border-bottom-style: solid; }
+
+        /* 引用块 */
+        .markdown-body blockquote {
+            margin: 2rem 0;
+            padding: 0.5rem 1.5rem;
+            background: var(--code-bg); /* 使用代码块的背景色 */
+            border-left: 4px solid var(--primary);
+            border-radius: 0; /* 移除圆角 */
+            color: var(--text-main); 
+            font-style: italic;
+        }
+
+        /* 代码块优化 */
+        .markdown-body pre {
+            background: var(--code-bg) !important;
+            border-radius: 0; /* 移除圆角 */
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid var(--border); /* 简单的边框 */
+            box-shadow: none; /* 移除阴影 */
+            overflow-x: auto;
+        }
+        .markdown-body code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        /* 行内代码 (Inline Code) */
+        .markdown-body :not(pre) > code {
+            background-color: var(--inline-code-bg);
+            color: var(--text-main); /* 颜色改为深色，不突出 */
+            padding: 0.1rem 0.4rem;
+            border-radius: 0; /* 移除圆角 */
+            font-size: 0.85em;
+            border: none;
+        }
+
+        /* 图片 */
+        .markdown-body img {
+            max-width: 100%;
+            border-radius: 0; /* 移除圆角 */
+            display: block;
+            margin: 2.5rem auto;
+            box-shadow: none; /* 移除阴影 */
+            border: 1px solid #eee; /* 增加极淡的边框 */
+        }
+
+        /* 表格 */
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.95rem;
+            overflow: hidden;
+            border-radius: 0;
+            border: 1px solid var(--border);
+        }
+        .markdown-body th, .markdown-body td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); text-align: left; }
+        .markdown-body th { background-color: var(--code-bg); font-weight: 600; }
+        .markdown-body tr:last-child td { border-bottom: none; }
+
+        /* 加载动画 */
+        .loading-skeleton {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        
+        .sk-title { height: 3rem; background: #eee; margin-bottom: 2rem; border-radius: 4px; width: 70%; }
+        .sk-line { height: 1rem; background: #eee; margin-bottom: 1rem; border-radius: 2px; }
+        
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <div class="layout-wrapper">
+        <nav class="nav-bar">
+            <a href="index.html" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span>Back to Home</span>
+            </a>
+        </nav>
+
+        <main> <div id="markdown-content" class="markdown-body">
+                <div class="loading-skeleton">
+                    <div class="sk-title"></div>
+                    <div class="sk-line" style="width: 100%"></div>
+                    <div class="sk-line" style="width: 90%"></div>
+                    <div class="sk-line" style="width: 95%"></div>
+                    <div class="sk-line" style="width: 80%"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. 移除深色模式切换逻辑
+
+        // 2. 路由逻辑
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        const fileParam = urlParams.get('file');
+        const targetFile = fileParam || 'content.md';
+        const mdPath = `posts/${slug}/${targetFile}`;
+
+        // 3. 渲染核心
+        if (slug) {
+            fetch(mdPath)
+                .then(response => {
+                    if (!response.ok) throw new Error("Article not found");
+                    return response.text();
+                })
+                .then(text => {
+                    // 图片路径修正
+                    const fixedText = text.replace(/!\[(.*?)\]\((?!http)(.*?)\)/g, `![$1](posts/${slug}/$2)`);
+                    
+                    const contentDiv = document.getElementById('markdown-content');
+                    
+                    // 渲染 HTML
+                    contentDiv.innerHTML = marked.parse(fixedText);
+                    
+                    // 设置页面标题
+                    const h1 = contentDiv.querySelector('h1');
+                    if (h1) document.title = h1.innerText + " | Wenhao Liu";
+
+                    // 代码高亮
+                    Prism.highlightAll();
+                    // 数学公式
+                    if (window.MathJax) MathJax.typesetPromise();
+                })
+                .catch(err => {
+                    document.getElementById('markdown-content').innerHTML = `
+                        <div style="text-align:center; padding: 3rem 0;">
+                            <h2 style="color:var(--text-muted); border:none;">404</h2>
+                            <p style="color:var(--text-main)">Article content not found.</p>
+                            <p style="font-family:monospace; color:var(--text-muted); font-size:0.85rem;">${mdPath}</p>
+                        </div>
+                    `;
+                });
+        } else {
+            document.getElementById('markdown-content').innerHTML = "<p>No article specified.</p>";
+        }
+    </script>
+</body>
+</html>

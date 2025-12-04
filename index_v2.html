@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <meta name="description" content="Wenhao Liu's personal blog - Java & AI Researcher.">
+    <title>刘文豪 | AI & Java</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 极简基础样式 (Minimalist Base Style) --- */
+        
+        * { box-sizing: border-box; }
+
+        body {
+            /* 基础字体和行高 */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px; /* 增加页面整体边距，顶部和底部留白更多 */
+            background-color: #ffffff; /* 纯白色背景 */
+            color: #333; /* 基本的深色文本 */
+            max-width: 800px; /* 进一步收窄内容宽度，提高阅读体验 */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 布局容器 - 移除 Grid/Flex 布局，改为普通流式 */
+        .app-layout {
+            display: block; 
+        }
+
+        /* 侧边栏和主内容 - 保持流式布局 */
+        .sidebar {
+            padding: 0; /* 移除额外 padding */
+            text-align: center; /* 居中头像和个人信息 */
+            border-bottom: 2px solid #ddd; /* 增加更明显的分隔线 */
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+        
+        .main-content {
+            padding: 0; /* 移除额外 padding */
+        }
+
+        /* 个人信息卡片样式 */
+        .profile-card {
+             /* 确保侧边栏内容可以居中 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%; /* 保留圆形头像 */
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 1px solid #ccc; /* 简单的边框 */
+        }
+        
+        .profile-name {
+            margin: 0 0 5px 0;
+            font-size: 2.2em; /* 稍微放大标题，更像主页头部 */
+        }
+
+        .profile-bio {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        /* 社交链接按钮 - 简化为纯文本链接 */
+        .social-links a {
+            color: #1a0dab; /* 蓝色链接色 */
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 5px 10px;
+            border: 1px solid #1a0dab;
+            display: inline-block;
+        }
+        .social-links a:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* 内容区标题 */
+        .section-title {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 2em;
+            margin-bottom: 1em;
+            font-size: 1.5em;
+        }
+        
+        /* 列表项（文章）样式 */
+        .article-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .article-item {
+            display: flex; /* 使用 Flexbox 让日期、标题、标签在一行对齐 */
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px dotted #ccc; /* 虚线分隔 */
+        }
+
+        .article-item:hover {
+            color: #000;
+            background-color: #f9f9f9;
+        }
+
+        .article-date {
+            width: 100px; /* 固定日期宽度 */
+            flex-shrink: 0;
+            color: #666;
+            margin-right: 15px;
+        }
+
+        .article-title {
+            font-weight: 500;
+            flex-grow: 1; /* 标题占据中间剩余空间 */
+        }
+
+        .tag {
+            font-size: 0.8em;
+            color: #999;
+            border: 1px solid #eee;
+            padding: 2px 5px;
+            flex-shrink: 0;
+            align-self: flex-start; /* 保持顶部对齐 */
+        }
+        
+        /* ！！！完全删除了 @media (min-width: 768px) 块，因此不再有左右分栏布局 ！！！ */
+
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="profile-card">
+                <img src="AvatarLiu.png" alt="Wenhao Liu" class="profile-img">
+                <h1 class="profile-name">刘文豪</h1>
+                
+                <div class="social-links">
+                    <a href="mailto:flippedliu@shu.edu.cn">Email</a>
+                    <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <section id="about">
+                <h2 class="section-title">Biography & Education</h2>
+                <p style="margin-bottom: 1.5rem;">
+                    刘文豪于2021年9月进入上海大学，主修通信与信息工程。目前正在上海大学攻读硕士学位，专注于深度学习和人工智能领域的研究。<br>
+                    他专注于 <strong>AI 基础设施</strong> 和 <strong>大模型服务化工程</strong> 领域。致力于利用 Java 生态的高并发和高可用特性，解决大型模型部署中的核心工程挑战 — 特别是应对企业级的推理成本过高、响应延迟高以及数据链路复杂等痛点。
+                </p>
+
+                <div class="section-subtitle" style="font-weight:bold; margin: 1rem 0;">当前技术专研方向</div>
+                <p>他的学习路径围绕“AI 工程实现”分阶段推进：</p>
+                <ul>
+                    <li>
+                        <strong>底层基础：</strong> 利用 Java 虚拟线程构建高并发基座；使用 <strong>Spring AI</strong> 实现标准化的大模型接口调用；同时深入研究 <strong>Redis 向量模块</strong> 与关系型数据库的协同解决方案。
+                    </li>
+                    <li>
+                        <strong>核心工程：</strong> 专注于 <strong>Java 原生推理工程</strong>，包括 <strong>ONNX Runtime</strong> 模型部署、<strong>DJL</strong> 深度学习库应用，以及 <strong>Llama.cpp</strong> 量化推理；同时构建涉及 <strong>Milvus/Pgvector</strong> 向量检索、非结构化数据 ETL 和 Embedding 工作流的 <strong>RAG 数据管道</strong>。
+                    </li>
+                    <li>
+                        <strong>架构设计：</strong> 构建高性能 <strong>AI 网关</strong>（<strong>Netty/gRPC</strong> 通信，SSE 流式输出）以实现语义缓存、基于 Token 的限流和动态模型路由；探索 <strong>云原生 MLOps</strong> 实践，包括 <strong>K8s GPU 调度</strong>、容器镜像优化和 AI 全链路观测。
+                    </li>
+                </ul>
+
+                <div class="section-subtitle" style="font-weight:bold; margin: 1rem 0;">职业目标与发展方向</div>
+                <p>
+                    他致力于成为一名 <strong>AI 工程师</strong>，希望在 AI 基础设施领域发挥作用，特别是在 <strong>大模型服务化</strong> 和 <strong>推理性能优化</strong> 方面。他的目标是通过工程实践推动 AI 技术在企业中的实际应用，解决实际业务问题。
+                </p>
+                <p>
+                    他期望加入中大型企业的 AI 平台团队、或 AI 转型部门，用工程能力让 AI 真正产生业务价值。他正在积极寻找一份日常实习机会，以积累实际项目经验并提升自己的技术能力。
+                </p>
+
+                <div class="section-subtitle" style="font-weight:bold; margin: 1rem 0;">目前已经掌握的技术栈</div>
+                <ul>
+                    <li>熟悉 Java、Python 编程语言；</li>
+                    <li>熟悉 Pytorch 深度学习框架；</li>
+                    <li>对计算机系统、网络有基本了解，能根据文档完成相关功能；</li>
+                    <li>具备使用关系型数据库（如 MySQL、PostgreSQL 等）的经验；</li>
+                    <li>熟悉 Docker 的基本原理及容器化技术；</li>
+                    <li>能使用 Git/GitHub 等版本控制和 CI 工具；</li>
+                    <li>具备基本的 Linux 命令行操作能力；</li>
+                    <li>具备良好的英语阅读能力；</li>
+                    <li>能够通过 Google/ChatGPT 等工具寻找解决方案；</li>
+                </ul>
+
+            </section>
+
+            <section id="projects">
+                <h2 class="section-title">Project Sharing</h2>
+                <div id="project-sharing-content" class="article-list"></div>
+            </section>
+
+            <section id="notes">
+                <h2 class="section-title">Notes</h2>
+                <div id="Note-content" class="article-list"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // 2. 文章列表逻辑
+        const articles = [
+            { date: "2025-07-10", category: "Note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
+            { date: "2025-06-15", category: "Note", title: "SwiGLU Activation Function", slug: "20250615" },
+            { date: "2025-06-05", category: "Note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
+            { date: "2025-05-01", category: "Note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
+            { date: "2025-03-20", category: "Note", title: "Attention Is All You Need", slug: "20250320" },
+            { date: "2025-02-01", category: "Project Sharing", title: "中文仇恨言论检测", slug: "20250201" },
+        ];
+
+        function getLink(slug) {
+            // 链接到具体的文章页面
+            // return `posts/${slug}/article.html`;
+            return `article.html?slug=${slug}`;
+        }
+
+        function loadArticles() {
+            const categories = {
+                "Note": document.getElementById('Note-content'),
+                "Project Sharing": document.getElementById('project-sharing-content')
+            };
+
+            // 按日期排序
+            const sortedArticles = articles.sort((a, b) => {
+                // 兼容原本的 "YYYY / MM / DD" 或新的 "YYYY-MM-DD"
+                const dateA = new Date(a.date.replace(/\s/g, '').replace(/\//g, '-'));
+                const dateB = new Date(b.date.replace(/\s/g, '').replace(/\//g, '-'));
+                return dateB - dateA;
+            });
+
+            sortedArticles.forEach(article => {
+                const container = categories[article.category];
+                if (container) {
+                    const articleLink = document.createElement('a');
+                    articleLink.href = getLink(article.slug);
+                    articleLink.className = 'article-item';
+                    
+                    // 使用 Flexbox 布局内部结构
+                    articleLink.innerHTML = `
+                        <span class="article-date">${article.date}</span>
+                        <span class="article-title">${article.title}</span>
+                        <span class="tag">${article.category === 'Project Sharing' ? 'Project' : 'Note'}</span>
+                    `;
+                    container.appendChild(articleLink);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+</body>
+</html>
