@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wenhao Liu – AI & Java Infra Researcher Blog">
+    <title>刘文豪 | AI & Engineering</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 48px 20px;
+            background: #ffffff;
+            color: #333;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            margin: 0 0 6px 0;
+            font-size: 2.1rem;
+            font-weight: 700;
+        }
+
+        .social-links a {
+            text-decoration: none;
+            color: #1a0dab;
+            border: 1px solid #1a0dab;
+            padding: 4px 12px;
+            border-radius: 4px;
+            margin: 0 8px;
+            font-size: 0.9rem;
+        }
+
+        .social-links a:hover {
+            background: #f4f4f4;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+        }
+
+        .section-subtitle {
+            font-weight: 600;
+            margin: 20px 0 10px;
+        }
+
+        ul { padding-left: 20px; }
+
+        .article-list { padding: 0; list-style: none; }
+
+        .article-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            text-decoration: none;
+            color: #333;
+            gap: 10px;
+        }
+
+        .article-item:hover { background: #fafafa; }
+
+        .article-date {
+            width: 90px;
+            flex-shrink: 0;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .article-title {
+            flex-grow: 1;
+            font-weight: 500;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: #777;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #888;
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <img class="avatar" src="AvatarLiu.png" alt="Wenhao Liu">
+    <h1>刘文豪</h1>
+    <div class="social-links">
+        <a href="mailto:flippedliu@shu.edu.cn">Email</a>
+        <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
+    </div>
+</header>
+
+<section>
+    <h2 class="section-title">简介</h2>
+    <p>
+        深度学习研究者，专注 AI 工程方向：大模型服务化、推理优化、Java 并发基础设施构建、RAG 数据管道工程化等。关注 AI 在企业级环境中的稳定性、成本与可维护性。
+    </p>
+    <p>
+        当前研究包括：Java 原生推理（ONNX Runtime / DJL）、Llama.cpp 量化推理、向量数据库搜索、AI 网关（Netty / gRPC）及云原生 MLOps 工作流。
+    </p>
+</section>
+
+<section id="projects">
+    <h2 class="section-title">项目分享</h2>
+    <div id="project-content" class="article-list"></div>
+</section>
+
+<section id="notes">
+    <h2 class="section-title">学习笔记</h2>
+    <div id="note-content" class="article-list"></div>
+</section>
+
+<footer>
+    © 2025 Wenhao Liu
+</footer>
+
+<script>
+    const posts = [
+        { date: "2025-07-10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
+        { date: "2025-06-15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
+        { date: "2025-06-05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
+        { date: "2025-05-01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
+        { date: "2025-03-20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
+        { date: "2025-02-01", category: "project", title: "中文仇恨言论检测", slug: "20250201" }
+    ];
+
+    function link(slug) {
+        return `article.html?slug=${slug}`;
+    }
+
+    function render() {
+        const areas = {
+            note: document.getElementById('note-content'),
+            project: document.getElementById('project-content')
+        };
+
+        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        posts.forEach(post => {
+            const box = areas[post.category];
+            const a = document.createElement('a');
+            a.className = 'article-item';
+            a.href = link(post.slug);
+            a.innerHTML = `
+                <span class="article-date">${post.date}</span>
+                <span class="article-title">${post.title}</span>
+                <span class="tag">${post.category === 'note' ? 'Note' : 'Project'}</span>
+            `;
+            box.appendChild(a);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', render);
+</script>
+
+</body>
+</html>
