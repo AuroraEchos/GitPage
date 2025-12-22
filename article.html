@@ -3,154 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading... | Wenhao Liu</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <title>Article | Wenhao Liu</title>
 
     <style>
+        /* 复古学术配色：纯白背景、纯黑文字 */
         :root {
             --bg-body: #ffffff;
-            --text-main: #222;
-            --text-muted: #666;
-            --primary: #1a0dab;
-            --border: #e5e5e5;
-            --code-bg: #f7f7f7;
-            --inline-code-bg: #eee;
+            --text-main: #000000;
+            --text-muted: #444444;
+            --link-color: blue;
+            --border-heavy: 2px solid #000;
+            --border-light: 1px solid #000;
         }
 
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            padding: 48px 20px;
-            font-family: 'Inter', sans-serif;
+            padding: 40px 20px;
+            font-family: Georgia, "Times New Roman", serif;
             color: var(--text-main);
             background: var(--bg-body);
-            line-height: 1.7;
-        }
-
-        .layout-wrapper {
-            max-width: 720px;
+            line-height: 1.6;
+            max-width: 680px; /* 模拟 A4 纸张宽度 */
             margin: auto;
         }
 
-        /* Back Button — styled exactly like index.html style system */
+        /* 导航栏：模拟页眉 */
         .nav-bar {
+            border-bottom: var(--border-heavy);
+            padding-bottom: 10px;
             margin-bottom: 40px;
         }
         .back-btn {
-            display: inline-flex;
-            align-items: center;
             text-decoration: none;
-            color: var(--text-muted);
-            font-weight: 500;
-            border-bottom: 1px dotted transparent;
+            color: var(--text-main);
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
         .back-btn:hover {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        .back-btn span {
-            margin-left: 6px;
+            color: var(--link-color);
+            text-decoration: underline;
         }
 
-        /* Markdown Body — inherits spacing + neutral design of index */
-        .markdown-body {
-            font-size: 1rem;
-        }
-
+        /* Markdown 内容排版 */
         .markdown-body h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
+            font-size: 1.8rem;
+            line-height: 1.2;
+            margin: 0 0 20px 0;
+            font-weight: bold;
         }
+        
+        /* 模拟论文章节号风格 */
         .markdown-body h2 {
-            font-size: 1.4rem;
-            margin-top: 2.5rem;
-            padding-bottom: 0.4rem;
-            border-bottom: 1px dotted #ddd;
-        }
-        .markdown-body h3 {
-            font-size: 1.2rem;
-            margin-top: 2rem;
+            font-size: 1.3rem;
+            margin-top: 35px;
+            border-bottom: var(--border-light);
+            padding-bottom: 5px;
         }
 
-        .markdown-body p, .markdown-body ul, .markdown-body ol {
-            margin-bottom: 1.4rem;
-            color: var(--text-main);
+        .markdown-body h3 {
+            font-size: 1.1rem;
+            margin-top: 25px;
+            font-style: italic;
+        }
+
+        .markdown-body p {
+            margin-bottom: 1.5rem;
+            text-align: justify; /* 两端对齐更像印刷品 */
         }
 
         .markdown-body a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            border-bottom: 1px dotted var(--primary);
-        }
-        .markdown-body a:hover {
-            border-bottom-style: solid;
+            color: var(--link-color);
+            text-decoration: underline;
         }
 
+        /* 引用块：学术摘录感 */
         .markdown-body blockquote {
-            margin: 2rem 0;
-            padding: 1rem 1.4rem;
-            background: #fafafa;
-            border-left: 4px solid var(--primary);
+            margin: 25px 0;
+            padding: 10px 20px;
+            border: var(--border-light);
+            background: #fdfdfd;
+            font-style: italic;
         }
 
+        /* 代码块：打字机感 */
         .markdown-body pre {
-            background: var(--code-bg) !important;
-            padding: 1rem;
-            border: 1px solid var(--border);
+            background: #f9f9f9 !important;
+            border: var(--border-light);
+            padding: 15px;
             overflow-x: auto;
+            border-radius: 0; /* 移除圆角 */
         }
         .markdown-body code {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9rem;
         }
 
         .markdown-body :not(pre) > code {
-            background: var(--inline-code-bg);
-            padding: 0.15rem 0.35rem;
+            background: #eee;
+            padding: 2px 4px;
         }
 
+        /* 图片：保持朴素 */
         .markdown-body img {
             max-width: 100%;
-            margin: 2rem 0;
-            border: 1px solid #eee;
+            display: block;
+            margin: 30px auto;
+            border: var(--border-light);
+            padding: 5px;
         }
 
+        /* 表格：经典的行列样式 */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 2rem 0;
-            border: 1px solid var(--border);
+            margin: 30px 0;
         }
         th, td {
-            padding: 0.6rem 0.9rem;
-            border-bottom: 1px solid var(--border);
+            padding: 8px 12px;
+            border: var(--border-light);
+            text-align: left;
         }
-        th {
-            background: #f5f5f5;
-            font-weight: 600;
-        }
+        th { background: #eee; }
 
-        /* Loading Skeleton */
-        .loading-skeleton { animation: pulse 1.8s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .sk-title { height: 2.6rem; background: #eee; margin-bottom: 1.6rem; }
-        .sk-line { height: 1rem; background: #eee; margin-bottom: 1rem; }
+        /* 骨架屏也改为线条感 */
+        .loading-skeleton { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } }
+        .sk-title { height: 2rem; border-bottom: var(--border-heavy); margin-bottom: 20px; }
+        .sk-line { height: 1rem; border-bottom: 1px solid #ccc; margin-bottom: 15px; }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: var(--border-heavy);
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.8rem;
+            text-align: center;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
 
     <script>
-        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' }};
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
@@ -159,29 +160,30 @@
 <div class="layout-wrapper">
     <nav class="nav-bar">
         <a href="index.html" class="back-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            <span>Back to Home</span>
+            &larr; Return to Index
         </a>
     </nav>
 
     <main>
         <div id="markdown-content" class="markdown-body">
             <div class="loading-skeleton">
-                <div class="sk-title"></div>
-                <div class="sk-line" style="width: 100%"></div>
-                <div class="sk-line" style="width: 90%"></div>
-                <div class="sk-line" style="width: 95%"></div>
-                <div class="sk-line" style="width: 80%"></div>
+                <div class="sk-title" style="width: 80%"></div>
+                <div class="sk-line"></div>
+                <div class="sk-line"></div>
+                <div class="sk-line" style="width: 60%"></div>
             </div>
         </div>
     </main>
+
+    <footer>
+        End of Document - Wenhao Liu's Research Lab
+    </footer>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
-    const fileParam = urlParams.get('file');
-    const targetFile = fileParam || 'content.md';
+    const targetFile = urlParams.get('file') || 'content.md';
     const mdPath = `posts/${slug}/${targetFile}`;
 
     if (slug) {
@@ -189,26 +191,25 @@
             .then(r => { if (!r.ok) throw new Error('not found'); return r.text(); })
             .then(text => {
                 const fixedText = text.replace(/!\[(.*?)\]\((?!http)(.*?)\)/g, `![$1](posts/${slug}/$2)`);
-
                 const contentDiv = document.getElementById('markdown-content');
                 contentDiv.innerHTML = marked.parse(fixedText);
 
                 const h1 = contentDiv.querySelector('h1');
-                if (h1) document.title = h1.innerText + ' | Wenhao Liu';
+                if (h1) document.title = h1.innerText;
 
                 Prism.highlightAll();
                 if (window.MathJax) MathJax.typesetPromise();
             })
             .catch(() => {
                 document.getElementById('markdown-content').innerHTML = `
-                    <div style="text-align:center; padding: 4rem 0;">
-                        <h2 style="color: var(--text-muted); border: none;">404</h2>
-                        <p>Article not found.</p>
-                        <p style="font-family: monospace; color: #aaa; font-size: 0.85rem;">${mdPath}</p>
+                    <div style="padding: 2rem 0; font-family: monospace;">
+                        <h2>[ERROR: 404]</h2>
+                        <p>Specified document could not be located in the archives.</p>
+                        <p>Path: ${mdPath}</p>
                     </div>`;
             });
     } else {
-        document.getElementById('markdown-content').innerHTML = '<p>No article specified.</p>';
+        window.location.href = 'index.html';
     }
 </script>
 

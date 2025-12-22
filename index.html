@@ -3,232 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Wenhao Liu – AI & Java Infra Researcher Blog">
-    <title>刘文豪 | AI & Engineering</title>
-    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <title>刘文豪 | Wenhao Liu</title>
     <style>
-        :root {
-            --primary-color: #1a0dab;
-            --secondary-color: #4b5563;
-            --accent-bg: #f8fafc;
-            --border-color: #e5e7eb;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-        }
-
-        * { box-sizing: border-box; }
-
+        /* 核心复古美学：使用衬线体系统字体，模拟纸张印刷感 */
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.7;
-            margin: 0;
-            padding: 60px 20px;
-            background: #ffffff;
-            color: var(--text-main);
-            max-width: 760px;
-            margin-left: auto;
-            margin-right: auto;
+            font-family: Georgia, serif; 
+            line-height: 1.5;
+            max-width: 650px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #000;
+            background: #fff;
         }
 
-        /* Header 优化 */
         header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .avatar {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border: 3px solid #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            margin: 0 0 12px 0;
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .social-links a {
-            text-decoration: none;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 6px 16px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .social-links a:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background: var(--accent-bg);
-        }
-
-        /* Section 通用 */
-        .section-title {
-            font-size: 1.5rem;
-            margin-top: 60px;
-            margin-bottom: 24px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-
-        /* 简介卡片化 */
-        .bio-text {
-            font-size: 1.05rem;
-            color: var(--secondary-color);
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
             margin-bottom: 30px;
         }
 
-        /* 技能网格 */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            font-weight: bold;
         }
 
-        .skill-card {
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            background: var(--accent-bg);
-            transition: transform 0.2s, box-shadow 0.2s;
+        .subtitle {
+            font-style: italic;
+            color: #444;
+            margin-top: 5px;
         }
 
-        .skill-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
-            border-color: #cbd5e1;
+        nav {
+            margin-top: 15px;
         }
 
-        .skill-header {
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--primary-color);
-        }
-
-        .skill-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .s-tag {
-            font-size: 0.75rem;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            padding: 3px 10px;
-            border-radius: 20px;
-            color: var(--secondary-color);
-        }
-
-        .skill-list-horizontal {
-            margin: 0; padding: 0;
-            list-style: none;
-            font-size: 0.85rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .skill-list-horizontal li {
-            color: var(--secondary-color);
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .skill-list-horizontal li::before {
-            content: "→";
-            margin-right: 8px;
-            color: var(--primary-color);
-        }
-
-        /* 文章列表优化 */
-        .article-list { display: flex; flex-direction: column; gap: 8px; }
-
-        .article-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 16px;
-            border-radius: 8px;
+        nav a {
+            color: blue;
             text-decoration: none;
-            color: var(--text-main);
-            transition: all 0.2s;
-            border: 1px solid transparent;
+            margin-right: 15px;
+            font-size: 0.9rem;
         }
 
-        .article-item:hover {
-            background: var(--accent-bg);
-            border-color: var(--border-color);
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            margin-bottom: 35px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            margin-bottom: 15px;
+            padding-bottom: 3px;
+        }
+
+        .bio { margin-bottom: 20px; }
+
+        /* 复古列表排版：紧凑、无装饰 */
+        .list-container {
+            list-style: square;
             padding-left: 20px;
         }
 
-        .article-date {
-            font-family: monospace;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            width: 110px;
+        .list-container li {
+            margin-bottom: 8px;
         }
 
-        .article-title {
-            flex-grow: 1;
-            font-weight: 500;
+        .item-row {
+            display: flex;
+            justify-content: flex-start;
+            align-items: baseline;
+            text-decoration: none;
+            color: #000;
         }
 
-        .item-tag {
+        .item-date {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.85rem;
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .item-title {
+            text-decoration: underline;
+            text-decoration-color: #ccc;
+        }
+
+        .item-row:hover .item-title {
+            color: blue;
+            text-decoration-color: blue;
+        }
+
+        .tag-retro {
             font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 4px;
+            border: 1px solid #000;
+            padding: 0 4px;
+            margin-left: 10px;
+            font-style: normal;
         }
 
         footer {
-            margin-top: 80px;
-            text-align: center;
+            margin-top: 50px;
             font-size: 0.8rem;
-            color: var(--text-muted);
-            padding: 40px 0;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid #000;
+            padding-top: 20px;
+            font-family: monospace;
         }
 
-        @media (max-width: 640px) {
-            .skills-grid { grid-template-columns: 1fr; }
-            .skill-card:last-child { grid-column: span 1 !important; }
-            .skill-list-horizontal { grid-template-columns: 1fr; }
-            .article-date { display: none; } /* 移动端隐藏日期以节省空间 */
+        @media (max-width: 500px) {
+            .item-date { display: none; }
         }
     </style>
 </head>
@@ -236,79 +123,49 @@
 <body>
 
 <header>
-    <img class="avatar" src="AvatarLiu.png" alt="Wenhao Liu">
-    <h1>刘文豪</h1>
-    <div class="social-links">
+    <h1>刘文豪 (Wenhao Liu)</h1>
+    <div class="subtitle">AI & Java Infrastructure Researcher</div>
+    <nav>
         <a href="mailto:flippedliu@shu.edu.cn">Email</a>
         <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
-    </div>
+        <a href="#projects">Projects</a>
+        <a href="#notes">Notes</a>
+    </nav>
 </header>
 
 <section>
-    <h2 class="section-title">简介</h2>
-    <div class="bio-text">
-        刘文豪，上海大学硕士在读。目前感兴趣的领域：Java 生态、LLM、AI 工程化等。
-    </div>
-
-    <div class="skills-grid">
-        <div class="skill-card">
-            <div class="skill-header">AI & Research</div>
-            <div class="skill-tags">
-                <span class="s-tag">PyTorch</span>
-                <span class="s-tag">LLM</span>
-                <span class="s-tag">Llama.cpp</span>
-                <span class="s-tag">ONNX</span>
-            </div>
-        </div>
-
-        <div class="skill-card">
-            <div class="skill-header">Backend & Infra</div>
-            <div class="skill-tags">
-                <span class="s-tag">Java/Spring</span>
-                <span class="s-tag">Spring AI</span>
-                <span class="s-tag">Redis</span>
-                <span class="s-tag">MySQL</span>
-                <span class="s-tag">Docker</span>
-            </div>
-        </div>
-
-        <div class="skill-card" style="grid-column: span 2;">
-            <div class="skill-header">Engineering Praises</div>
-            <ul class="skill-list-horizontal">
-                <li>Git & CI/CD 工作流</li>
-                <li>Linux 基础指令</li>
-                <li>英文文献阅读</li>
-                <li>AI 辅助解决复杂工程难题</li>
-            </ul>
-        </div>
-    </div>
+    <h2>About</h2>
+    <p class="bio">
+        上海大学硕士在读，研究方向为深度学习与毫米波通信。
+        除学术研究外，他对 Java 开发、LLMs 及 AI 在实际系统中的应用充满热情。
+    </p>
+    <p><strong>Technical Focus:</strong> SSM, Spring AI, Redis, MySQL, ONNX Runtime, Llama.cpp et.</p>
+    <p><strong>Competencies:</strong>Python, PyTorch, Docker, Git/CI, Linux et.</p>
 </section>
 
 <section id="projects">
-    <h2 class="section-title">项目分享</h2>
-    <div id="project-content" class="article-list"></div>
+    <h2>Projects</h2>
+    <div id="project-content"></div>
 </section>
 
 <section id="notes">
-    <h2 class="section-title">学习笔记</h2>
-    <div id="note-content" class="article-list"></div>
+    <h2>Learning Notes</h2>
+    <div id="note-content"></div>
 </section>
 
 <footer>
-    © 2025 Wenhao Liu · Designed for AI & Engineering
+    Last updated: 2025-12-22.
 </footer>
 
 <script>
     const posts = [
-        { date: "2025.07.10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
-        { date: "2025.06.15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
-        { date: "2025.06.05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
-        { date: "2025.05.01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
-        { date: "2025.03.20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
-        { date: "2025.02.01", category: "project", title: "中文仇恨言论检测项目", slug: "20250201" }
+        { date: "2025-07-10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
+        { date: "2025-06-15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
+        { date: "2025-06-05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
+        { date: "2025-05-01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
+        { date: "2025-03-20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
+        { date: "2025-02-01", category: "project", title: "中文仇恨言论检测项目", slug: "20250201" }
     ];
-
-    function link(slug) { return `article.html?slug=${slug}`; }
 
     function render() {
         const areas = {
@@ -316,22 +173,22 @@
             project: document.getElementById('project-content')
         };
 
-        posts.sort((a, b) => new Date(b.date.replace(/\./g, '-')) - new Date(a.date.replace(/\./g, '-')));
+        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         posts.forEach(post => {
-            const box = areas[post.category];
-            const a = document.createElement('a');
-            a.className = 'article-item';
-            a.href = link(post.slug);
-            a.innerHTML = `
-                <span class="article-date">${post.date}</span>
-                <span class="article-title">${post.title}</span>
-                <span class="item-tag">${post.category}</span>
+            const container = areas[post.category];
+            const div = document.createElement('div');
+            div.style.marginBottom = "8px";
+            div.innerHTML = `
+                <a href="article.html?slug=${post.slug}" class="item-row">
+                    <span class="item-date">${post.date}</span>
+                    <span class="item-title">${post.title}</span>
+                    <i class="tag-retro">${post.category}</i>
+                </a>
             `;
-            box.prepend(a); // 新的在前
+            container.appendChild(div);
         });
     }
-
     document.addEventListener('DOMContentLoaded', render);
 </script>
 
