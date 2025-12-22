@@ -1,476 +1,339 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Wenhao Liu's personal blog - Java & AI Researcher.">
-    <title>刘文豪 | AI & Java 工程</title>
+    <meta name="description" content="Wenhao Liu – AI & Java Infra Researcher Blog">
+    <title>刘文豪 | AI & Engineering</title>
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- 1. 核心配色系统 (CSS Variables) --- */
         :root {
-            /* 亮色模式 (Light Mode) - 保持清爽 */
-            --bg-body: #f3f4f6;       /* 极淡的灰，比纯白更有质感 */
-            --bg-card: #ffffff;
-            --text-main: #111827;     /* 接近黑色的深灰 */
-            --text-muted: #6b7280;
-            --primary-color: #2563eb; /* 科技蓝 */
+            --primary-color: #1a0dab;
+            --secondary-color: #4b5563;
+            --accent-bg: #f8fafc;
             --border-color: #e5e7eb;
-            --hover-bg: #f9fafb;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
-            --radius: 16px;           /* 更圆润的圆角 */
-            
-            /* 滚动条颜色 */
-            --scrollbar-track: #f1f1f1;
-            --scrollbar-thumb: #c1c1c1;
-        }
-
-        /* 暗色模式 (Dark Mode) - 高级深岩灰 */
-        body.dark-mode {
-            --bg-body: #0f172a;       /* 深邃的蓝黑色 (Slate-900) */
-            --bg-card: #1e293b;       /* 稍亮的蓝灰色 (Slate-800) */
-            --text-main: #f1f5f9;     /* 柔和的亮白 (Slate-100) */
-            --text-muted: #94a3b8;    /* 蓝灰文字 (Slate-400) */
-            --primary-color: #60a5fa; /* 提亮的蓝色，暗色背景下更清晰 */
-            --border-color: #334155;  /* 边框变暗 */
-            --hover-bg: #334155;      /* 悬停高亮色 */
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); /* 更深的阴影 */
-            
-            /* 暗色滚动条 */
-            --scrollbar-track: #0f172a;
-            --scrollbar-thumb: #475569;
-        }
-
-        /* 全局过渡：只针对颜色变化，提升性能 */
-        body, section, .profile-card, a, button, .article-item {
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
         }
 
         * { box-sizing: border-box; }
 
         body {
-            margin: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-body);
+            line-height: 1.7;
+            margin: 0;
+            padding: 60px 20px;
+            background: #ffffff;
             color: var(--text-main);
-            line-height: 1.6;
-            /* 关键：让浏览器原生组件（如滚动条）也适配深色 */
-            color-scheme: light dark; 
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* --- 2. 滚动条美化 (Chrome/Edge/Safari) --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--scrollbar-thumb); 
-            border-radius: 4px; 
-        }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        a:hover {
-            color: var(--primary-color);
-        }
-
-        .app-layout {
-            display: grid;
-            grid-template-columns: 320px 1fr; /* 侧边栏稍微加宽 */
-            gap: 2.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-            min-height: 100vh;
-        }
-
-        /* --- 3. 左侧边栏 (个人简介) --- */
-        .sidebar {
-            position: sticky;
-            top: 2rem;
-            height: fit-content;
-        }
-
-        .profile-card {
-            background: var(--bg-card);
-            padding: 2.5rem 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+        /* Header 优化 */
+        header {
             text-align: center;
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(10px); /* 增加一点磨砂质感 */
+            margin-bottom: 50px;
         }
 
-        .profile-img {
-            width: 130px; height: 130px;
-            object-fit: cover; border-radius: 50%;
-            margin-bottom: 1.2rem;
-            border: 4px solid var(--bg-body);
-            transition: filter 0.3s ease; /* 图片亮度过渡 */
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
-        /* 深色模式下，图片稍微暗一点，保护眼睛 */
-        body.dark-mode .profile-img {
-            filter: brightness(0.85) contrast(1.1);
-            border-color: #334155;
-        }
-
-        .profile-name { font-size: 1.6rem; font-weight: 800; margin: 0.5rem 0; letter-spacing: -0.025em; }
-        .profile-bio { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
-
-        .social-links { display: flex; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
-
-        .btn-outline {
-            padding: 0.6rem 1.2rem;
-            border: 1px solid var(--border-color);
-            border-radius: 99px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: transparent;
-            color: var(--text-main);
-            cursor: pointer;
-        }
-        .btn-outline:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        /* 深色模式切换按钮样式优化 */
-        .theme-toggle-btn {
-            margin-top: 1.5rem;
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-body); /* 按钮背景稍微区别于卡片 */
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-weight: 500;
-        }
-        .theme-toggle-btn:hover {
-            background: var(--hover-bg);
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        /* 右侧内容区 */
-        section {
-            background: var(--bg-card);
-            padding: 2.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-        }
-
-        section {
-            background: var(--bg-card);
-            padding: 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-
-        .section-title {
-            font-size: 1.4rem; font-weight: 700;
-            margin-bottom: 1.5rem; padding-bottom: 0.8rem;
-            border-bottom: 2px solid var(--border-color); /* 边框颜色跟随变量 */
-            display: flex; align-items: center; gap: 0.6rem;
+        h1 {
+            margin: 0 0 12px 0;
+            font-size: 2.2rem;
+            font-weight: 800;
             letter-spacing: -0.02em;
         }
 
-        /* 简历细节样式 */
-        .resume-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .resume-item {
-            margin-bottom: 1rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border-color);
-        }
-
-        .resume-date {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .resume-content {
-            font-size: 0.95rem;
-        }
-
-        /* 文章列表样式 (核心修改) */
-        .article-list {
+        .social-links {
             display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
+            justify-content: center;
+            gap: 12px;
         }
+
+        .social-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .social-links a:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--accent-bg);
+        }
+
+        /* Section 通用 */
+        .section-title {
+            font-size: 1.5rem;
+            margin-top: 60px;
+            margin-bottom: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        /* 简介卡片化 */
+        .bio-text {
+            font-size: 1.05rem;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+        }
+
+        /* 技能网格 */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .skill-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--accent-bg);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            border-color: #cbd5e1;
+        }
+
+        .skill-header {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-color);
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .s-tag {
+            font-size: 0.75rem;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 3px 10px;
+            border-radius: 20px;
+            color: var(--secondary-color);
+        }
+
+        .skill-list-horizontal {
+            margin: 0; padding: 0;
+            list-style: none;
+            font-size: 0.85rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .skill-list-horizontal li {
+            color: var(--secondary-color);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .skill-list-horizontal li::before {
+            content: "→";
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        /* 文章列表优化 */
+        .article-list { display: flex; flex-direction: column; gap: 8px; }
 
         .article-item {
             display: flex;
-            align-items: baseline;
-            padding: 0.75rem;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
             border-radius: 8px;
-            transition: background 0.2s ease, transform 0.2s ease;
-            text-decoration: none; /* 移除下划线 */
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s;
             border: 1px solid transparent;
         }
 
         .article-item:hover {
-            background-color: #f3f4f6;
-            transform: translateX(4px);
+            background: var(--accent-bg);
             border-color: var(--border-color);
+            padding-left: 20px;
         }
 
         .article-date {
-            flex-shrink: 0;
-            width: 120px;
-            font-family: 'Inter', monospace; /* 等宽字体适合数字 */
-            font-size: 0.85rem;
+            font-family: monospace;
             color: var(--text-muted);
+            font-size: 0.9rem;
+            width: 110px;
         }
 
         .article-title {
+            flex-grow: 1;
             font-weight: 500;
-            color: var(--text-main);
-            font-size: 1rem;
         }
 
-        .article-item:hover .article-title {
-            color: var(--primary-color);
-        }
-
-        /* 标签 Badge */
-        .tag {
-            font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;
-            margin-left: auto;
-            background: var(--bg-body);
+        .item-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            font-weight: 600;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
         }
 
-        /* --- 5. 移动端适配 --- */
-        @media (max-width: 768px) {
-            .app-layout {
-                grid-template-columns: 1fr; /* 变为单栏 */
-                padding: 1rem;
-                gap: 1rem;
-            }
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 40px 0;
+            border-top: 1px solid var(--border-color);
+        }
 
-            .sidebar {
-                position: relative;
-                top: 0;
-            }
-
-            .profile-card {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .article-item {
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-
-            .article-date {
-                font-size: 0.75rem;
-                width: auto;
-            }
-            
-            .tag {
-                margin-left: 0;
-                margin-top: 0.5rem;
-                display: inline-block;
-            }
+        @media (max-width: 640px) {
+            .skills-grid { grid-template-columns: 1fr; }
+            .skill-card:last-child { grid-column: span 1 !important; }
+            .skill-list-horizontal { grid-template-columns: 1fr; }
+            .article-date { display: none; } /* 移动端隐藏日期以节省空间 */
         }
     </style>
 </head>
+
 <body>
 
-    <div class="app-layout">
-        <aside class="sidebar">
-            <div class="profile-card">
-                <img src="AvatarLiu.png" alt="Wenhao Liu" class="profile-img">
-                <h1 class="profile-name">刘文豪</h1>
-                <p class="profile-bio">
-                    AI Learner | Java Developer<br>
-                    Coca Cola Lover 🥤
-                </p>
-                
-                <div class="social-links">
-                    <a href="mailto:flippedliu@shu.edu.cn" class="btn-outline">Email</a>
-                    <a href="https://github.com/AuroraEchos" target="_blank" class="btn-outline">GitHub</a>
-                </div>
-                <button id="theme-toggle" class="btn theme-toggle-btn">
-                    <span id="theme-icon">🌙</span> 
-                    <span id="theme-text">Dark Mode</span>
-                </button>
-            </div>
-        </aside>
+<header>
+    <img class="avatar" src="AvatarLiu.png" alt="Wenhao Liu">
+    <h1>刘文豪</h1>
+    <div class="social-links">
+        <a href="mailto:flippedliu@shu.edu.cn">Email</a>
+        <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
+    </div>
+</header>
 
-        <main class="main-content">
-            
-            <section id="about">
-                <h2 class="section-title">Biography & Education</h2>
-                <p style="margin-bottom: 1.5rem;">
-                    刘文豪于2021年9月进入上海大学，主修通信与信息工程。目前正在上海大学攻读硕士学位，专注于深度学习和人工智能领域的研究。<br>
-                    他专注于 <strong>AI 基础设施</strong> 和 <strong>大模型服务化工程</strong> 领域。致力于利用 Java 生态的高并发和高可用特性，解决大型模型部署中的核心工程挑战 — 特别是应对企业级的推理成本过高、响应延迟高以及数据链路复杂等痛点。
-                </p>
-
-                <div class="section-subtitle" style="font-weight:bold; margin: 1rem 0;">当前技术专研方向</div>
-                <p>他的学习路径围绕“AI 工程实现”分阶段推进：</p>
-                <ul>
-                    <li>
-                        <strong>底层基础：</strong> 利用 Java 虚拟线程构建高并发基座；使用 <strong>Spring AI</strong> 实现标准化的大模型接口调用；同时深入研究 <strong>Redis 向量模块</strong> 与关系型数据库的协同解决方案。
-                    </li>
-                    <li>
-                        <strong>核心工程：</strong> 专注于 <strong>Java 原生推理工程</strong>，包括 <strong>ONNX Runtime</strong> 模型部署、<strong>DJL</strong> 深度学习库应用，以及 <strong>Llama.cpp</strong> 量化推理；同时构建涉及 <strong>Milvus/Pgvector</strong> 向量检索、非结构化数据 ETL 和 Embedding 工作流的 <strong>RAG 数据管道</strong>。
-                    </li>
-                    <li>
-                        <strong>架构设计：</strong> 构建高性能 <strong>AI 网关</strong>（<strong>Netty/gRPC</strong> 通信，SSE 流式输出）以实现语义缓存、基于 Token 的限流和动态模型路由；探索 <strong>云原生 MLOps</strong> 实践，包括 <strong>K8s GPU 调度</strong>、容器镜像优化和 AI 全链路观测。
-                    </li>
-                </ul>
-
-                <div class="section-subtitle" style="font-weight:bold; margin: 1rem 0;">职业目标与发展方向</div>
-                <p>
-                    他致力于成为一名 <strong>AI 工程师</strong>，希望在 AI 基础设施领域发挥作用，特别是在 <strong>大模型服务化</strong> 和 <strong>推理性能优化</strong> 方面。他的目标是通过工程实践推动 AI 技术在企业中的实际应用，解决实际业务问题。
-                </p>
-                <p>
-                    他期望加入中大型企业的 AI 平台团队、或 AI 转型部门，用工程能力让 AI 真正产生业务价值。他正在积极寻找一份日常实习机会，以积累实际项目经验并提升自己的技术能力。
-                </p>
-
-                <div class="section-subtitle" style="font-weight:bold; margin: 1rem 0;">目前已经掌握的技术栈</div>
-                <ul>
-                    <li>熟悉 Java、Python 编程语言；</li>
-                    <li>熟悉 Pytorch 深度学习框架；</li>
-                    <li>对计算机系统、网络有基本了解，能根据文档完成相关功能；</li>
-                    <li>具备使用关系型数据库（如 MySQL、PostgreSQL 等）的经验；</li>
-                    <li>熟悉 Docker 的基本原理及容器化技术；</li>
-                    <li>能使用 Git/GitHub 等版本控制和 CI 工具；</li>
-                    <li>具备基本的 Linux 命令行操作能力；</li>
-                    <li>具备良好的英语阅读能力；</li>
-                    <li>能够通过 Google/ChatGPT 等工具寻找解决方案；</li>
-                </ul>
-
-            </section>
-
-            <section id="projects">
-                <h2 class="section-title">Project Sharing</h2>
-                <div id="project-sharing-content" class="article-list"></div>
-            </section>
-
-            <section id="notes">
-                <h2 class="section-title">Notes</h2>
-                <div id="Note-content" class="article-list"></div>
-            </section>
-
-        </main>
+<section>
+    <h2 class="section-title">简介</h2>
+    <div class="bio-text">
+        刘文豪，上海大学硕士在读。目前感兴趣的领域：Java 生态、LLM、AI 工程化等。
     </div>
 
-    <script>
-        // 1. 增强版深色模式逻辑
-        const themeBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-        const body = document.body;
+    <div class="skills-grid">
+        <div class="skill-card">
+            <div class="skill-header">AI & Research</div>
+            <div class="skill-tags">
+                <span class="s-tag">PyTorch</span>
+                <span class="s-tag">LLM</span>
+                <span class="s-tag">Llama.cpp</span>
+                <span class="s-tag">ONNX</span>
+            </div>
+        </div>
 
-        // 优先读取本地存储，如果没有，则检查系统的偏好设置
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        <div class="skill-card">
+            <div class="skill-header">Backend & Infra</div>
+            <div class="skill-tags">
+                <span class="s-tag">Java/Spring</span>
+                <span class="s-tag">Spring AI</span>
+                <span class="s-tag">Redis</span>
+                <span class="s-tag">MySQL</span>
+                <span class="s-tag">Docker</span>
+            </div>
+        </div>
 
-        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-            body.classList.add('dark-mode');
-            updateBtnState(true);
-        }
+        <div class="skill-card" style="grid-column: span 2;">
+            <div class="skill-header">Engineering Praises</div>
+            <ul class="skill-list-horizontal">
+                <li>Git & CI/CD 工作流</li>
+                <li>Linux 基础指令</li>
+                <li>英文文献阅读</li>
+                <li>AI 辅助解决复杂工程难题</li>
+            </ul>
+        </div>
+    </div>
+</section>
 
-        themeBtn.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const isDark = body.classList.contains('dark-mode');
-            
-            // 保存状态
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateBtnState(isDark);
+<section id="projects">
+    <h2 class="section-title">项目分享</h2>
+    <div id="project-content" class="article-list"></div>
+</section>
+
+<section id="notes">
+    <h2 class="section-title">学习笔记</h2>
+    <div id="note-content" class="article-list"></div>
+</section>
+
+<footer>
+    © 2025 Wenhao Liu · Designed for AI & Engineering
+</footer>
+
+<script>
+    const posts = [
+        { date: "2025.07.10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
+        { date: "2025.06.15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
+        { date: "2025.06.05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
+        { date: "2025.05.01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
+        { date: "2025.03.20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
+        { date: "2025.02.01", category: "project", title: "中文仇恨言论检测项目", slug: "20250201" }
+    ];
+
+    function link(slug) { return `article.html?slug=${slug}`; }
+
+    function render() {
+        const areas = {
+            note: document.getElementById('note-content'),
+            project: document.getElementById('project-content')
+        };
+
+        posts.sort((a, b) => new Date(b.date.replace(/\./g, '-')) - new Date(a.date.replace(/\./g, '-')));
+
+        posts.forEach(post => {
+            const box = areas[post.category];
+            const a = document.createElement('a');
+            a.className = 'article-item';
+            a.href = link(post.slug);
+            a.innerHTML = `
+                <span class="article-date">${post.date}</span>
+                <span class="article-title">${post.title}</span>
+                <span class="item-tag">${post.category}</span>
+            `;
+            box.prepend(a); // 新的在前
         });
+    }
 
-        function updateBtnState(isDark) {
-            if (isDark) {
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light Mode';
-                // 关键：告诉浏览器 UI 现在是深色的
-                document.documentElement.style.colorScheme = 'dark'; 
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark Mode';
-                document.documentElement.style.colorScheme = 'light';
-            }
-        }
+    document.addEventListener('DOMContentLoaded', render);
+</script>
 
-        // 2. 文章列表逻辑
-        const articles = [
-            { date: "2025-07-10", category: "Note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
-            { date: "2025-06-15", category: "Note", title: "SwiGLU Activation Function", slug: "20250615" },
-            { date: "2025-06-05", category: "Note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
-            { date: "2025-05-01", category: "Note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
-            { date: "2025-03-20", category: "Note", title: "Attention Is All You Need", slug: "20250320" },
-            { date: "2025-02-01", category: "Project Sharing", title: "中文仇恨言论检测", slug: "20250201" },
-        ];
-
-        function getLink(slug) {
-            // 链接到具体的文章页面
-            // return `posts/${slug}/article.html`;
-            return `article.html?slug=${slug}`;
-        }
-
-        function loadArticles() {
-            const categories = {
-                "Note": document.getElementById('Note-content'),
-                "Project Sharing": document.getElementById('project-sharing-content')
-            };
-
-            // 按日期排序
-            const sortedArticles = articles.sort((a, b) => {
-                // 兼容原本的 "YYYY / MM / DD" 或新的 "YYYY-MM-DD"
-                const dateA = new Date(a.date.replace(/\s/g, '').replace(/\//g, '-'));
-                const dateB = new Date(b.date.replace(/\s/g, '').replace(/\//g, '-'));
-                return dateB - dateA;
-            });
-
-            sortedArticles.forEach(article => {
-                const container = categories[article.category];
-                if (container) {
-                    const articleLink = document.createElement('a');
-                    articleLink.href = getLink(article.slug);
-                    articleLink.className = 'article-item';
-                    
-                    // 使用 Flexbox 布局内部结构
-                    articleLink.innerHTML = `
-                        <span class="article-date">${article.date}</span>
-                        <span class="article-title">${article.title}</span>
-                        <span class="tag">${article.category === 'Project Sharing' ? 'Project' : 'Note'}</span>
-                    `;
-                    container.appendChild(articleLink);
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', loadArticles);
-    </script>
 </body>
 </html>
