@@ -1,197 +1,205 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/favicon.png" type="image/x-icon">
-    <title>刘文豪 | Wenhao Liu</title>
-    <style>
-        body {
-            font-family: Georgia, serif; 
-            line-height: 1.5;
-            max-width: 650px;
-            margin: 40px auto;
-            padding: 0 20px;
-            color: #000;
-            background: #fff;
-        }
-
-        header {
-            border-bottom: 2px solid #000;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            margin: 0;
-            font-weight: bold;
-        }
-
-        .subtitle {
-            font-style: italic;
-            color: #444;
-            margin-top: 5px;
-        }
-
-        nav {
-            margin-top: 15px;
-        }
-
-        nav a {
-            color: blue;
-            text-decoration: none;
-            margin-right: 15px;
-            font-size: 0.9rem;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
-
-        section {
-            margin-bottom: 35px;
-        }
-
-        h2 {
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            border-bottom: 1px solid #000;
-            margin-bottom: 15px;
-            padding-bottom: 3px;
-        }
-
-        .bio { margin-bottom: 20px; }
-
-        .list-container {
-            list-style: square;
-            padding-left: 20px;
-        }
-
-        .list-container li {
-            margin-bottom: 8px;
-        }
-
-        .item-row {
-            display: flex;
-            justify-content: flex-start;
-            align-items: baseline;
-            text-decoration: none;
-            color: #000;
-        }
-
-        .item-date {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 0.85rem;
-            width: 100px;
-            flex-shrink: 0;
-        }
-
-        .item-title {
-            text-decoration: underline;
-            text-decoration-color: #ccc;
-        }
-
-        .item-row:hover .item-title {
-            color: blue;
-            text-decoration-color: blue;
-        }
-
-        .tag-retro {
-            font-size: 0.7rem;
-            border: 1px solid #000;
-            padding: 0 4px;
-            margin-left: 10px;
-            font-style: normal;
-        }
-
-        footer {
-            margin-top: 50px;
-            font-size: 0.8rem;
-            border-top: 1px solid #000;
-            padding-top: 20px;
-            font-family: monospace;
-        }
-
-        @media (max-width: 500px) {
-            .item-date { display: none; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wenhao Liu</title>
+<meta name="description" content="Wenhao Liu - Deep Learning & AI Systems Researcher">
+<link rel="icon" href="/favicon.png">
+<style>
+:root {
+  --text: #111;
+  --subtle: #555;
+  --border: #e5e5e5;
+  --hover: #000;
+  --bg: #ffffff;
+}
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.65;
+  max-width: 720px;
+  margin: 60px auto;
+  padding: 0 24px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+header {
+  margin-bottom: 50px;
+}
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+.subtitle {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  color: var(--subtle);
+  letter-spacing: 0.3px;
+}
+nav {
+  margin-top: 20px;
+}
+nav a {
+  margin-right: 18px;
+  font-size: 0.9rem;
+  color: var(--subtle);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+nav a:hover {
+  color: var(--hover);
+}
+section {
+  margin-bottom: 55px;
+}
+h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--subtle);
+  margin-bottom: 20px;
+}
+.bio {
+  margin-bottom: 20px;
+}
+.item {
+  margin-bottom: 10px;
+}
+.item-row {
+  display: flex;
+  align-items: baseline;
+  text-decoration: none;
+  color: var(--text);
+  transition: opacity 0.2s ease;
+}
+.item-row:hover {
+  opacity: 0.6;
+}
+.item-date {
+  font-family: monospace;
+  font-size: 0.8rem;
+  width: 110px;
+  flex-shrink: 0;
+  color: var(--subtle);
+}
+.item-title {
+  text-decoration: none;
+}
+.tag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  margin-left: 12px;
+  color: var(--subtle);
+}
+footer {
+  margin-top: 80px;
+  font-size: 0.75rem;
+  color: var(--subtle);
+  border-top: 1px solid var(--border);
+  padding-top: 25px;
+}
+@media (max-width: 600px) {
+  .item-date {
+    display: none;
+  }
+}
+</style>
 </head>
-
 <body>
-
 <header>
-    <h1>刘文豪</h1>
-    <div class="subtitle">AI & Java Infrastructure Researcher</div>
-    <nav>
-        <a href="mailto:flippedliu@outlook.com">Email</a>
-        <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
-        <a href="#projects">Projects</a>
-        <a href="#notes">Notes</a>
-    </nav>
+  <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px;">
+    <img
+      src="AvatarLiu.png"
+      alt="Wenhao Liu"
+      style="
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border);
+        flex-shrink: 0;
+      "
+    >
+    <div>
+      <h1>Wenhao Liu</h1>
+      <div class="subtitle">Deep Learning & AI Systems Researcher</div>
+    </div>
+  </div>
+
+  <nav>
+    <a href="mailto:flippedliu@outlook.com">Email</a>
+    <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
+    <a href="#projects">Projects</a>
+    <a href="#notes">Notes</a>
+  </nav>
 </header>
 
 <section>
-    <h2>About</h2>
-    <p class="bio">
-        上海大学硕士在读，研究方向为深度学习与毫米波通信。
-        除学术研究外，他对 Java 开发、LLMs 及 AI 在实际系统中的应用充满热情。
-    </p>
-    <p><strong>Technical Focus:</strong> SSM, Spring AI, Redis, MySQL, ONNX Runtime, Llama.cpp et.</p>
-    <p><strong>Competencies:</strong>Python, PyTorch, Docker, Git/CI, Linux et.</p>
+  <h2>About</h2>
+  <p class="bio">
+    Master's student at Shanghai University, focusing on deep learning and millimeter-wave communications.  
+    Interested in model architecture design, system-level deployment optimization, LLM systems, and efficient inference.
+  </p>
+  <p><strong>Technical Focus:</strong> Deep Learning, LLM Systems, Model Optimization</p>
+  <p><strong>Stack:</strong> Python, PyTorch, Linux</p>
 </section>
 
 <section id="projects">
-    <h2>Projects</h2>
-    <div id="project-content"></div>
+  <h2>Projects</h2>
+  <div id="project-content"></div>
 </section>
 
 <section id="notes">
-    <h2>Learning Notes</h2>
-    <div id="note-content"></div>
+  <h2>Notes</h2>
+  <div id="note-content"></div>
 </section>
 
 <footer>
-    Last updated: 2025-07-10.
+  © 2026 Wenhao Liu — Last updated: February 2026
+  <br>Built with handcrafted HTML & CSS • Hosted on GitHub Pages
 </footer>
 
 <script>
-    const posts = [
-        { date: "2025-07-10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
-        { date: "2025-06-15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
-        { date: "2025-06-05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
-        { date: "2025-05-01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
-        { date: "2025-03-20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
-        { date: "2025-02-01", category: "project", title: "中文仇恨言论检测项目", slug: "20250201" },
-        { date: "2024-11-15", category: "note", title: "为什么大家偏爱 Seed 42 ?", slug: "20241115" },
-        { date: "2024-02-10", category: "note", title: "Transformer 代码手撕推导", slug: "20240210" }
-    ];
+const posts = [
+  { date: "2025-07-10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
+  { date: "2025-06-15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
+  { date: "2025-06-05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
+  { date: "2025-05-01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
+  { date: "2025-03-20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
+  { date: "2025-02-01", category: "project", title: "Chinese Hate Speech Detection", slug: "20250201" },
+  { date: "2024-11-15", category: "note", title: "Why Everyone Loves Seed 42?", slug: "20241115" },
+  { date: "2024-02-10", category: "note", title: "Transformer from Scratch: Code & Derivation", slug: "20240210" }
+];
 
-    function render() {
-        const areas = {
-            note: document.getElementById('note-content'),
-            project: document.getElementById('project-content')
-        };
+function render() {
+  const areas = {
+    note: document.getElementById('note-content'),
+    project: document.getElementById('project-content')
+  };
 
-        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        posts.forEach(post => {
-            const container = areas[post.category];
-            const div = document.createElement('div');
-            div.style.marginBottom = "8px";
-            div.innerHTML = `
-                <a href="article.html?slug=${post.slug}" class="item-row">
-                    <span class="item-date">${post.date}</span>
-                    <span class="item-title">${post.title}</span>
-                    <i class="tag-retro">${post.category}</i>
-                </a>
-            `;
-            container.appendChild(div);
-        });
-    }
-    document.addEventListener('DOMContentLoaded', render);
+  posts.forEach(post => {
+    const container = areas[post.category];
+    const div = document.createElement('div');
+    div.className = "item";
+    div.innerHTML = `
+      <a href="article.html?slug=${post.slug}" class="item-row">
+        <span class="item-date">${post.date}</span>
+        <span class="item-title">${post.title}</span>
+        <span class="tag">${post.category}</span>
+      </a>
+    `;
+    container.appendChild(div);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', render);
 </script>
-
 </body>
 </html>
