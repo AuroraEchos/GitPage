@@ -10,5 +10,11 @@ const posts = [
     category: "note",
     title: "Swish Gated Linear Unit(SwiGLU)",
     path: "notes/Swish_Gated_Linear_Unit.html"
+  },
+  {
+    date: "2025-08-05",
+    category: "note",
+    title: "Scaled Dot-Product Attention",
+    path: "notes/Scaled_Dot_Product_Attention.html"
   }
 ];
