@@ -15,6 +15,6 @@ const posts = [
     date: "2025-08-05",
     category: "note",
     title: "Scaled Dot-Product Attention",
-    path: "notes/Scaled_Dot_Product_Attention.html"
+    path: "notes/Scaled_DotProduct_Attention.html"
   }
 ];
