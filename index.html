@@ -4,202 +4,184 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wenhao Liu</title>
-<meta name="description" content="Wenhao Liu - Deep Learning & AI Systems Researcher">
-<link rel="icon" href="/favicon.png">
+
 <style>
 :root {
   --text: #111;
-  --subtle: #555;
-  --border: #e5e5e5;
-  --hover: #000;
-  --bg: #ffffff;
+  --subtle: #444;
+  --border: #bfbfbf;
+  --bg: #fdfbf7;
 }
+
 body {
-  font-family: Georgia, "Times New Roman", serif;
-  line-height: 1.65;
-  max-width: 720px;
-  margin: 60px auto;
-  padding: 0 24px;
+  font-family: "Times New Roman", Times, serif;
+  line-height: 1.6;
+  max-width: 760px;
+  margin: 50px auto;
+  padding: 0 20px;
   color: var(--text);
   background: var(--bg);
-  -webkit-font-smoothing: antialiased;
 }
+
 header {
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 }
+
 h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-size: 26px;
+  font-weight: normal;
   margin: 0;
 }
+
 .subtitle {
-  margin-top: 8px;
-  font-size: 0.95rem;
+  font-size: 14px;
   color: var(--subtle);
-  letter-spacing: 0.3px;
+  margin-top: 4px;
 }
+
 nav {
-  margin-top: 20px;
+  margin-top: 12px;
 }
+
 nav a {
-  margin-right: 18px;
-  font-size: 0.9rem;
-  color: var(--subtle);
+  margin-right: 15px;
+  font-size: 14px;
+  color: var(--text);
   text-decoration: none;
-  transition: color 0.2s ease;
 }
+
 nav a:hover {
-  color: var(--hover);
+  text-decoration: underline;
 }
+
 section {
-  margin-bottom: 55px;
+  margin-bottom: 40px;
 }
+
 h2 {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--subtle);
-  margin-bottom: 20px;
-}
-.bio {
-  margin-bottom: 20px;
-}
-.item {
+  font-size: 14px;
+  font-weight: bold;
   margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 3px;
 }
+
+p {
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+/* 项目 / 笔记 */
+.item {
+  margin: 8px 0;
+}
+
 .item-row {
   display: flex;
-  align-items: baseline;
-  text-decoration: none;
-  color: var(--text);
-  transition: opacity 0.2s ease;
+  font-size: 14px;
 }
-.item-row:hover {
-  opacity: 0.6;
-}
+
 .item-date {
-  font-family: monospace;
-  font-size: 0.8rem;
-  width: 110px;
-  flex-shrink: 0;
+  width: 90px;
   color: var(--subtle);
 }
-.item-title {
+
+.item-title a {
+  color: var(--text);
   text-decoration: none;
 }
-.tag {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  border: 1px solid var(--border);
-  padding: 1px 6px;
-  margin-left: 12px;
-  color: var(--subtle);
+
+.item-title a:hover {
+  text-decoration: underline;
 }
+
+.item-desc {
+  font-size: 13px;
+  color: var(--subtle);
+  margin-left: 90px;
+  line-height: 1.5;
+}
+
+/* footer */
 footer {
-  margin-top: 80px;
-  font-size: 0.75rem;
+  margin-top: 50px;
+  font-size: 12px;
   color: var(--subtle);
   border-top: 1px solid var(--border);
-  padding-top: 25px;
-}
-@media (max-width: 600px) {
-  .item-date {
-    display: none;
-  }
+  padding-top: 10px;
 }
 </style>
 </head>
+
 <body>
+
 <header>
-  <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px;">
-    <img
-      src="AvatarLiu.png"
-      alt="Wenhao Liu"
-      style="
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid var(--border);
-        flex-shrink: 0;
-      "
-    >
-    <div>
-      <h1>Wenhao Liu</h1>
-      <div class="subtitle">Deep Learning & AI Systems Researcher</div>
-    </div>
-  </div>
+  <h1>Wenhao Liu</h1>
 
   <nav>
     <a href="mailto:flippedliu@outlook.com">Email</a>
     <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
-    <a href="#projects">Projects</a>
-    <a href="#notes">Notes</a>
+    <a href="#">CV</a>
   </nav>
 </header>
 
 <section>
   <h2>About</h2>
-  <p class="bio">
-    Master's student at Shanghai University, focusing on deep learning and millimeter-wave communications.  
-    Interested in model architecture design, system-level deployment optimization, LLM systems, and efficient inference.
+  <p>
+    I focus on deep learning systems and practical model development, with experience in
+    multi-modal learning, model optimization, and deployment.
   </p>
-  <p><strong>Technical Focus:</strong> Deep Learning, LLM Systems, Model Optimization</p>
-  <p><strong>Stack:</strong> Python, PyTorch, Linux</p>
+  <p>
+    My work emphasizes building efficient, scalable pipelines and turning research ideas into working systems.
+  </p>
 </section>
 
-<section id="projects">
+<section>
   <h2>Projects</h2>
-  <div id="project-content"></div>
+  <div id="project-list"></div>
 </section>
 
-<section id="notes">
+<section>
   <h2>Notes</h2>
-  <div id="note-content"></div>
+  <div id="note-list"></div>
 </section>
 
 <footer>
-  © 2026 Wenhao Liu — Last updated: February 2026
-  <br>Built with handcrafted HTML & CSS • Hosted on GitHub Pages
+  © 2026 Wenhao Liu
 </footer>
 
+<script src="data/posts.js"></script>
 <script>
-const posts = [
-  { date: "2025-07-10", category: "note", title: "Regularization Techniques in Deep Learning", slug: "20250710" },
-  { date: "2025-06-15", category: "note", title: "SwiGLU Activation Function", slug: "20250615" },
-  { date: "2025-06-05", category: "note", title: "FlashAttention: Fast and Memory-Efficient", slug: "20250605" },
-  { date: "2025-05-01", category: "note", title: "ViT: An Image is Worth 16x16 Words", slug: "20250501" },
-  { date: "2025-03-20", category: "note", title: "Attention Is All You Need", slug: "20250320" },
-  { date: "2025-02-01", category: "project", title: "Chinese Hate Speech Detection", slug: "20250201" },
-  { date: "2024-11-15", category: "note", title: "Why Everyone Loves Seed 42?", slug: "20241115" },
-  { date: "2024-02-10", category: "note", title: "Transformer from Scratch: Code & Derivation", slug: "20240210" }
-];
-
 function render() {
-  const areas = {
-    note: document.getElementById('note-content'),
-    project: document.getElementById('project-content')
-  };
+  const projectContainer = document.getElementById("project-list");
+  const noteContainer = document.getElementById("note-list");
 
   posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  posts.forEach(post => {
-    const container = areas[post.category];
-    const div = document.createElement('div');
-    div.className = "item";
-    div.innerHTML = `
-      <a href="article.html?slug=${post.slug}" class="item-row">
-        <span class="item-date">${post.date}</span>
-        <span class="item-title">${post.title}</span>
-        <span class="tag">${post.category}</span>
-      </a>
+  posts.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "item";
+
+    el.innerHTML = `
+      <div class="item-row">
+        <div class="item-date">${p.date}</div>
+        <div class="item-title">
+          <a href="${p.path}" target="_blank">${p.title}</a>
+        </div>
+      </div>
+      ${p.desc ? `<div class="item-desc">${p.desc}</div>` : ""}
     `;
-    container.appendChild(div);
+
+    if (p.category === "project") {
+      projectContainer.appendChild(el);
+    } else {
+      noteContainer.appendChild(el);
+    }
   });
 }
 
-document.addEventListener('DOMContentLoaded', render);
+document.addEventListener("DOMContentLoaded", render);
 </script>
+
 </body>
 </html>
