@@ -28,7 +28,7 @@ header {
 }
 
 h1 {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: normal;
   margin: 0;
 }
@@ -59,7 +59,7 @@ section {
 }
 
 h2 {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   margin-bottom: 10px;
   border-bottom: 1px solid var(--border);
@@ -67,7 +67,7 @@ h2 {
 }
 
 p {
-  font-size: 14px;
+  font-size: 16px;
   margin: 8px 0;
 }
 
@@ -78,7 +78,7 @@ p {
 
 .item-row {
   display: flex;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .item-date {
@@ -96,7 +96,7 @@ p {
 }
 
 .item-desc {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--subtle);
   margin-left: 90px;
   line-height: 1.5;
@@ -105,7 +105,7 @@ p {
 /* footer */
 footer {
   margin-top: 50px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--subtle);
   border-top: 1px solid var(--border);
   padding-top: 10px;
@@ -127,13 +127,23 @@ footer {
 
 <section>
   <h2>About</h2>
+</section>
+
+<section>
+  <h2>Skills</h2>
   <p>
-    I focus on deep learning systems and practical model development, with experience in
-    multi-modal learning, model optimization, and deployment.
+    <strong>Programming:</strong> Python, Java
   </p>
   <p>
-    My work emphasizes building efficient, scalable pipelines and turning research ideas into working systems.
+    <strong>Frameworks:</strong> PyTorch
   </p>
+  <p>
+    <strong>ML & Systems:</strong> Machine Learning, Deep Learning
+  </p>
+  <p>
+    <strong>Tools:</strong> Linux, Git, Docker
+  </p>
+
 </section>
 
 <section>
@@ -147,7 +157,7 @@ footer {
 </section>
 
 <footer>
-  © 2026 Wenhao Liu
+  © 2026 Wenhao Liu · Last updated: Mar 2026 · Open to opportunities
 </footer>
 
 <script src="data/posts.js"></script>
@@ -181,6 +191,7 @@ function render() {
 }
 
 document.addEventListener("DOMContentLoaded", render);
+
 </script>
 
 </body>
