@@ -16,5 +16,11 @@ const posts = [
     category: "note",
     title: "Scaled Dot-Product Attention",
     path: "notes/Scaled_DotProduct_Attention.html"
+  },
+  {
+    date: "2025-09-01",
+    category: "note",
+    title: "SDPA → MHA → GQA",
+    path: "notes/SDPA_MHA_GQA.html"
   }
 ];
