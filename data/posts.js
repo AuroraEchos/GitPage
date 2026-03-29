@@ -22,5 +22,11 @@ const posts = [
     category: "note",
     title: "SDPA → MHA → GQA",
     path: "notes/SDPA_MHA_GQA.html"
-  }
+  },
+  {
+    date: "2025-09-10",
+    category: "note",
+    title: "RoPE",
+    path: "notes/RoPE.html"
+  },
 ];
