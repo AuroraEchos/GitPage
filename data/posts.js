@@ -29,4 +29,10 @@ const posts = [
     title: "RoPE",
     path: "notes/RoPE.html"
   },
+  {
+    date: "2025-09-15",
+    category: "note",
+    title: "RMSNorm",
+    path: "notes/RMSNorm.html"
+  }
 ];
