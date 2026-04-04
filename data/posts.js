@@ -34,5 +34,11 @@ const posts = [
     category: "note",
     title: "RMSNorm",
     path: "notes/RMSNorm.html"
+  },
+  {
+    date: "2025-09-20",
+    category: "note",
+    title: "Async/Await in Python",
+    path: "notes/async_await_in_python.html"
   }
 ];
