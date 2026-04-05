@@ -40,5 +40,11 @@ const posts = [
     category: "note",
     title: "Async/Await in Python",
     path: "notes/async_await_in_python.html"
+  },
+  {
+    date: "2026-04-06",
+    category: "note",
+    title: "LLM Memory Mechanisms",
+    path: "notes/LLM_Memory_Mechanisms.html"
   }
 ];
