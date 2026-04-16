@@ -46,5 +46,11 @@ const posts = [
     category: "note",
     title: "LLM Memory Mechanisms",
     path: "notes/LLM_Memory_Mechanisms.html"
+  },
+  {
+    date: "2026-04-16",
+    category: "note",
+    title: "Linux Basic Usage",
+    path: "notes/Linux_Basci_Usage.html"
   }
 ];

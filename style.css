@@ -1,0 +1,130 @@
+:root {
+  --bg: #f7f3ed;
+  --text: #2b2621;
+  --subtle: #72695e;
+  --border: #ddd5ca;
+  --accent: #bc6a3a;
+
+  --hover: rgba(188, 106, 58, 0.06);
+}
+
+/* 页面 */
+body {
+  font-family:"Source Serif 4","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  line-height: 1.68;
+  max-width: 740px;
+  margin: 64px auto;
+  padding: 0 24px;
+
+  color: var(--text);
+  background: var(--bg);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* header */
+header {
+  margin-bottom: 54px;
+}
+
+h1 {
+  font-size: 34px;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* nav */
+nav {
+  margin-top: 14px;
+}
+
+nav a {
+  margin-right: 18px;
+  font-size: 14px;
+  color: var(--subtle);
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: var(--accent);
+}
+
+/* section */
+section {
+  margin-bottom: 48px;
+}
+
+/* 二级标题 */
+h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+/* 正文 */
+p {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+/* skills */
+strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* 列表 */
+.item {
+  margin: 10px 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.item:hover {
+  background: var(--hover);
+}
+
+.item-row {
+  display: flex;
+  font-size: 15px;
+}
+
+.item-date {
+  width: 92px;
+  color: var(--subtle);
+  flex-shrink: 0;
+}
+
+.item-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.item-title a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.item-desc {
+  font-size: 15px;
+  color: var(--subtle);
+  margin-left: 92px;
+  line-height: 1.58;
+}
+
+/* footer */
+footer {
+  margin-top: 64px;
+  font-size: 13px;
+  color: var(--subtle);
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
