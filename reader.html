@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Note - Wenhao Liu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [["$", "$"], ["\\(", "\\)"]],
+    displayMath: [["$$", "$$"], ["\\[", "\\]"]]
+  },
+  svg: { fontCache: "global" }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="reader-page">
+<header class="reader-header">
+  <a class="back-link" href="index.html">&lt;- Home</a>
+</header>
+
+<main id="article" class="article">
+  <p class="muted">Loading note...</p>
+</main>
+
+<script>
+const article = document.getElementById("article");
+
+function getSource() {
+  const params = new URLSearchParams(window.location.search);
+  const src = params.get("src");
+  if (!src || src.includes("://") || src.startsWith("/") || src.includes("..")) {
+    return null;
+  }
+  return src;
+}
+
+function titleFromMarkdown(markdown, fallback) {
+  const heading = markdown.match(/^#\s+(.+)$/m) || markdown.match(/^###\s+(.+)$/m);
+  return heading ? heading[1].replace(/[*_`]/g, "").trim() : fallback;
+}
+
+function withRelativeAssets(html, source) {
+  const base = source.slice(0, source.lastIndexOf("/") + 1);
+  const doc = new DOMParser().parseFromString(html, "text/html");
+
+  doc.querySelectorAll("img").forEach(img => {
+    const src = img.getAttribute("src") || "";
+    if (src && !src.includes("://") && !src.startsWith("/") && !src.startsWith("data:")) {
+      img.src = base + src;
+    }
+    img.loading = "lazy";
+  });
+
+  doc.querySelectorAll("a").forEach(link => {
+    const href = link.getAttribute("href") || "";
+    if (href && !href.includes("://") && !href.startsWith("#") && !href.startsWith("/") && !href.startsWith("mailto:")) {
+      link.href = base + href;
+    }
+  });
+
+  return doc.body.innerHTML;
+}
+
+async function renderMarkdown() {
+  const source = getSource();
+  if (!source) {
+    article.innerHTML = "<p class=\"muted\">Missing note source.</p>";
+    return;
+  }
+
+  try {
+    const response = await fetch(source);
+    if (!response.ok) throw new Error("Cannot load note");
+
+    const markdown = await response.text();
+    const fallbackTitle = source.split("/").pop().replace(/\.md$/i, "").replace(/[_-]/g, " ");
+    document.title = `${titleFromMarkdown(markdown, fallbackTitle)} - Wenhao Liu`;
+
+    marked.setOptions({
+      gfm: true,
+      breaks: false,
+      mangle: false,
+      headerIds: true
+    });
+
+    const html = marked.parse(markdown);
+    article.innerHTML = DOMPurify.sanitize(withRelativeAssets(html, source), {
+      ADD_TAGS: ["mjx-container"],
+      ADD_ATTR: ["jax", "display"]
+    });
+
+    if (window.MathJax) {
+      await MathJax.typesetPromise([article]);
+    }
+  } catch (error) {
+    article.innerHTML = "<p class=\"muted\">This note could not be loaded.</p>";
+  }
+}
+
+window.addEventListener("DOMContentLoaded", renderMarkdown);
+</script>
+</body>
+</html>

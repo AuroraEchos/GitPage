@@ -3,54 +3,54 @@ const posts = [
     date: "2025-06-15",
     category: "note",
     title: "Random Seed 42",
-    path: "notes/Random_seed_42.html"
+    path: "reader.html?src=posts/Random_seed_42.md"
   },
   {
     date: "2025-07-10",
     category: "note",
     title: "Swish Gated Linear Unit(SwiGLU)",
-    path: "notes/Swish_Gated_Linear_Unit.html"
+    path: "reader.html?src=posts/Swish_Gated_Linear_Unit.md"
   },
   {
     date: "2025-08-05",
     category: "note",
     title: "Scaled Dot-Product Attention",
-    path: "notes/Scaled_DotProduct_Attention.html"
+    path: "reader.html?src=posts/Scaled_DotProduct_Attention.md"
   },
   {
     date: "2025-09-01",
     category: "note",
-    title: "SDPA → MHA → GQA",
-    path: "notes/SDPA_MHA_GQA.html"
+    title: "SDPA -> MHA -> GQA",
+    path: "reader.html?src=posts/SDPA_MHA_GQA.md"
   },
   {
     date: "2025-09-10",
     category: "note",
     title: "RoPE",
-    path: "notes/RoPE.html"
+    path: "reader.html?src=posts/RoPE.md"
   },
   {
     date: "2025-09-15",
     category: "note",
     title: "RMSNorm",
-    path: "notes/RMSNorm.html"
+    path: "reader.html?src=posts/RMSNorm.md"
   },
   {
     date: "2025-09-20",
     category: "note",
     title: "Async/Await in Python",
-    path: "notes/async_await_in_python.html"
+    path: "reader.html?src=posts/async%20%26%20await%20in%20python.md"
   },
   {
     date: "2026-04-06",
     category: "note",
     title: "LLM Memory Mechanisms",
-    path: "notes/LLM_Memory_Mechanisms.html"
+    path: "reader.html?src=posts/LLM_Memory_Mechanisms.md"
   },
   {
     date: "2026-04-16",
     category: "note",
     title: "Linux Basic Usage",
-    path: "notes/Linux_Basci_Usage.html"
+    path: "reader.html?src=posts/Linux_Basci_Usage.md"
   }
 ];
