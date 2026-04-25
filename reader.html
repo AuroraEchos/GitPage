@@ -4,26 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Note - Wenhao Liu</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
 <link rel="stylesheet" href="style.css">
-<script>
-window.MathJax = {
-  tex: {
-    inlineMath: [["$", "$"], ["\\(", "\\)"]],
-    displayMath: [["$$", "$$"], ["\\[", "\\]"]]
-  },
-  svg: { fontCache: "global" }
-};
-</script>
-<script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
 </head>
+
 <body class="reader-page">
 <header class="reader-header">
-  <a class="back-link" href="index.html">&lt;- Home</a>
+  <a class="back-link" href="index.html" aria-label="Back to home">← Home</a>
 </header>
 
 <main id="article" class="article">
@@ -33,75 +32,290 @@ window.MathJax = {
 <script>
 const article = document.getElementById("article");
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function getSource() {
   const params = new URLSearchParams(window.location.search);
-  const src = params.get("src");
-  if (!src || src.includes("://") || src.startsWith("/") || src.includes("..")) {
+  const raw = params.get("src");
+
+  if (!raw) return null;
+
+  let src = raw.trim();
+  try {
+    src = decodeURIComponent(src);
+  } catch (_) {
     return null;
   }
-  return src;
+
+  const invalid =
+    src.includes("://") ||
+    src.startsWith("/") ||
+    src.includes("..") ||
+    src.includes("\\") ||
+    !src.toLowerCase().endsWith(".md");
+
+  return invalid ? null : src;
+}
+
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/<[^>]*>/g, "")
+    .replace(/[^\w\u4e00-\u9fa5]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "section";
 }
 
 function titleFromMarkdown(markdown, fallback) {
-  const heading = markdown.match(/^#\s+(.+)$/m) || markdown.match(/^###\s+(.+)$/m);
-  return heading ? heading[1].replace(/[*_`]/g, "").trim() : fallback;
+  const heading =
+    markdown.match(/^#\s+(.+)$/m) ||
+    markdown.match(/^##\s+(.+)$/m) ||
+    markdown.match(/^###\s+(.+)$/m);
+
+  return heading ? heading[1].replace(/[*_`$]/g, "").trim() : fallback;
+}
+
+function extractMath(markdown) {
+  const store = [];
+  const codeStore = [];
+
+  function saveCode(code) {
+    const id = codeStore.length;
+    codeStore.push(code);
+    return `@@CODE_PLACEHOLDER_${id}@@`;
+  }
+
+  function save(content, display) {
+    const id = store.length;
+    store.push({ content, display });
+    return display ? `\n\n@@MATH_BLOCK_${id}@@\n\n` : `@@MATH_INLINE_${id}@@`;
+  }
+
+  let text = markdown;
+
+  // Avoid parsing math delimiters inside code.
+  text = text.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, saveCode);
+  text = text.replace(/`[^`\n]+`/g, saveCode);
+
+  // Protect display math before Markdown parsing.
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, content) => save(content.trim(), true));
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, content) => save(content.trim(), true));
+
+  // Protect inline math. This intentionally does not match across newlines.
+  text = text.replace(/(^|[^\\\w])\$([^$\n]+?)\$(?!\w)/g, (match, prefix, content) => {
+    const trimmed = content.trim();
+    if (!trimmed) return match;
+    return `${prefix}${save(trimmed, false)}`;
+  });
+  text = text.replace(/\\\((.+?)\\\)/g, (_, content) => save(content.trim(), false));
+
+  text = text.replace(/@@CODE_PLACEHOLDER_(\d+)@@/g, (_, index) => codeStore[Number(index)] || "");
+
+  return { text, store };
+}
+
+function restoreMath(html, store) {
+  return html
+    .replace(/@@MATH_BLOCK_(\d+)@@/g, (_, index) => {
+      const item = store[Number(index)];
+      if (!item) return "";
+      return `<div class="math-display">$$${escapeHtml(item.content)}$$</div>`;
+    })
+    .replace(/@@MATH_INLINE_(\d+)@@/g, (_, index) => {
+      const item = store[Number(index)];
+      if (!item) return "";
+      return `<span class="math-inline">$${escapeHtml(item.content)}$</span>`;
+    });
 }
 
 function withRelativeAssets(html, source) {
-  const base = source.slice(0, source.lastIndexOf("/") + 1);
+  const base = source.includes("/") ? source.slice(0, source.lastIndexOf("/") + 1) : "";
   const doc = new DOMParser().parseFromString(html, "text/html");
 
   doc.querySelectorAll("img").forEach(img => {
     const src = img.getAttribute("src") || "";
+
     if (src && !src.includes("://") && !src.startsWith("/") && !src.startsWith("data:")) {
-      img.src = base + src;
+      img.setAttribute("src", base + src);
     }
+
     img.loading = "lazy";
+    img.decoding = "async";
   });
 
   doc.querySelectorAll("a").forEach(link => {
     const href = link.getAttribute("href") || "";
+
     if (href && !href.includes("://") && !href.startsWith("#") && !href.startsWith("/") && !href.startsWith("mailto:")) {
-      link.href = base + href;
+      link.setAttribute("href", base + href);
+    }
+
+    if (href.includes("://")) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
     }
   });
 
   return doc.body.innerHTML;
 }
 
+function sanitizeArticleHtml(html) {
+  if (!window.DOMPurify) return html;
+
+  return DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true },
+    ADD_ATTR: ["target", "rel", "loading", "decoding", "class", "id", "aria-label"]
+  });
+}
+
+function addHeadingAnchors() {
+  const headings = article.querySelectorAll("h1, h2, h3, h4");
+  const usedIds = new Map();
+
+  headings.forEach(heading => {
+    const text = heading.textContent.trim();
+    let id = slugify(text);
+
+    const count = usedIds.get(id) || 0;
+    usedIds.set(id, count + 1);
+    if (count > 0) id = `${id}-${count + 1}`;
+
+    heading.id = id;
+
+    const anchor = document.createElement("a");
+    anchor.className = "heading-anchor";
+    anchor.href = `#${id}`;
+    anchor.textContent = "#";
+    anchor.setAttribute("aria-label", `Link to ${text}`);
+    heading.appendChild(anchor);
+  });
+}
+
+function highlightCode() {
+  const highlighter = window.hljs;
+  article.querySelectorAll("pre code").forEach(block => {
+    if (highlighter && typeof highlighter.highlightElement === "function") {
+      highlighter.highlightElement(block);
+    }
+  });
+}
+
+function addCodeCopyButtons() {
+  article.querySelectorAll("pre").forEach(pre => {
+    if (pre.querySelector(".copy-code")) return;
+
+    const code = pre.querySelector("code");
+    if (!code) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "copy-code";
+    button.textContent = "Copy";
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(code.innerText);
+        button.textContent = "Copied";
+        window.setTimeout(() => { button.textContent = "Copy"; }, 1200);
+      } catch (_) {
+        button.textContent = "Failed";
+        window.setTimeout(() => { button.textContent = "Copy"; }, 1200);
+      }
+    });
+
+    pre.appendChild(button);
+  });
+}
+
+function wrapTables() {
+  article.querySelectorAll("table").forEach(table => {
+    if (table.parentElement && table.parentElement.classList.contains("table-wrap")) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "table-wrap";
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+}
+
+function renderMath() {
+  if (typeof window.renderMathInElement !== "function") return;
+
+  renderMathInElement(article, {
+    delimiters: [
+      { left: "$$", right: "$$", display: true },
+      { left: "$", right: "$", display: false },
+      { left: "\\[", right: "\\]", display: true },
+      { left: "\\(", right: "\\)", display: false }
+    ],
+    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+    throwOnError: false,
+    strict: false,
+    trust: false,
+    macros: {
+      "\\bm": "\\boldsymbol{#1}",
+      "\\argmax": "\\operatorname*{arg\\,max}",
+      "\\argmin": "\\operatorname*{arg\\,min}"
+    }
+  });
+}
+
+function configureMarked() {
+  if (!window.marked) {
+    throw new Error("Marked is not loaded. Please check the CDN connection.");
+  }
+
+  marked.setOptions({
+    gfm: true,
+    breaks: false,
+    mangle: false,
+    headerIds: false
+  });
+}
+
 async function renderMarkdown() {
   const source = getSource();
+
   if (!source) {
-    article.innerHTML = "<p class=\"muted\">Missing note source.</p>";
+    article.innerHTML = "<p class=\"muted\">Missing or invalid note source.</p>";
     return;
   }
 
   try {
-    const response = await fetch(source);
-    if (!response.ok) throw new Error("Cannot load note");
+    configureMarked();
+
+    const response = await fetch(source, { cache: "no-cache" });
+    if (!response.ok) {
+      throw new Error(`Cannot load note: ${response.status} ${response.statusText}`);
+    }
 
     const markdown = await response.text();
     const fallbackTitle = source.split("/").pop().replace(/\.md$/i, "").replace(/[_-]/g, " ");
     document.title = `${titleFromMarkdown(markdown, fallbackTitle)} - Wenhao Liu`;
 
-    marked.setOptions({
-      gfm: true,
-      breaks: false,
-      mangle: false,
-      headerIds: true
-    });
+    const { text: protectedMarkdown, store: mathStore } = extractMath(markdown);
+    const rawHtml = marked.parse(protectedMarkdown);
+    const htmlWithMath = restoreMath(rawHtml, mathStore);
+    const htmlWithAssets = withRelativeAssets(htmlWithMath, source);
 
-    const html = marked.parse(markdown);
-    article.innerHTML = DOMPurify.sanitize(withRelativeAssets(html, source), {
-      ADD_TAGS: ["mjx-container"],
-      ADD_ATTR: ["jax", "display"]
-    });
+    article.innerHTML = sanitizeArticleHtml(htmlWithAssets);
 
-    if (window.MathJax) {
-      await MathJax.typesetPromise([article]);
-    }
+    addHeadingAnchors();
+    highlightCode();
+    addCodeCopyButtons();
+    wrapTables();
+    renderMath();
   } catch (error) {
-    article.innerHTML = "<p class=\"muted\">This note could not be loaded.</p>";
+    console.error(error);
+    article.innerHTML = `
+      <p class="muted">This note could not be loaded.</p>
+      <pre><code>${escapeHtml(String(error))}</code></pre>
+    `;
   }
 }
 

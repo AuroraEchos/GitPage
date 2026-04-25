@@ -51,6 +51,6 @@ const posts = [
     date: "2026-04-16",
     category: "note",
     title: "Linux Basic Usage",
-    path: "reader.html?src=posts/Linux_Basci_Usage.md"
+    path: "reader.html?src=posts/Linux_Basic_Usage.md"
   }
 ];

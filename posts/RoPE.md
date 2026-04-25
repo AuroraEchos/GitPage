@@ -5,10 +5,15 @@
 由 Google 在 *Attention Is All You Need* 中提出的 Sinusoidal Positional Encoding (正弦位置编码) 是一种经典且优雅的绝对位置编码方案。
 
 对于序列中的第 pos 个位置，其编码向量 PE 的第 i 个分量计算如下：
+
 $$
-PE_{(pos, 2i)} &= \sin\left(\frac{pos}{10000^{2i/d_{model}}}\right) \\
-PE_{(pos, 2i+1)} &= \cos\left(\frac{pos}{10000^{2i/d_{model}}}\right)
+\begin{aligned}
+PE_{(pos, 2i)} &= \sin\left(\frac{pos}{10000^{2i/d_{\mathrm{model}}}}\right) \\
+PE_{(pos, 2i+1)} &= \cos\left(\frac{pos}{10000^{2i/d_{\mathrm{model}}}}\right)
+\end{aligned}
 $$
+
+
 其中：
 
 - pos：词在句子中的位置（0,1,2,…）。
@@ -39,9 +44,11 @@ $$
    低维分量 ($i \to 0$)具有高频率，能够捕捉局部的、精细的位置差异。高维分量 ($i \to d_{model}/2$)具有低频率，能够提供长距离的、宏观的位置骨架。这种设计类似于二进制计数器，确保了序列中每个位置的唯一性，同时保持了连续性。
 
 3. 在 Self-Attention 中，位置编码的相似度直接影响注意力权重。两个位置编码的点积 $PE_{pos} \cdot PE_{pos+k}$ 随着距离 $k$ 的增加而呈现衰减趋势：
+   
    $$
    PE_{pos} \cdot PE_{pos+k} = \sum_{i=0}^{d_{model}/2 - 1} \cos\left( \frac{k}{10000^{2i/d_{model}}} \right)
    $$
+
    这种特性为模型提供了一个先验：物理距离较近的词通常具有更高的相关性，这符合自然语言处理直觉。
 
 正弦位置编码的标准 Pytorch 实现如下：
@@ -62,25 +69,31 @@ def get_sinusoidal_positional_embeddings(seq_len: int, d_model: int):
 
 Sinusoidal PE（正弦相加）虽然优雅，但有一个直观的缺点：它将位置信息硬生生地“砸”进词嵌入里。虽然模型能学，但这种方式对**相对位置**的感知是隐式的。
 
-**RoPE (Rotary Positional Embedding，旋转位置编码)** 是目前大模型最主流的位置编码方案。它的核心思想不再是简单的“相加”，而是**“旋转”**。
+**RoPE (Rotary Positional Embedding，旋转位置编码)** 是目前大模型最主流的位置编码方案。它的核心思想不再是简单的“相加”，而是“旋转”。
 
 RoPE 通过在特征维度上施加旋转变换，将位置信息编码到查询向量（Query）和键向量（Key）中。
 
 设输入向量为：
+
 $$
 \mathbf{x} = [x_0, x_1, x_2, x_3, \dots, x_{d-2}, x_{d-1}]
 $$
+
 将其按相邻两个维度进行分组：
+
 $$
 (x_0, x_1), (x_2, x_3), \dots, (x_{d-2}, x_{d-1})
 $$
+
 对于第 $i$ 组二维向量，在位置 $pos$ 处施加如下旋转变换：
+
 $$
+\begin{aligned}
 \begin{bmatrix}
 x_{2i}' \\
 x_{2i+1}'
 \end{bmatrix}
-=
+&=
 \begin{bmatrix}
 \cos \theta_i & -\sin \theta_i \\
 \sin \theta_i & \cos \theta_i
@@ -89,33 +102,45 @@ x_{2i+1}'
 x_{2i} \\
 x_{2i+1}
 \end{bmatrix}
+\end{aligned}
 $$
+
 其中旋转角度定义为：
+
 $$
 \theta_i = pos \cdot \omega_i
 $$
+
 频率项 $\omega_i$ 定义为：
+
 $$
 \omega_i = 10000^{- \frac{2i}{d}}
 $$
+
 因此，每一对维度都会以不同的频率进行旋转，从而在向量中编码位置信息。
 
 这种方法可以看作是在复数域中进行相位旋转，使得注意力机制在计算
+
 $$
 \mathbf{Q}\mathbf{K}^\top
 $$
+
 时自然引入相对位置信息。
 
 需要特别注意的是，为什么只作用在 Q 和 K？
 
 因为 attention：
+
 $$
 \mathbf{Q}\mathbf{K}^\top
 $$
+
 旋转后：
+
 $$
 (QR)(KR)^T = QRR^TK^T
 $$
+
 这里隐含了相对位置编码效果。V 不参与位置编码（否则会破坏内容表达）。
 
 RoPE 的 PyTorch 实现本质就是：
