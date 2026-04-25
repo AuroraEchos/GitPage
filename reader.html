@@ -83,7 +83,7 @@ function titleFromMarkdown(markdown, fallback) {
 }
 
 function extractMath(markdown) {
-  const store = [];
+  const mathStore = [];
   const codeStore = [];
 
   function saveCode(code) {
@@ -92,44 +92,44 @@ function extractMath(markdown) {
     return `@@CODE_PLACEHOLDER_${id}@@`;
   }
 
-  function save(content, display) {
-    const id = store.length;
-    store.push({ content, display });
+  function saveMath(content, display) {
+    const id = mathStore.length;
+    mathStore.push({ content, display });
     return display ? `\n\n@@MATH_BLOCK_${id}@@\n\n` : `@@MATH_INLINE_${id}@@`;
   }
 
   let text = markdown;
 
-  // Avoid parsing math delimiters inside code.
+  // Avoid parsing math delimiters inside code blocks or inline code.
   text = text.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, saveCode);
   text = text.replace(/`[^`\n]+`/g, saveCode);
 
   // Protect display math before Markdown parsing.
-  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, content) => save(content.trim(), true));
-  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, content) => save(content.trim(), true));
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, content) => saveMath(content.trim(), true));
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, content) => saveMath(content.trim(), true));
 
   // Protect inline math. This intentionally does not match across newlines.
   text = text.replace(/(^|[^\\\w])\$([^$\n]+?)\$(?!\w)/g, (match, prefix, content) => {
     const trimmed = content.trim();
     if (!trimmed) return match;
-    return `${prefix}${save(trimmed, false)}`;
+    return `${prefix}${saveMath(trimmed, false)}`;
   });
-  text = text.replace(/\\\((.+?)\\\)/g, (_, content) => save(content.trim(), false));
+  text = text.replace(/\\\((.+?)\\\)/g, (_, content) => saveMath(content.trim(), false));
 
   text = text.replace(/@@CODE_PLACEHOLDER_(\d+)@@/g, (_, index) => codeStore[Number(index)] || "");
 
-  return { text, store };
+  return { text, mathStore };
 }
 
-function restoreMath(html, store) {
+function restoreMath(html, mathStore) {
   return html
     .replace(/@@MATH_BLOCK_(\d+)@@/g, (_, index) => {
-      const item = store[Number(index)];
+      const item = mathStore[Number(index)];
       if (!item) return "";
       return `<div class="math-display">$$${escapeHtml(item.content)}$$</div>`;
     })
     .replace(/@@MATH_INLINE_(\d+)@@/g, (_, index) => {
-      const item = store[Number(index)];
+      const item = mathStore[Number(index)];
       if (!item) return "";
       return `<span class="math-inline">$${escapeHtml(item.content)}$</span>`;
     });
@@ -199,33 +199,49 @@ function addHeadingAnchors() {
 }
 
 function highlightCode() {
-  const highlighter = window.hljs;
+  if (!window.hljs || typeof window.hljs.highlightElement !== "function") {
+    return;
+  }
+
   article.querySelectorAll("pre code").forEach(block => {
-    if (highlighter && typeof highlighter.highlightElement === "function") {
-      highlighter.highlightElement(block);
+    if (block.dataset.highlighted === "yes") return;
+
+    try {
+      window.hljs.highlightElement(block);
+    } catch (error) {
+      console.warn("Code highlight failed:", error);
     }
   });
 }
 
 function addCodeCopyButtons() {
   article.querySelectorAll("pre").forEach(pre => {
-    if (pre.querySelector(".copy-code")) return;
+    if (pre.querySelector(".copy-code-button")) return;
 
     const code = pre.querySelector("code");
     if (!code) return;
 
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "copy-code";
+    button.className = "copy-code-button";
     button.textContent = "Copy";
+
     button.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(code.innerText);
+        button.classList.add("copied");
         button.textContent = "Copied";
-        window.setTimeout(() => { button.textContent = "Copy"; }, 1200);
+
+        window.setTimeout(() => {
+          button.classList.remove("copied");
+          button.textContent = "Copy";
+        }, 1200);
       } catch (_) {
         button.textContent = "Failed";
-        window.setTimeout(() => { button.textContent = "Copy"; }, 1200);
+
+        window.setTimeout(() => {
+          button.textContent = "Copy";
+        }, 1200);
       }
     });
 
@@ -298,7 +314,7 @@ async function renderMarkdown() {
     const fallbackTitle = source.split("/").pop().replace(/\.md$/i, "").replace(/[_-]/g, " ");
     document.title = `${titleFromMarkdown(markdown, fallbackTitle)} - Wenhao Liu`;
 
-    const { text: protectedMarkdown, store: mathStore } = extractMath(markdown);
+    const { text: protectedMarkdown, mathStore } = extractMath(markdown);
     const rawHtml = marked.parse(protectedMarkdown);
     const htmlWithMath = restoreMath(rawHtml, mathStore);
     const htmlWithAssets = withRelativeAssets(htmlWithMath, source);

@@ -24,7 +24,6 @@ $$
 
 1. 对于任何固定的偏移量 $k$，位置 $pos+k$ 的编码 $PE_{pos+k}$ 可以表示为 $PE_{pos}$ 的线性函数。 对于每一对正余弦分量，存在一个仅与 $k$ 有关的变换矩阵 $M^{(k)} \in \mathbb{R}^{2 \times 2}$：
    $$
-   \begin{equation}
    \begin{bmatrix} 
    \sin(\omega_i (pos + k)) \\ \cos(\omega_i (pos + k)) 
    \end{bmatrix} = 
@@ -35,7 +34,6 @@ $$
    \begin{bmatrix} 
    \sin(\omega_i pos) \\ \cos(\omega_i pos) 
    \end{bmatrix}
-   \end{equation}
    $$
    其中频率 $\omega_i = 1/10000^{2i/d_{model}}$。这意味着模型可以通过注意力机制中的线性层，轻松捕捉到 token 之间的相对距离信息。
 
