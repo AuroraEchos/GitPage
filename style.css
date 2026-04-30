@@ -546,8 +546,7 @@ samp {
 .article .katex-display {
   margin: 24px 0;
   padding: 4px 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
 }
 
 .article .katex-display > .katex {
@@ -561,8 +560,7 @@ samp {
 }
 
 .article .katex-html {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
 }
 
 .article .katex-error {

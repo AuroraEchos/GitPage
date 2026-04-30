@@ -2,7 +2,7 @@
 
 缩放点积注意力（Scaled Dot-Product Attention, SDPA）是 Transformer 的核心组件。其公式如下：
 $$
-Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}} + M)V
+Attention(Q,K,V)=softmax\left(\frac{QK^T}{\sqrt{d_k}} + M_{\text{add}}\right)V
 $$
 其中输入 Query、Key、Value 的维度为（此时我们脱离多头注意力（MHA）的上下文，只看一个最纯粹的注意力算子）：
 
