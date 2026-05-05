@@ -155,22 +155,32 @@
 
    恢复到原来的终端界面。就像“远程屏幕保持器”。
 
-   最常用 5 个命令：
+   最常用的几个命令：
 
    ```bash
-   # 创建一个叫 train 的会话
-   tmux new -s train
+   # 1. 查看所有会话
+   tmux ls
+   
+   # 2. 新建会话（默认名字）
+   tmux
+   
+   # 3. 新建指定名字会话
+   tmux new -s mywork
+   
+   # 4. 进入/附着已有会话
+   tmux a -t mywork
+   
+   # 5. 删除指定会话
+   tmux kill-session -t mywork
+   
+   # 6. 删除所有会话
+   tmux kill-server
+   
    
    # 分离 tmux（此时：你退出 tmux 但程序继续运行）
    # 按键：
    Ctrl + B
    D
-   
-   # 查看所有 session
-   tmux ls
-   
-   # 恢复 session（回到训练界面）
-   tmux attach -t train
    
    # 关闭 session
    exit
