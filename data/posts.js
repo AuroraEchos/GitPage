@@ -52,5 +52,11 @@ const posts = [
     category: "note",
     title: "Linux Basic Usage",
     path: "reader.html?src=posts/Linux_Basic_Usage.md"
+  },
+  {
+    date: "2026-05-09",
+    category: "note",
+    title: "Traffic Path of Proxy Networking",
+    path: "reader.html?src=posts/Traffic_Path_of_Proxy_Networking.md"
   }
 ];

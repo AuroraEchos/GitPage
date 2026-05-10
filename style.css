@@ -702,3 +702,25 @@ select {
     font-size: 0.95em;
   }
 }
+
+
+/* Mermaid */
+.mermaid-wrapper {
+  margin: 28px 0;
+  overflow-x: auto;
+}
+
+.mermaid {
+  display: flex;
+  justify-content: center;
+  min-width: fit-content;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid text {
+  fill: var(--text);
+}

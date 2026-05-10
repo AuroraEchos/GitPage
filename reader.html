@@ -18,6 +18,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 
 <body class="reader-page">
@@ -48,6 +49,7 @@ function getSource() {
   if (!raw) return null;
 
   let src = raw.trim();
+
   try {
     src = decodeURIComponent(src);
   } catch (_) {
@@ -82,9 +84,10 @@ function titleFromMarkdown(markdown, fallback) {
   return heading ? heading[1].replace(/[*_`$]/g, "").trim() : fallback;
 }
 
-function extractMath(markdown) {
+function extractSpecialBlocks(markdown) {
   const mathStore = [];
   const codeStore = [];
+  const mermaidStore = [];
 
   function saveCode(code) {
     const id = codeStore.length;
@@ -98,15 +101,35 @@ function extractMath(markdown) {
     return display ? `\n\n@@MATH_BLOCK_${id}@@\n\n` : `@@MATH_INLINE_${id}@@`;
   }
 
+  function saveMermaid(content) {
+    const id = mermaidStore.length;
+    mermaidStore.push(content);
+    return `\n\n@@MERMAID_BLOCK_${id}@@\n\n`;
+  }
+
   let text = markdown;
+
+  // Mermaid fenced code blocks must be extracted before normal code blocks.
+  text = text.replace(/```mermaid\s*([\s\S]*?)```/gi, (_, content) => {
+    return saveMermaid(content.trim());
+  });
+
+  text = text.replace(/~~~mermaid\s*([\s\S]*?)~~~/gi, (_, content) => {
+    return saveMermaid(content.trim());
+  });
 
   // Avoid parsing math delimiters inside code blocks or inline code.
   text = text.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, saveCode);
   text = text.replace(/`[^`\n]+`/g, saveCode);
 
   // Protect display math before Markdown parsing.
-  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, content) => saveMath(content.trim(), true));
-  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, content) => saveMath(content.trim(), true));
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, content) => {
+    return saveMath(content.trim(), true);
+  });
+
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, content) => {
+    return saveMath(content.trim(), true);
+  });
 
   // Protect inline math. This intentionally does not match across newlines.
   text = text.replace(/(^|[^\\\w])\$([^$\n]+?)\$(?!\w)/g, (match, prefix, content) => {
@@ -114,25 +137,49 @@ function extractMath(markdown) {
     if (!trimmed) return match;
     return `${prefix}${saveMath(trimmed, false)}`;
   });
-  text = text.replace(/\\\((.+?)\\\)/g, (_, content) => saveMath(content.trim(), false));
 
-  text = text.replace(/@@CODE_PLACEHOLDER_(\d+)@@/g, (_, index) => codeStore[Number(index)] || "");
+  text = text.replace(/\\\((.+?)\\\)/g, (_, content) => {
+    return saveMath(content.trim(), false);
+  });
 
-  return { text, mathStore };
+  text = text.replace(/@@CODE_PLACEHOLDER_(\d+)@@/g, (_, index) => {
+    return codeStore[Number(index)] || "";
+  });
+
+  return {
+    text,
+    mathStore,
+    mermaidStore
+  };
 }
 
-function restoreMath(html, mathStore) {
-  return html
-    .replace(/@@MATH_BLOCK_(\d+)@@/g, (_, index) => {
-      const item = mathStore[Number(index)];
-      if (!item) return "";
-      return `<div class="math-display">$$${escapeHtml(item.content)}$$</div>`;
-    })
-    .replace(/@@MATH_INLINE_(\d+)@@/g, (_, index) => {
-      const item = mathStore[Number(index)];
-      if (!item) return "";
-      return `<span class="math-inline">$${escapeHtml(item.content)}$</span>`;
-    });
+function restoreSpecialBlocks(html, mathStore, mermaidStore) {
+  let restored = html;
+
+  restored = restored.replace(/@@MATH_BLOCK_(\d+)@@/g, (_, index) => {
+    const item = mathStore[Number(index)];
+    if (!item) return "";
+    return `<div class="math-display">$$${escapeHtml(item.content)}$$</div>`;
+  });
+
+  restored = restored.replace(/@@MATH_INLINE_(\d+)@@/g, (_, index) => {
+    const item = mathStore[Number(index)];
+    if (!item) return "";
+    return `<span class="math-inline">$${escapeHtml(item.content)}$</span>`;
+  });
+
+  restored = restored.replace(/@@MERMAID_BLOCK_(\d+)@@/g, (_, index) => {
+    const content = mermaidStore[Number(index)];
+    if (!content) return "";
+
+    return `
+      <div class="mermaid-wrapper">
+        <div class="mermaid">${escapeHtml(content)}</div>
+      </div>
+    `;
+  });
+
+  return restored;
 }
 
 function withRelativeAssets(html, source) {
@@ -142,7 +189,12 @@ function withRelativeAssets(html, source) {
   doc.querySelectorAll("img").forEach(img => {
     const src = img.getAttribute("src") || "";
 
-    if (src && !src.includes("://") && !src.startsWith("/") && !src.startsWith("data:")) {
+    if (
+      src &&
+      !src.includes("://") &&
+      !src.startsWith("/") &&
+      !src.startsWith("data:")
+    ) {
       img.setAttribute("src", base + src);
     }
 
@@ -153,7 +205,13 @@ function withRelativeAssets(html, source) {
   doc.querySelectorAll("a").forEach(link => {
     const href = link.getAttribute("href") || "";
 
-    if (href && !href.includes("://") && !href.startsWith("#") && !href.startsWith("/") && !href.startsWith("mailto:")) {
+    if (
+      href &&
+      !href.includes("://") &&
+      !href.startsWith("#") &&
+      !href.startsWith("/") &&
+      !href.startsWith("mailto:")
+    ) {
       link.setAttribute("href", base + href);
     }
 
@@ -171,7 +229,15 @@ function sanitizeArticleHtml(html) {
 
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
-    ADD_ATTR: ["target", "rel", "loading", "decoding", "class", "id", "aria-label"]
+    ADD_ATTR: [
+      "target",
+      "rel",
+      "loading",
+      "decoding",
+      "class",
+      "id",
+      "aria-label"
+    ]
   });
 }
 
@@ -185,7 +251,10 @@ function addHeadingAnchors() {
 
     const count = usedIds.get(id) || 0;
     usedIds.set(id, count + 1);
-    if (count > 0) id = `${id}-${count + 1}`;
+
+    if (count > 0) {
+      id = `${id}-${count + 1}`;
+    }
 
     heading.id = id;
 
@@ -194,6 +263,7 @@ function addHeadingAnchors() {
     anchor.href = `#${id}`;
     anchor.textContent = "#";
     anchor.setAttribute("aria-label", `Link to ${text}`);
+
     heading.appendChild(anchor);
   });
 }
@@ -229,6 +299,7 @@ function addCodeCopyButtons() {
     button.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(code.innerText);
+
         button.classList.add("copied");
         button.textContent = "Copied";
 
@@ -251,7 +322,13 @@ function addCodeCopyButtons() {
 
 function wrapTables() {
   article.querySelectorAll("table").forEach(table => {
-    if (table.parentElement && table.parentElement.classList.contains("table-wrap")) return;
+    if (
+      table.parentElement &&
+      table.parentElement.classList.contains("table-wrap")
+    ) {
+      return;
+    }
+
     const wrapper = document.createElement("div");
     wrapper.className = "table-wrap";
     table.parentNode.insertBefore(wrapper, table);
@@ -259,8 +336,38 @@ function wrapTables() {
   });
 }
 
+async function renderMermaid() {
+  if (!window.mermaid) return;
+
+  window.mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "strict",
+    theme: "neutral",
+    fontFamily: "Inter, Noto Sans SC, sans-serif"
+  });
+
+  const blocks = article.querySelectorAll(".mermaid");
+
+  for (const block of blocks) {
+    const source = block.textContent.trim();
+    if (!source) continue;
+
+    const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+
+    try {
+      const { svg } = await window.mermaid.render(id, source);
+      block.innerHTML = svg;
+    } catch (error) {
+      console.warn("Mermaid render failed:", error);
+      block.innerHTML = `<pre><code>${escapeHtml(source)}</code></pre>`;
+    }
+  }
+}
+
 function renderMath() {
-  if (typeof window.renderMathInElement !== "function") return;
+  if (typeof window.renderMathInElement !== "function") {
+    return;
+  }
 
   renderMathInElement(article, {
     delimiters: [
@@ -269,7 +376,14 @@ function renderMath() {
       { left: "\\[", right: "\\]", display: true },
       { left: "\\(", right: "\\)", display: false }
     ],
-    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+    ignoredTags: [
+      "script",
+      "noscript",
+      "style",
+      "textarea",
+      "pre",
+      "code"
+    ],
     throwOnError: false,
     strict: false,
     trust: false,
@@ -306,28 +420,47 @@ async function renderMarkdown() {
     configureMarked();
 
     const response = await fetch(source, { cache: "no-cache" });
+
     if (!response.ok) {
       throw new Error(`Cannot load note: ${response.status} ${response.statusText}`);
     }
 
     const markdown = await response.text();
-    const fallbackTitle = source.split("/").pop().replace(/\.md$/i, "").replace(/[_-]/g, " ");
+
+    const fallbackTitle = source
+      .split("/")
+      .pop()
+      .replace(/\.md$/i, "")
+      .replace(/[_-]/g, " ");
+
     document.title = `${titleFromMarkdown(markdown, fallbackTitle)} - Wenhao Liu`;
 
-    const { text: protectedMarkdown, mathStore } = extractMath(markdown);
+    const {
+      text: protectedMarkdown,
+      mathStore,
+      mermaidStore
+    } = extractSpecialBlocks(markdown);
+
     const rawHtml = marked.parse(protectedMarkdown);
-    const htmlWithMath = restoreMath(rawHtml, mathStore);
-    const htmlWithAssets = withRelativeAssets(htmlWithMath, source);
+    const htmlWithSpecialBlocks = restoreSpecialBlocks(
+      rawHtml,
+      mathStore,
+      mermaidStore
+    );
+    const htmlWithAssets = withRelativeAssets(htmlWithSpecialBlocks, source);
 
     article.innerHTML = sanitizeArticleHtml(htmlWithAssets);
 
     addHeadingAnchors();
+    await renderMermaid();
+    renderMath();
     highlightCode();
     addCodeCopyButtons();
     wrapTables();
-    renderMath();
+
   } catch (error) {
     console.error(error);
+
     article.innerHTML = `
       <p class="muted">This note could not be loaded.</p>
       <pre><code>${escapeHtml(String(error))}</code></pre>
