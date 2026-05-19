@@ -58,5 +58,11 @@ const posts = [
     category: "note",
     title: "Traffic Path of Proxy Networking",
     path: "reader.html?src=posts/Traffic_Path_of_Proxy_Networking.md"
+  },
+  {
+    date: "2026-05-20",
+    category: "note",
+    title: "What is KV Cache",
+    path: "reader.html?src=posts/KV_Cache.md"
   }
 ];
