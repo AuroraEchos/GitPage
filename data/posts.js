@@ -64,5 +64,11 @@ const posts = [
     category: "note",
     title: "What is KV Cache",
     path: "reader.html?src=posts/KV_Cache.md"
+  },
+  {
+    date: "2026-05-21",
+    category: "note",
+    title: "Some Thoughts on ReAct",
+    path: "reader.html?src=posts/Some_thoughts_on_ReAct.md"
   }
 ];
