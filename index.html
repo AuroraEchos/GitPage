@@ -3,95 +3,286 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Wenhao Liu's personal site for machine learning engineering notes, LLM architecture, and systems thinking.">
 <title>Wenhao Liu</title>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.png" type="image/png">
 <link rel="stylesheet" href="style.css">
-
-
 </head>
 
-<body>
+<body class="home-page">
+<header class="site-header">
+  <div class="site-shell header-inner">
+    <a class="brand" href="index.html" aria-label="Wenhao Liu home">
+      <img class="brand-mark" src="Avatar.png" alt="">
+      <span>Wenhao Liu</span>
+    </a>
 
-<header>
-  <h1>Wenhao Liu</h1>
-
-  <nav>
-    <a href="mailto:flippedliu@outlook.com">Email</a>
-    <a href="https://github.com/AuroraEchos" target="_blank">GitHub</a>
-    <a href="#">CV</a>
-  </nav>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#writing">Writing</a>
+      <a href="mailto:flippedliu@outlook.com">Email</a>
+      <a href="https://github.com/AuroraEchos" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </div>
 </header>
 
-<section>
-  <h2>About</h2>
-</section>
+<main>
+  <section class="hero-section">
+    <div class="site-shell">
+      <h1>Wenhao Liu</h1>
+      <p class="hero-copy">
+        I write technical notes that turn model architecture and infrastructure details into clear engineering references.
+        Current focus: attention mechanisms, LLM memory, PyTorch, Linux, and networking fundamentals.
+      </p>
 
+      <div class="hero-actions" aria-label="Contact links">
+        <a class="button button-primary" href="mailto:flippedliu@outlook.com">Contact me</a>
+        <a class="button button-secondary" href="https://github.com/AuroraEchos" target="_blank" rel="noopener noreferrer">View GitHub</a>
+      </div>
 
+      <dl class="status-strip" aria-label="Site highlights">
+        <div class="stat">
+          <dt>Focus</dt>
+          <dd>Agent engineering</dd>
+        </div>
+        <div class="stat">
+          <dt>Published notes</dt>
+          <dd><span id="note-count">0</span> technical write-ups</dd>
+        </div>
+        <div class="stat">
+          <dt>Latest update</dt>
+          <dd id="latest-note-date">Loading...</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
 
-<section>
-  <h2>Skills</h2>
-  <p>
-    <strong>Programming:</strong> Python, SQL
-  </p>
-  <p>
-    <strong>Frameworks:</strong> PyTorch, HuggingFace
-  </p>
-  <p>
-    <strong>ML & Systems:</strong> DL & ML, LLM Architecture
-  </p>
-  <p>
-    <strong>DevOps & Tooling:</strong> Git, Linux CLI, Docker Basics, Shell Scripting
-  </p>
+  <section class="home-section" id="about" aria-labelledby="about-title">
+    <div class="site-shell section-grid">
+      <div class="section-heading">
+        <p class="section-label">About</p>
+        <h2 id="about-title">Building a sharper engineering notebook.</h2>
+      </div>
 
-</section>
+      <div class="section-body">
+        <p>
+          This site is my public workspace for studying deep learning systems and writing down the parts that are easy
+          to forget: tensor operations, Transformer components, decoding efficiency, Linux usage, and practical network paths.
+        </p>
+        <p>
+          I care about explanations that connect math, code, and systems behavior, so each note is written as a reusable
+          reference for future projects and interviews.
+        </p>
+      </div>
+    </div>
+  </section>
 
-<section>
-  <h2>Projects</h2>
-  <div id="project-list"></div>
-</section>
+  <section class="home-section" aria-labelledby="focus-title">
+    <div class="site-shell">
+      <div class="section-heading compact-heading">
+        <p class="section-label">Focus Areas</p>
+        <h2 id="focus-title">Where I am spending attention.</h2>
+      </div>
 
-<section>
-  <h2>Notes</h2>
-  <div id="note-list"></div>
-</section>
+      <div class="focus-grid">
+        <article class="focus-card">
+          <h3>LLM Architecture</h3>
+          <p>Attention, KV cache, normalization, positional encoding, and memory mechanisms.</p>
+        </article>
+        <article class="focus-card">
+          <h3>ML Engineering</h3>
+          <p>PyTorch workflows, Hugging Face tooling, tensor operations, and reproducible experiments.</p>
+        </article>
+        <article class="focus-card">
+          <h3>Systems Thinking</h3>
+          <p>Linux, shell tooling, Docker basics, Git.</p>
+        </article>
+      </div>
+    </div>
+  </section>
 
-<footer>
-  © 2026 Wenhao Liu · Last updated: Mar 2026 · Open to opportunities
+  <section class="home-section" id="skills" aria-labelledby="skills-title">
+    <div class="site-shell section-grid">
+      <div class="section-heading">
+        <p class="section-label">Skills</p>
+        <h2 id="skills-title">A practical stack for AI engineering.</h2>
+      </div>
+
+      <div class="skill-groups">
+        <div class="skill-row">
+          <h3>Programming</h3>
+          <div class="tags" aria-label="Programming skills">
+            <span>Python</span>
+            <span>SQL</span>
+            <span>Shell</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <h3>ML Frameworks</h3>
+          <div class="tags" aria-label="Machine learning frameworks">
+            <span>PyTorch</span>
+            <span>Hugging Face</span>
+            <span>Deep Learning</span>
+            <span>LLM Architecture</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <h3>Systems & Tooling</h3>
+          <div class="tags" aria-label="Systems and tooling skills">
+            <span>Git</span>
+            <span>Linux CLI</span>
+            <span>Docker Basics</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section is-hidden" id="projects-section" aria-labelledby="projects-title">
+    <div class="site-shell section-grid">
+      <div class="section-heading">
+        <p class="section-label">Projects</p>
+        <h2 id="projects-title">Selected project notes.</h2>
+      </div>
+      <div id="project-list" class="content-list"></div>
+    </div>
+  </section>
+
+  <section class="home-section" id="writing" aria-labelledby="writing-title">
+    <div class="site-shell section-grid">
+      <div class="section-heading">
+        <p class="section-label">Writing</p>
+        <h2 id="writing-title">Technical notes and study logs.</h2>
+        <p id="note-summary" class="section-note">Loading notes...</p>
+      </div>
+
+      <div id="note-list" class="content-list"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="site-shell">
+    <span>© 2026 Wenhao Liu</span>
+    <span>Last updated: <span id="footer-updated">May 2026</span></span>
+    <span>Open to opportunities</span>
+  </div>
 </footer>
 
 <script src="data/posts.js"></script>
 <script>
+function formatDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
+}
+
+function formatMonth(value) {
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return "May 2026";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    year: "numeric"
+  }).format(date);
+}
+
+function createItem(post) {
+  const item = document.createElement("article");
+  item.className = "item";
+
+  const row = document.createElement("div");
+  row.className = "item-row";
+
+  const date = document.createElement("time");
+  date.className = "item-date";
+  date.dateTime = post.date;
+  date.textContent = formatDate(post.date);
+
+  const content = document.createElement("div");
+  content.className = "item-content";
+
+  const title = document.createElement("h3");
+  title.className = "item-title";
+
+  const link = document.createElement("a");
+  link.href = post.path;
+  link.textContent = post.title;
+
+  title.appendChild(link);
+  content.appendChild(title);
+
+  if (post.desc) {
+    const desc = document.createElement("p");
+    desc.className = "item-desc";
+    desc.textContent = post.desc;
+    content.appendChild(desc);
+  }
+
+  row.appendChild(date);
+  row.appendChild(content);
+  item.appendChild(row);
+
+  return item;
+}
+
+function renderList(container, items) {
+  const fragment = document.createDocumentFragment();
+
+  items.forEach(post => {
+    fragment.appendChild(createItem(post));
+  });
+
+  container.replaceChildren(fragment);
+}
+
 function render() {
   const projectContainer = document.getElementById("project-list");
+  const projectSection = document.getElementById("projects-section");
   const noteContainer = document.getElementById("note-list");
+  const noteSummary = document.getElementById("note-summary");
+  const noteCount = document.getElementById("note-count");
+  const latestNoteDate = document.getElementById("latest-note-date");
+  const footerUpdated = document.getElementById("footer-updated");
 
-  posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedPosts = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const projectPosts = sortedPosts.filter(post => post.category === "project");
+  const notePosts = sortedPosts.filter(post => post.category !== "project");
+  const latestPost = sortedPosts[0];
 
-  posts.forEach(p => {
-    const el = document.createElement("div");
-    el.className = "item";
+  if (projectPosts.length > 0) {
+    projectSection.classList.remove("is-hidden");
+    renderList(projectContainer, projectPosts);
+  }
 
-    el.innerHTML = `
-      <div class="item-row">
-        <div class="item-date">${p.date}</div>
-        <div class="item-title">
-          <a href="${p.path}">${p.title}</a>
-        </div>
-      </div>
-      ${p.desc ? `<div class="item-desc">${p.desc}</div>` : ""}
-    `;
+  renderList(noteContainer, notePosts);
 
-    if (p.category === "project") {
-      projectContainer.appendChild(el);
-    } else {
-      noteContainer.appendChild(el);
-    }
-  });
+  noteCount.textContent = String(notePosts.length);
+  noteSummary.textContent = `${notePosts.length} notes on LLMs, systems, and engineering practice.`;
+
+  if (latestPost) {
+    latestNoteDate.textContent = formatDate(latestPost.date);
+    footerUpdated.textContent = formatMonth(latestPost.date);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", render);
-
 </script>
-
 </body>
 </html>
