@@ -35,11 +35,6 @@
   <section class="hero-section">
     <div class="site-shell">
       <h1>Wenhao Liu</h1>
-      <p class="hero-copy">
-        I write technical notes that turn model architecture and infrastructure details into clear engineering references.
-        Current focus: attention mechanisms, LLM memory, PyTorch, Linux, and networking fundamentals.
-      </p>
-
       <div class="hero-actions" aria-label="Contact links">
         <a class="button button-primary" href="mailto:flippedliu@outlook.com">Contact me</a>
         <a class="button button-secondary" href="https://github.com/AuroraEchos" target="_blank" rel="noopener noreferrer">View GitHub</a>
@@ -48,11 +43,11 @@
       <dl class="status-strip" aria-label="Site highlights">
         <div class="stat">
           <dt>Focus</dt>
-          <dd>Agent engineering</dd>
+          <dd>LLM & Agent Engineering</dd>
         </div>
         <div class="stat">
-          <dt>Published notes</dt>
-          <dd><span id="note-count">0</span> technical write-ups</dd>
+          <dt>Published writing</dt>
+          <dd><span id="note-count">0</span> write-ups</dd>
         </div>
         <div class="stat">
           <dt>Latest update</dt>
@@ -65,43 +60,14 @@
   <section class="home-section" id="about" aria-labelledby="about-title">
     <div class="site-shell section-grid">
       <div class="section-heading">
-        <p class="section-label">About</p>
-        <h2 id="about-title">Building a sharper engineering notebook.</h2>
+        <h2 id="about-title" class="section-label">About</h2>
       </div>
 
       <div class="section-body">
         <p>
-          This site is my public workspace for studying deep learning systems and writing down the parts that are easy
-          to forget: tensor operations, Transformer components, decoding efficiency, Linux usage, and practical network paths.
+          I completed my undergraduate studies at Shanghai University, where I am now continuing as a graduate student.
+          This site is where I record topics that interest me while studying large language models and their applications.
         </p>
-        <p>
-          I care about explanations that connect math, code, and systems behavior, so each note is written as a reusable
-          reference for future projects and interviews.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-section" aria-labelledby="focus-title">
-    <div class="site-shell">
-      <div class="section-heading compact-heading">
-        <p class="section-label">Focus Areas</p>
-        <h2 id="focus-title">Where I am spending attention.</h2>
-      </div>
-
-      <div class="focus-grid">
-        <article class="focus-card">
-          <h3>LLM Architecture</h3>
-          <p>Attention, KV cache, normalization, positional encoding, and memory mechanisms.</p>
-        </article>
-        <article class="focus-card">
-          <h3>ML Engineering</h3>
-          <p>PyTorch workflows, Hugging Face tooling, tensor operations, and reproducible experiments.</p>
-        </article>
-        <article class="focus-card">
-          <h3>Systems Thinking</h3>
-          <p>Linux, shell tooling, Docker basics, Git.</p>
-        </article>
       </div>
     </div>
   </section>
@@ -109,8 +75,7 @@
   <section class="home-section" id="skills" aria-labelledby="skills-title">
     <div class="site-shell section-grid">
       <div class="section-heading">
-        <p class="section-label">Skills</p>
-        <h2 id="skills-title">A practical stack for AI engineering.</h2>
+        <h2 id="skills-title" class="section-label">Skills</h2>
       </div>
 
       <div class="skill-groups">
@@ -143,25 +108,13 @@
     </div>
   </section>
 
-  <section class="home-section is-hidden" id="projects-section" aria-labelledby="projects-title">
-    <div class="site-shell section-grid">
-      <div class="section-heading">
-        <p class="section-label">Projects</p>
-        <h2 id="projects-title">Selected project notes.</h2>
-      </div>
-      <div id="project-list" class="content-list"></div>
-    </div>
-  </section>
-
   <section class="home-section" id="writing" aria-labelledby="writing-title">
     <div class="site-shell section-grid">
       <div class="section-heading">
-        <p class="section-label">Writing</p>
-        <h2 id="writing-title">Technical notes and study logs.</h2>
-        <p id="note-summary" class="section-note">Loading notes...</p>
+        <h2 id="writing-title" class="section-label">Writing</h2>
       </div>
 
-      <div id="note-list" class="content-list"></div>
+      <div id="category-list" class="category-list"></div>
     </div>
   </section>
 </main>
@@ -242,6 +195,32 @@ function createItem(post) {
   return item;
 }
 
+const categoryOrder = [
+  "llm-architecture",
+  "applications",
+  "notes",
+  "projects"
+];
+
+const categoryMeta = {
+  "llm-architecture": {
+    title: "LLM Architecture",
+    empty: "No architecture notes yet."
+  },
+  applications: {
+    title: "Applications",
+    empty: "No application notes yet."
+  },
+  notes: {
+    title: "Notes",
+    empty: "No general notes yet."
+  },
+  projects: {
+    title: "Projects",
+    empty: "No project write-ups yet."
+  }
+};
+
 function renderList(container, items) {
   const fragment = document.createDocumentFragment();
 
@@ -252,29 +231,75 @@ function renderList(container, items) {
   container.replaceChildren(fragment);
 }
 
+function createCategoryGroup(category, items) {
+  const meta = categoryMeta[category] || {
+    title: category,
+    empty: "No write-ups yet."
+  };
+  const group = document.createElement("section");
+  const titleId = `category-${category}`;
+  group.className = "category-group";
+  group.setAttribute("aria-labelledby", titleId);
+
+  const header = document.createElement("div");
+  header.className = "category-header";
+
+  const headingWrap = document.createElement("div");
+
+  const title = document.createElement("h3");
+  title.id = titleId;
+  title.textContent = meta.title;
+
+  headingWrap.appendChild(title);
+  header.appendChild(headingWrap);
+  group.appendChild(header);
+
+  if (items.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = meta.empty;
+    group.appendChild(empty);
+    return group;
+  }
+
+  const list = document.createElement("div");
+  list.className = "content-list";
+  renderList(list, items);
+  group.appendChild(list);
+
+  return group;
+}
+
+function renderCategories(container, sortedPosts) {
+  const fragment = document.createDocumentFragment();
+  const knownCategories = new Set(categoryOrder);
+
+  categoryOrder.forEach(category => {
+    const items = sortedPosts.filter(post => post.category === category);
+    fragment.appendChild(createCategoryGroup(category, items));
+  });
+
+  const uncategorizedPosts = sortedPosts.filter(post => !knownCategories.has(post.category));
+
+  if (uncategorizedPosts.length > 0) {
+    fragment.appendChild(createCategoryGroup("uncategorized", uncategorizedPosts));
+  }
+
+  container.replaceChildren(fragment);
+}
+
 function render() {
-  const projectContainer = document.getElementById("project-list");
-  const projectSection = document.getElementById("projects-section");
-  const noteContainer = document.getElementById("note-list");
-  const noteSummary = document.getElementById("note-summary");
+  const categoryContainer = document.getElementById("category-list");
   const noteCount = document.getElementById("note-count");
   const latestNoteDate = document.getElementById("latest-note-date");
   const footerUpdated = document.getElementById("footer-updated");
 
   const sortedPosts = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const projectPosts = sortedPosts.filter(post => post.category === "project");
-  const notePosts = sortedPosts.filter(post => post.category !== "project");
   const latestPost = sortedPosts[0];
 
-  if (projectPosts.length > 0) {
-    projectSection.classList.remove("is-hidden");
-    renderList(projectContainer, projectPosts);
-  }
+  renderCategories(categoryContainer, sortedPosts);
 
-  renderList(noteContainer, notePosts);
-
-  noteCount.textContent = String(notePosts.length);
-  noteSummary.textContent = `${notePosts.length} notes on LLMs, systems, and engineering practice.`;
+  noteCount.textContent = String(sortedPosts.length);
 
   if (latestPost) {
     latestNoteDate.textContent = formatDate(latestPost.date);
