@@ -89,5 +89,12 @@ const posts = [
     title: "Some Thoughts on ReAct",
     path: "reader.html?src=posts/Some_thoughts_on_ReAct.md",
     desc: "Reflections on reasoning-action loops in agentic workflows."
+  },
+  {
+    date: "2026-06-01",
+    category: "applications",
+    title: "OpenAI Function Calling Protocol",
+    path: "reader.html?src=posts/OpenAI_Function_Calling.md",
+    desc: "A discussion about the OpenAI function calling protocol."
   }
 ];
