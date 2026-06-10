@@ -3,129 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Wenhao Liu's personal site for machine learning engineering notes, LLM architecture, and systems thinking.">
-<title>Wenhao Liu</title>
+<meta name="description" content="Wenhao Liu's blog on machine learning engineering, LLM architecture, and systems thinking.">
+<title>Wenhao Liu's Blog</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="home-page">
-<header class="site-header">
-  <div class="site-shell header-inner">
-    <a class="brand" href="index.html" aria-label="Wenhao Liu home">
-      <img class="brand-mark" src="Avatar.png" alt="">
-      <span>Wenhao Liu</span>
-    </a>
+<body>
+<section class="top" role="banner">
+  <header>
+    <h1>
+      <a href="index.html">Wenhao Liu's Blog</a>
+    </h1>
+  </header>
 
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a href="#about">About</a>
-      <a href="#skills">Skills</a>
-      <a href="#writing">Writing</a>
-      <a href="mailto:flippedliu@outlook.com">Email</a>
-      <a href="https://github.com/AuroraEchos" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </nav>
-  </div>
-</header>
+  <nav aria-label="Primary navigation">
+    <ul>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</section>
 
-<main>
-  <section class="hero-section">
-    <div class="site-shell">
-      <h1>Wenhao Liu</h1>
-      <div class="hero-actions" aria-label="Contact links">
-        <a class="button button-primary" href="mailto:flippedliu@outlook.com">Contact me</a>
-        <a class="button button-secondary" href="https://github.com/AuroraEchos" target="_blank" rel="noopener noreferrer">View GitHub</a>
-      </div>
-
-      <dl class="status-strip" aria-label="Site highlights">
-        <div class="stat">
-          <dt>Focus</dt>
-          <dd>LLM & Agent Engineering</dd>
-        </div>
-        <div class="stat">
-          <dt>Published writing</dt>
-          <dd><span id="note-count">0</span> write-ups</dd>
-        </div>
-        <div class="stat">
-          <dt>Latest update</dt>
-          <dd id="latest-note-date">Loading...</dd>
-        </div>
-      </dl>
-    </div>
-  </section>
-
-  <section class="home-section" id="about" aria-labelledby="about-title">
-    <div class="site-shell section-grid">
-      <div class="section-heading">
-        <h2 id="about-title" class="section-label">About</h2>
-      </div>
-
-      <div class="section-body">
-        <p>
-          I completed my undergraduate studies at Shanghai University, where I am now continuing as a graduate student.
-          This site is where I record topics that interest me while studying large language models and their applications.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-section" id="skills" aria-labelledby="skills-title">
-    <div class="site-shell section-grid">
-      <div class="section-heading">
-        <h2 id="skills-title" class="section-label">Skills</h2>
-      </div>
-
-      <div class="skill-groups">
-        <div class="skill-row">
-          <h3>Programming</h3>
-          <div class="tags" aria-label="Programming skills">
-            <span>Python</span>
-            <span>SQL</span>
-            <span>Shell</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <h3>ML Frameworks</h3>
-          <div class="tags" aria-label="Machine learning frameworks">
-            <span>PyTorch</span>
-            <span>Hugging Face</span>
-            <span>Deep Learning</span>
-            <span>LLM Architecture</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <h3>Systems & Tooling</h3>
-          <div class="tags" aria-label="Systems and tooling skills">
-            <span>Git</span>
-            <span>Linux CLI</span>
-            <span>Docker Basics</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-section" id="writing" aria-labelledby="writing-title">
-    <div class="site-shell section-grid">
-      <div class="section-heading">
-        <h2 id="writing-title" class="section-label">Writing</h2>
-      </div>
-
-      <div id="category-list" class="category-list"></div>
-    </div>
+<main class="content">
+  <section class="home" aria-labelledby="posts-title">
+    <h2 id="posts-title" class="post-list-heading">Posts</h2>
+    <ul id="post-list" class="post-list"></ul>
   </section>
 </main>
-
-<footer class="site-footer">
-  <div class="site-shell">
-    <span>© 2026 Wenhao Liu</span>
-    <span>Last updated: <span id="footer-updated">May 2026</span></span>
-    <span>Open to opportunities</span>
-  </div>
-</footer>
 
 <script src="data/posts.js"></script>
 <script>
@@ -143,171 +48,40 @@ function formatDate(value) {
   }).format(date);
 }
 
-function formatMonth(value) {
-  const date = new Date(`${value}T00:00:00`);
+function createPostItem(post) {
+  const item = document.createElement("li");
 
-  if (Number.isNaN(date.getTime())) {
-    return "May 2026";
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    year: "numeric"
-  }).format(date);
-}
-
-function createItem(post) {
-  const item = document.createElement("article");
-  item.className = "item";
-
-  const row = document.createElement("div");
-  row.className = "item-row";
-
-  const date = document.createElement("time");
-  date.className = "item-date";
-  date.dateTime = post.date;
+  const date = document.createElement("span");
+  date.className = "post-meta";
   date.textContent = formatDate(post.date);
 
-  const content = document.createElement("div");
-  content.className = "item-content";
-
   const title = document.createElement("h3");
-  title.className = "item-title";
 
   const link = document.createElement("a");
+  link.className = "post-link";
   link.href = post.path;
   link.textContent = post.title;
 
   title.appendChild(link);
-  content.appendChild(title);
-
-  if (post.desc) {
-    const desc = document.createElement("p");
-    desc.className = "item-desc";
-    desc.textContent = post.desc;
-    content.appendChild(desc);
-  }
-
-  row.appendChild(date);
-  row.appendChild(content);
-  item.appendChild(row);
+  item.appendChild(date);
+  item.appendChild(title);
 
   return item;
 }
 
-const categoryOrder = [
-  "llm-architecture",
-  "applications",
-  "notes",
-  "projects"
-];
-
-const categoryMeta = {
-  "llm-architecture": {
-    title: "LLM Architecture",
-    empty: "No architecture notes yet."
-  },
-  applications: {
-    title: "Applications",
-    empty: "No application notes yet."
-  },
-  notes: {
-    title: "Notes",
-    empty: "No general notes yet."
-  },
-  projects: {
-    title: "Projects",
-    empty: "No project write-ups yet."
-  }
-};
-
-function renderList(container, items) {
+function renderPosts() {
+  const container = document.getElementById("post-list");
   const fragment = document.createDocumentFragment();
-
-  items.forEach(post => {
-    fragment.appendChild(createItem(post));
-  });
-
-  container.replaceChildren(fragment);
-}
-
-function createCategoryGroup(category, items) {
-  const meta = categoryMeta[category] || {
-    title: category,
-    empty: "No write-ups yet."
-  };
-  const group = document.createElement("section");
-  const titleId = `category-${category}`;
-  group.className = "category-group";
-  group.setAttribute("aria-labelledby", titleId);
-
-  const header = document.createElement("div");
-  header.className = "category-header";
-
-  const headingWrap = document.createElement("div");
-
-  const title = document.createElement("h3");
-  title.id = titleId;
-  title.textContent = meta.title;
-
-  headingWrap.appendChild(title);
-  header.appendChild(headingWrap);
-  group.appendChild(header);
-
-  if (items.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "empty-state";
-    empty.textContent = meta.empty;
-    group.appendChild(empty);
-    return group;
-  }
-
-  const list = document.createElement("div");
-  list.className = "content-list";
-  renderList(list, items);
-  group.appendChild(list);
-
-  return group;
-}
-
-function renderCategories(container, sortedPosts) {
-  const fragment = document.createDocumentFragment();
-  const knownCategories = new Set(categoryOrder);
-
-  categoryOrder.forEach(category => {
-    const items = sortedPosts.filter(post => post.category === category);
-    fragment.appendChild(createCategoryGroup(category, items));
-  });
-
-  const uncategorizedPosts = sortedPosts.filter(post => !knownCategories.has(post.category));
-
-  if (uncategorizedPosts.length > 0) {
-    fragment.appendChild(createCategoryGroup("uncategorized", uncategorizedPosts));
-  }
-
-  container.replaceChildren(fragment);
-}
-
-function render() {
-  const categoryContainer = document.getElementById("category-list");
-  const noteCount = document.getElementById("note-count");
-  const latestNoteDate = document.getElementById("latest-note-date");
-  const footerUpdated = document.getElementById("footer-updated");
-
   const sortedPosts = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const latestPost = sortedPosts[0];
 
-  renderCategories(categoryContainer, sortedPosts);
+  sortedPosts.forEach(post => {
+    fragment.appendChild(createPostItem(post));
+  });
 
-  noteCount.textContent = String(sortedPosts.length);
-
-  if (latestPost) {
-    latestNoteDate.textContent = formatDate(latestPost.date);
-    footerUpdated.textContent = formatMonth(latestPost.date);
-  }
+  container.replaceChildren(fragment);
 }
 
-document.addEventListener("DOMContentLoaded", render);
+document.addEventListener("DOMContentLoaded", renderPosts);
 </script>
 </body>
 </html>
