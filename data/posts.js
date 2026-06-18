@@ -96,5 +96,12 @@ const posts = [
     title: "OpenAI Function Calling Protocol",
     path: "reader.html?src=posts/OpenAI_Function_Calling.md",
     desc: "A discussion about the OpenAI function calling protocol."
+  },
+  {
+    date: "2026-06-10",
+    category: "notes",
+    title: "What is NAT traversal?",
+    path: "reader.html?src=posts/Intranet_penetration.md",
+    desc: "Understanding how NAT traversal works in network communication."
   }
 ];
