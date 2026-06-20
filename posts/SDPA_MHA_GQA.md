@@ -1,4 +1,4 @@
-### SDPA → MHA → GQA 的演化路径
+# SDPA → MHA → GQA 的演化路径
 
 缩放点积注意力（Scaled Dot-Product Attention, SDPA）是 Transformer 的核心组件。其公式如下：
 $$

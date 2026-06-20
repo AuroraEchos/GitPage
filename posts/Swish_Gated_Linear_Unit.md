@@ -1,4 +1,4 @@
-### SwiGLU（Swish Gated Linear Unit）
+# SwiGLU（Swish Gated Linear Unit）
 
 SwiGLU 是 Gated Linear Unit（GLU，门控线性单元）家族中的重要变体，由 PaLM 模型首次提出，目前广泛应用于 LLaMA、GPT-3、PaLM 等主流大模型架构中，核心优势是兼顾非线性表达能力与训练稳定性，缓解梯度消失问题，同时提升模型的推理效率。
 

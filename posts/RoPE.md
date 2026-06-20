@@ -1,4 +1,4 @@
-### 位置编码
+# 位置编码
 
 在 Transformer 模型中，由于 Self-Attention 机制本身是置换不变性的，也就是它无法识别输入序列中词语的顺序，我们需要通过 Positional Encoding (位置编码) 为模型引入位置信息。
 

@@ -1,4 +1,4 @@
-### OpenAI Function Calling Protocol
+# OpenAI Function Calling Protocol
 
 下面我们介绍一下大模型应用侧的一个核心概念：Tool Calling。这里的 Tool Calling，本质不是“模型真的执行函数”，而是：模型输出一段结构化 JSON，告诉你的程序：我想要调用哪个工具、参数是什么；真正执行函数的是你的应用代码；执行结果再作为下一轮输入交还给模型。OpenAI 官方也把 function calling 称为 tool calling，用于让模型连接外部系统和外部数据；function tool 是一种由 JSON Schema 定义的工具。
 

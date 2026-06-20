@@ -1,4 +1,4 @@
-### Scaled Dot-Product Attention
+# Scaled Dot-Product Attention
 
 缩放点积注意力（SDPA）是 Transformer 的核心组件。它通过将 Query 与 Key 进行匹配，计算注意力权重，并对 Value 进行加权求和，从而实现信息的高效聚合。
 

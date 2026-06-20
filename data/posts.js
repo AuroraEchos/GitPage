@@ -42,6 +42,13 @@ const posts = [
     desc: "Why RMSNorm is a common normalization choice in LLM blocks."
   },
   {
+    date: "2025-09-18",
+    category: "llm-architecture",
+    title: "LoRA & QLoRA",
+    path: "reader.html?src=posts/LoRA_and_QLoRA.md",
+    desc: "Efficient fine-tuning methods for large language models."
+  },
+  {
     date: "2025-09-20",
     category: "notes",
     title: "Async/Await in Python",

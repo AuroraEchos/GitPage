@@ -1,4 +1,4 @@
-### RMSNorm
+# RMSNorm
 
 RMSNorm（Root Mean Square Layer Normalization，均方根层归一化）是针对 Transformer 大模型优化的归一化方法，
 核心思想是移除均值中心化，仅保留按均方根缩放，在不损失性能的前提下提升计算效率与训练稳定性。
