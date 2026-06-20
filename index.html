@@ -20,6 +20,7 @@
 
   <nav aria-label="Primary navigation">
     <ul>
+      <li><a href="index.html">Posts</a></li>
       <li><a href="about.html">About</a></li>
     </ul>
   </nav>
@@ -48,12 +49,18 @@ function formatDate(value) {
   }).format(date);
 }
 
+function humanizeCategory(value) {
+  return String(value || "notes")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
 function createPostItem(post) {
   const item = document.createElement("li");
 
-  const date = document.createElement("span");
-  date.className = "post-meta";
-  date.textContent = formatDate(post.date);
+  const meta = document.createElement("div");
+  meta.className = "post-meta-line";
+  meta.textContent = `${formatDate(post.date)} · ${humanizeCategory(post.category)}`;
 
   const title = document.createElement("h3");
 
@@ -63,8 +70,15 @@ function createPostItem(post) {
   link.textContent = post.title;
 
   title.appendChild(link);
-  item.appendChild(date);
+  item.appendChild(meta);
   item.appendChild(title);
+
+  if (post.desc) {
+    const desc = document.createElement("p");
+    desc.className = "post-desc";
+    desc.textContent = post.desc;
+    item.appendChild(desc);
+  }
 
   return item;
 }

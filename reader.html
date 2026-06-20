@@ -27,13 +27,18 @@
 
   <nav aria-label="Primary navigation">
     <ul>
+      <li><a href="index.html">Posts</a></li>
       <li><a href="about.html">About</a></li>
     </ul>
   </nav>
 </section>
 
-<main id="article" class="content article">
-  <p class="muted">Loading note...</p>
+<main class="content article-shell">
+  <a class="back-link" href="index.html">← All posts</a>
+  <article id="article" class="article">
+    <p class="muted">Loading note...</p>
+  </article>
+  <p class="article-footer-link"><a href="index.html">← Back to all posts</a></p>
 </main>
 
 <script>
@@ -274,6 +279,53 @@ function addHeadingAnchors() {
   });
 }
 
+function headingText(heading) {
+  const clone = heading.cloneNode(true);
+  clone.querySelectorAll(".heading-anchor").forEach(anchor => anchor.remove());
+  return clone.textContent.trim();
+}
+
+function addTableOfContents() {
+  const headings = Array.from(article.querySelectorAll("h2, h3"))
+    .filter(heading => heading.id && headingText(heading));
+
+  if (headings.length < 3) {
+    return;
+  }
+
+  const nav = document.createElement("nav");
+  nav.className = "article-toc";
+  nav.setAttribute("aria-label", "Table of contents");
+
+  const title = document.createElement("div");
+  title.className = "article-toc-title";
+  title.textContent = "Contents";
+
+  const list = document.createElement("ul");
+
+  headings.forEach(heading => {
+    const item = document.createElement("li");
+    item.className = `toc-${heading.tagName.toLowerCase()}`;
+
+    const link = document.createElement("a");
+    link.href = `#${heading.id}`;
+    link.textContent = headingText(heading);
+
+    item.appendChild(link);
+    list.appendChild(item);
+  });
+
+  nav.appendChild(title);
+  nav.appendChild(list);
+
+  const firstHeading = article.querySelector("h1");
+  if (firstHeading && firstHeading.nextSibling) {
+    firstHeading.parentNode.insertBefore(nav, firstHeading.nextSibling);
+  } else {
+    article.insertBefore(nav, article.firstChild);
+  }
+}
+
 function highlightCode() {
   if (!window.hljs || typeof window.hljs.highlightElement !== "function") {
     return;
@@ -458,6 +510,7 @@ async function renderMarkdown() {
     article.innerHTML = sanitizeArticleHtml(htmlWithAssets);
 
     addHeadingAnchors();
+    addTableOfContents();
     await renderMermaid();
     renderMath();
     highlightCode();
