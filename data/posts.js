@@ -56,6 +56,13 @@ const posts = [
     desc: "Python coroutine basics for writing clearer asynchronous code."
   },
   {
+    date: "2026-03-25",
+    category: "applications",
+    title: "Some Things About Embeddings",
+    path: "reader.html?src=posts/Some_Things_About_Embeddings.md",
+    desc: "Exploring the fundamentals of vector representations in machine learning."
+  },
+  {
     date: "2026-04-06",
     category: "applications",
     title: "LLM Memory Mechanisms",
