@@ -59,7 +59,7 @@ const posts = [
     date: "2026-03-25",
     category: "applications",
     title: "Some Things About Embeddings",
-    path: "reader.html?src=posts/Some_Things_About_Embeddings.md",
+    path: "reader.html?src=posts/Some_Things_About_Embedding.md",
     desc: "Exploring the fundamentals of vector representations in machine learning."
   },
   {
