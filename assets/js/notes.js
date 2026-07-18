@@ -1,7 +1,7 @@
 const categoryLabels = {
   llm: "LLM 架构",
   agent: "Agent 与应用",
-  engineering: "工程札记",
+  engineering: "学习笔记",
 };
 
 const notes = [
