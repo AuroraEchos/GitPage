@@ -12,20 +12,6 @@
 
 根目录的 `index.html` 会自动跳转到项目页面。
 
-## 本地查看
-
-建议在项目目录运行：
-
-```bash
-python3 -m http.server 8000
-```
-
-然后访问：
-
-```text
-http://localhost:8000
-```
-
 ## 部署到 GitHub Pages
 
 1. 将压缩包内容放到 GitHub 仓库根目录并推送。

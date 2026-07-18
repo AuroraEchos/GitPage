@@ -4,6 +4,8 @@ SwiGLU 是 Gated Linear Unit（GLU，门控线性单元）家族中的重要变�
 
 在神经网络前向传播过程中，激活函数的核心作用是为网络引入**非线性特性**——若没有激活函数，无论网络有多少层，最终都等价于单一线性变换，无法拟合复杂的非线性数据分布。
 
+## 从传统激活函数到 GLU
+
 传统激活函数的应用形式（通用线性-激活-线性结构）可表示为：
 
 $$
@@ -33,6 +35,8 @@ $$
 
 函数特性：光滑、严格单调、饱和（输入趋于 $+\infty$ 时输出趋近于 1，输入趋于 $-\infty$ 时输出趋近于 0），但存在梯度消失问题（输入绝对值过大时，导数趋近于 0）。
 
+## SwiGLU 的核心改进
+
 所有 GLU 变体均遵循上述统一基本公式，**唯一差异仅在于门控激活函数**（即替换公式中的 $\sigma$），不同门控函数的选择的核心是平衡“非线性表达”与“梯度稳定性”。
 
 SwiGLU 的核心改进是：用 **Swish 函数**替代标准 GLU 中的 Sigmoid 函数作为门控，解决了 Sigmoid 函数的梯度消失问题，同时保留门控机制的特征筛选能力，更适合深度大模型的训练。
@@ -61,7 +65,11 @@ $$
 
 其中，$xW + b = \mathrm{Concat}(a, b)$，$W$ 为单一权重矩阵，$a$ 为特征分支，$b$ 为门控分支（经过 Swish 激活）。
 
+## 工程特点与应用
+
 相比标准 GLU，解决了 Sigmoid 门控的梯度消失问题；相比 ReGLU、GEGLU，计算量更小，推理速度更快，同时保留了较强的非线性拟合能力；主要用于大语言模型（LLM）的 Feed-Forward Network（FFN，前馈网络）层，是 LLaMA、GPT-3、PaLM 等模型的核心激活函数，也是目前大模型优化中“提升效率与性能”的关键选择之一。
+
+## PyTorch 实现
 
 SwiGLU 的 PyTorch 实现如下：
 
@@ -80,3 +88,4 @@ class SwiGLU(nn.Module):
         feature_branch = self.linear1(x)
         gate_branch = self.swish(self.linear2(x))
         return feature_branch * gate_branch
+```

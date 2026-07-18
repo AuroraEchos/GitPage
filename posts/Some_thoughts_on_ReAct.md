@@ -67,13 +67,13 @@ ReAct 的名字正是来自于：Reasoning 与 Acting。也就是：
 
 几乎所有现代 Agent 都有 ReAct 的影子。
 
-#### 一、为什么会出现 ReAct？
+## 一、为什么会出现 ReAct？
 
 先理解普通 LLM 的问题，传统的 ChatGPT 式模型都是用户输入问题，然后模型一次性生成答案，接着结束。
 
 这在简单的问题上可以正常工作，但是普通的 LLM 没有一个长期的状态、不会调用工具、不会验证结果、不会中间修正、不会规划。于是，推理和执行是断开的，这就是 ReAct 要解决的问题。
 
-#### 二、经典的 ReAct 流程
+## 二、经典的 ReAct 流程
 
 ReAct 认为：
 
@@ -134,11 +134,11 @@ Final Answer:
 
 5. 第五步是 Final Answer，模型认为可以了就会返回结果：北京今天 18℃，空气质量良好，适合户外跑步。
 
-#### 三、ReAct 和 Chain-of-Thought 的区别
+## 三、ReAct 和 Chain-of-Thought 的区别
 
 我们介绍一下 CoT 思维链，CoT 只有思考，没有行动。ReAct 是推理 + 外部环境交互，这是他们两个的本质区别。
 
-#### 四、ReAct 的关键难点
+## 四、ReAct 的关键难点
 
 1. Tool Calling
 
@@ -152,7 +152,7 @@ Final Answer:
 
    比如：API失败、tool timeout、hallucination，这些都是需要解决的。
 
-#### 五、现代 Agent 基本结构
+## 五、现代 Agent 基本结构
 
 现在主流 Agent 大致都是：
 
@@ -174,7 +174,7 @@ Next Step Reasoning
 
 ReAct 是它们的思想起点。
 
-#### 六、总结
+## 六、总结
 
 大语言模型（LLMs）是一项伟大且强大的新技术。当 LLM 与外部数据源结合时，会变得更强大。LLM 将重塑未来应用程序的形态。具体而言，未来的应用将越来越呈现 Agent 化。我们仍处于这一变革的早期阶段。虽然构建这类 Agent 化应用的原型很容易，但要构建**足够可靠、可用于生产环境的 Agent**仍然非常困难。
 

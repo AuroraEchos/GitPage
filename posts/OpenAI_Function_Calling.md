@@ -4,7 +4,7 @@
 
 ------
 
-#### 两套常见官方协议：Chat Completions 与 Responses API
+## 两套常见官方协议：Chat Completions 与 Responses API
 
 现在 OpenAI 工具调用主要有两种协议形态：
 
@@ -76,7 +76,7 @@
 
 ------
 
-#### Tool Calling 的完整五步流程
+## Tool Calling 的完整五步流程
 
 一般而言，工具调用的流程可以概括为五步：给模型发送可用工具列表；模型返回 tool call；应用侧执行函数；把工具执行结果发回模型；模型生成最终回答，或者继续请求更多工具调用。
 
@@ -102,7 +102,7 @@ assistant final answer
 
 ------
 
-#### Chat Completions API 的官方 JSON 协议
+## Chat Completions API 的官方 JSON 协议
 
 1. **请求：声明工具**
 

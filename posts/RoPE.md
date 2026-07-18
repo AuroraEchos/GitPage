@@ -2,6 +2,8 @@
 
 在 Transformer 模型中，由于 Self-Attention 机制本身是置换不变性的，也就是它无法识别输入序列中词语的顺序，我们需要通过 Positional Encoding (位置编码) 为模型引入位置信息。
 
+## 正弦位置编码
+
 由 Google 在 *Attention Is All You Need* 中提出的 Sinusoidal Positional Encoding (正弦位置编码) 是一种经典且优雅的绝对位置编码方案。
 
 对于序列中的第 pos 个位置，其编码向量 PE 的第 i 个分量计算如下：
@@ -64,6 +66,8 @@ def get_sinusoidal_positional_embeddings(seq_len: int, d_model: int):
 ```
 
 上述代码通过广播机制一次性完成了所有位置的计算，效率极高。它预计算了不同维度对应的“频率系数” div_term 。利用矩阵乘法原理（外积），将每个位置与每个频率配对。
+
+## RoPE 的核心思想
 
 Sinusoidal PE（正弦相加）虽然优雅，但有一个直观的缺点：它将位置信息硬生生地“砸”进词嵌入里。虽然模型能学，但这种方式对**相对位置**的感知是隐式的。
 
@@ -147,6 +151,8 @@ RoPE 的 PyTorch 实现本质就是：
 
 Sinusoidal Positional Encoding 的结合方式是想加，仅在模型输入层一次性注入，Rotary Positional Embedding 的结合方式是乘法/旋转，在每一层的 Attention 计算时注入。
 
+## RoPE 的 PyTorch 实现
+
 下面给出 RoPE 的 Pytorch 实现：
 
 ```python
@@ -180,6 +186,8 @@ class RoPE(nn.Module):
         k_rot = (k * cos) + (rotate_half(k) * sin)
         return q_rot, k_rot
 ```
+
+## 与注意力机制集成
 
 将 RoPE 集成到 Attention 里，我们会得到一个更加完整的现代的注意力机制：
 
@@ -282,4 +290,3 @@ if __name__ == "__main__":
     print("GQA+RoPE 输出形状:", output.shape)  # [1, 1024, 768]
 
 ```
-

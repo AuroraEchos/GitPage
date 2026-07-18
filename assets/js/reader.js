@@ -10,6 +10,24 @@
   const escapeHtml = (value) => value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const slugify = (text, index) => `${text.toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "") || "section"}-${index + 1}`;
 
+  function preserveDisplayMath(markdown) {
+    const blocks = [];
+    const content = markdown.replace(/^[ \t]*\$\$[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*\$\$[ \t]*$/gm, (_, formula) => {
+      const index = blocks.push(formula) - 1;
+      return `<div data-math-block="${index}"></div>`;
+    });
+    return { content, blocks };
+  }
+
+  function restoreDisplayMath(blocks) {
+    article.querySelectorAll("[data-math-block]").forEach((node) => {
+      const index = Number(node.dataset.mathBlock);
+      if (!Number.isInteger(index) || index < 0 || index >= blocks.length) return;
+      node.removeAttribute("data-math-block");
+      node.textContent = `$$\n${blocks[index]}\n$$`;
+    });
+  }
+
   function fail(message) {
     titleNode.textContent = "无法打开这篇笔记";
     sourceNode.textContent = "请返回笔记列表重新选择";
@@ -31,13 +49,17 @@
   }
 
   function buildToc() {
-    const headings = [...article.querySelectorAll("h1, h2, h3")];
+    const headings = [...article.querySelectorAll("h1, h2, h3, h4")];
+    const baseLevel = headings.length
+      ? Math.min(...headings.map((heading) => Number(heading.tagName.slice(1))))
+      : 1;
     toc.replaceChildren();
     headings.forEach((heading, index) => {
       heading.id = slugify(heading.textContent, index);
+      const level = Number(heading.tagName.slice(1)) - baseLevel + 1;
       const link = document.createElement("a");
       link.href = `#${heading.id}`;
-      link.className = `toc-level-${heading.tagName.slice(1)}`;
+      link.className = `toc-level-${level}`;
       link.textContent = heading.textContent;
       toc.append(link);
     });
@@ -84,13 +106,18 @@
 
   async function load() {
     if (!validSource) return fail("无效的 Markdown 文件地址。");
+    if (location.protocol === "file:") {
+      return fail("浏览器不允许网页直接读取本地 Markdown。请通过本地 HTTP 服务或 GitHub Pages 打开网站。");
+    }
     try {
       const requestUrl = new URL(`../${src}`, location.href);
       const response = await fetch(requestUrl);
       if (!response.ok) throw new Error(`文件读取失败（${response.status}）`);
       const markdown = await response.text();
-      const html = window.marked.parse(markdown, { gfm: true, breaks: false });
-      article.innerHTML = window.DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] });
+      const math = preserveDisplayMath(markdown);
+      const html = window.marked.parse(math.content, { gfm: true, breaks: false });
+      article.innerHTML = window.DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel", "data-math-block"] });
+      restoreDisplayMath(math.blocks);
       const firstHeading = article.querySelector("h1, h2");
       const fallback = decodeURIComponent(src.split("/").pop()).replace(/\.md$/i, "").replace(/_/g, " ");
       const title = firstHeading?.textContent.trim() || fallback;

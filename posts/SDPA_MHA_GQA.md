@@ -11,6 +11,8 @@ $$
 - Value：[B, L_v, d]
 - Mask：[B, 1, L_q, L_k]（利用广播机制适配所有头）
 
+## 标准 SDPA 与因果掩码
+
 标准的基于 Pytorch 的 SDPA 代码实现如下：
 
 ```python
@@ -105,6 +107,8 @@ Dropout 的作用是随机 “丢弃” 一部分注意力权重，防止模型�
 
 下面我们来介绍 FlashAttention-2。
 
+## FlashAttention-2 与 PyTorch SDPA
+
 一句话总结 FlashAttention-2 的目标就是：不存 $QK^T$、不存 softmax 权重，用分块 + 在线 softmax 把显存降到 O (N)，同时把并行拉满。具体的底层原理在这里就不进行阐述，我们直接看如何使用。
 
 **FlashAttention-2 现在已经有超级成熟、官方封装好的 API，一行调用就能用！**
@@ -157,6 +161,8 @@ def scaled_dot_product_attention(
 这个库更新最快，FlashAttention-3（针对 H100 等 Hopper 架构）也会在这个库里首发。
 
 F.scaled_dot_product_attention 中的最后一个关键参数是 enable_gqa: bool = False 。在介绍这个之前，我们需要先介绍一下多头注意力（Multi-Head Attention, MHA）。
+
+## 多头注意力（MHA）
 
 单头注意力只能学到一种关注方式，表达能力太弱，多头注意力让模型同时学习 “多种不同的关注方式”，从而捕捉更丰富、更细粒度的语言结构。
 
@@ -253,6 +259,8 @@ class MultiHeadAttention(nn.Module):
 
 以上就是关于多头注意力的相关内容，下面我们来介绍 GQA。
 
+## 分组查询注意力（GQA）
+
 在处理大语言模型（LLM）时，随着序列长度的增加，**KV Cache（键值缓存）** 往往会成为推理速度和显存占用的最大瓶颈。
 
 那么什么是 KV Cache？推理生成时（比如一句字一个字蹦出来）：每生成一个新 token，都要和之前所有 token做注意力，之前的 K、V 每次都重复计算，非常浪费，所以 LLM 会把每一层的 K、V 全部缓存下来，下次直接用，这就是 KV Cache。
@@ -334,7 +342,9 @@ class GQA(nn.Module):
         return self.dropout(self.w_o(attn_output))
 ```
 
-注意，在使用上述代码时，硬件需要 Ampere (RTX 30+) 以上架构，且数据类型强制要求强制要求 `float16` 或 `bfloat16`，且 Q 的头数必需要能够被 KV 的头数整除。
+注意，在使用上述代码时，Q 的头数必须能够被 KV 的头数整除；具体的硬件、数据类型和后端支持范围应以当前 PyTorch 文档为准。
+
+### 工程化实现
 
 一个更加工程化的版本如下：
 

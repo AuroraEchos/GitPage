@@ -10,7 +10,7 @@
 mask + softmax（attention）
 ```
 
-1. 张量形状操作（view、reshape、flatten）
+## 1. 张量形状操作（view、reshape、flatten）
 
    一个 Tensor 由三个部分组成：storage（底层一维内存）；shape（逻辑形状）；stride（步长，决定如何从 storage 映射到多维）。view/reshape/flatten 本质上都是在“改 shape + stride”，而不是改数据。
 
@@ -122,7 +122,7 @@ mask + softmax（attention）
 
    这就是CNN 全连接层前的标准操作。
 
-2. 张量操作（unsqueeze / squeeze）
+## 2. 张量操作（unsqueeze / squeeze）
 
    这两个算子专门用来增加 / 删除 “长度 = 1” 的维度，是维度对齐、广播、拼接的必备工具。
 
@@ -151,7 +151,7 @@ mask + softmax（attention）
    print(y.shape)     # [3, 1]
    ```
 
-3. 张量操作（permute / transpose）
+## 3. 张量操作（permute / transpose）
 
    transpose：只能交换两个维度；permute：可以任意重排所有维度。共同点：只改维度顺序、只改 stride，不拷贝底层数据，操作后张量**一定不连续**。例如：
 
@@ -176,7 +176,7 @@ mask + softmax（attention）
    x.permute(0, 2, 3, 1)
    ```
 
-4. 拼接与拆分（cat、stack、split、chunk）
+## 4. 拼接与拆分（cat、stack、split、chunk）
 
    torch.cat() 在现有维度上拼接，维度数量不变，只在某一维上变长。拼接维度的长度相加，其他维度必须完全相同。
 

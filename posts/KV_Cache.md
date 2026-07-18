@@ -1,6 +1,6 @@
 # KV Cache 介绍
 
-#### 什么是 KV Cache
+## 什么是 KV Cache
 
 KV Cache（Key-Value Cache）是大语言模型（LLM）推理阶段的一种核心加速技术。
 
@@ -12,7 +12,7 @@ KV Cache 只服务于推理阶段，不用于训练阶段。
 
 ---
 
-#### Transformer 自回归生成的问题
+## Transformer 自回归生成的问题
 
 现代大语言模型（如 GPT、LLaMA、Qwen）通常采用 Decoder-Only Transformer 架构，并使用自回归（Autoregressive）方式逐 token 生成文本。
 
@@ -29,13 +29,13 @@ KV Cache 只服务于推理阶段，不用于训练阶段。
 
 ---
 
-#### 没有 KV Cache 时的问题
+## 没有 KV Cache 时的问题
 
 假设用户输入长度为 1024 个 token。
 
 ---
 
-#### 第 1 步生成
+### 第 1 步生成
 
 输入：
 
@@ -58,7 +58,7 @@ x1025 = “因”
 
 ---
 
-#### 第 2 步生成
+### 第 2 步生成
 
 现在模型输入变为：
 
@@ -89,7 +89,7 @@ x1026 = “为”
 
 ---
 
-#### 第 3 步生成
+### 第 3 步生成
 
 输入继续增长：
 
@@ -112,7 +112,7 @@ x1027 = “它”
 
 ---
 
-#### 核心问题：重复计算
+### 核心问题：重复计算
 
 请注意：
 
@@ -133,7 +133,7 @@ x1 ~ x1024
 
 ---
 
-#### 为什么这是灾难性的
+### 为什么这是灾难性的
 
 如果模型连续生成：
 
@@ -163,7 +163,7 @@ x1 ~ x1024
 
 ---
 
-#### Attention 中的 K 和 V
+## Attention 中的 K 和 V
 
 Transformer Attention 公式：
 
@@ -175,6 +175,7 @@ $$
 \frac{QK^T}{\sqrt{d}}
 \right)V
 $$
+
 其中：
 
 - Q（Query）：当前 token 的查询向量
@@ -196,7 +197,7 @@ $$
 
 ---
 
-#### KV Cache 的核心思想
+## KV Cache 的核心思想
 
 KV Cache 的核心思想非常简单：
 
@@ -205,7 +206,7 @@ KV Cache 的核心思想非常简单：
 
 ---
 
-#### 使用 KV Cache 后
+## 使用 KV Cache 后
 
 第一次生成时：
 
@@ -229,7 +230,7 @@ KV Cache
 
 ---
 
-#### 下一步生成
+### 下一步生成
 
 生成新 token：
 
@@ -263,7 +264,7 @@ V1025
 
 ---
 
-#### KV Cache 的效果
+## KV Cache 的效果
 
 使用 KV Cache 后：
 
@@ -277,7 +278,7 @@ V1025
 
 ---
 
-#### 为什么叫 KV Cache，而不是 Q Cache
+## 为什么叫 KV Cache，而不是 Q Cache
 
 因为：
 
@@ -301,7 +302,7 @@ K/V 会被未来所有 token 使用。
 
 ---
 
-#### KV Cache 的本质
+## KV Cache 的本质
 
 KV Cache 本质上是：
 
@@ -315,9 +316,9 @@ KV Cache 本质上是：
 
 ---
 
-### 无 KV Cache 与 KV Cache 的直观对比
+## 无 KV Cache 与 KV Cache 的直观对比
 
-#### 方案一：无 KV Cache
+### 方案一：无 KV Cache
 
 ```text
 Step1:
@@ -363,7 +364,7 @@ Transformer 是一个大语言模型框架 ... [EOS]
 
 ---
 
-#### 方案二：KV Cache
+### 方案二：KV Cache
 
 ```text
 Prefill:
@@ -417,7 +418,7 @@ Q_是 attend 历史 7 token 的 KV Cache
 
 ---
 
-### Prefill 与 Decode
+## Prefill 与 Decode
 
 在现代大语言模型（LLM）推理系统中，整个生成过程通常会被拆分为两个阶段：
 
@@ -426,7 +427,7 @@ Q_是 attend 历史 7 token 的 KV Cache
 
 ---
 
-#### Prefill
+### Prefill
 
 Prefill：
 
@@ -442,7 +443,7 @@ Prefill：
 
 ---
 
-#### Decode
+### Decode
 
 Decode：
 
@@ -457,7 +458,7 @@ Decode：
 
 ---
 
-#### 为什么 Decode 更难优化
+### 为什么 Decode 更难优化
 
 虽然：
 
