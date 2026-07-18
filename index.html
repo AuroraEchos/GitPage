@@ -1,101 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Wenhao Liu's blog on machine learning engineering, LLM architecture, and systems thinking.">
-<title>Wenhao Liu's Blog</title>
-
-<link rel="icon" href="favicon.png" type="image/png">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0; url=about/">
+  <title>Wenhao Liu</title>
+  <script>window.location.replace("about/");</script>
 </head>
-
 <body>
-<section class="top" role="banner">
-  <header>
-    <h1>
-      <a href="index.html">Wenhao Liu's Blog</a>
-    </h1>
-  </header>
-
-  <nav aria-label="Primary navigation">
-    <ul>
-      <li><a href="index.html">Posts</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul>
-  </nav>
-</section>
-
-<main class="content">
-  <section class="home" aria-labelledby="posts-title">
-    <h2 id="posts-title" class="post-list-heading">Posts</h2>
-    <ul id="post-list" class="post-list"></ul>
-  </section>
-</main>
-
-<script src="data/posts.js"></script>
-<script>
-function formatDate(value) {
-  const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(date);
-}
-
-function humanizeCategory(value) {
-  return String(value || "notes")
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, char => char.toUpperCase());
-}
-
-function createPostItem(post) {
-  const item = document.createElement("li");
-
-  const meta = document.createElement("div");
-  meta.className = "post-meta-line";
-  meta.textContent = `${formatDate(post.date)} · ${humanizeCategory(post.category)}`;
-
-  const title = document.createElement("h3");
-
-  const link = document.createElement("a");
-  link.className = "post-link";
-  link.href = post.path;
-  link.textContent = post.title;
-
-  title.appendChild(link);
-  item.appendChild(meta);
-  item.appendChild(title);
-
-  if (post.desc) {
-    const desc = document.createElement("p");
-    desc.className = "post-desc";
-    desc.textContent = post.desc;
-    item.appendChild(desc);
-  }
-
-  return item;
-}
-
-function renderPosts() {
-  const container = document.getElementById("post-list");
-  const fragment = document.createDocumentFragment();
-  const sortedPosts = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  sortedPosts.forEach(post => {
-    fragment.appendChild(createPostItem(post));
-  });
-
-  container.replaceChildren(fragment);
-}
-
-document.addEventListener("DOMContentLoaded", renderPosts);
-</script>
+  <p><a href="about/">进入项目页面</a></p>
 </body>
 </html>
