@@ -62,7 +62,7 @@ $$
 
 ------
 
-### Q：为什么要处以 $\sqrt{d_k}$ ？
+### Q：为什么要除以 $\sqrt{d_k}$ ？
 
 设 q,k 各维度服从标准正态分布 N(0,1)，$$\mathbb{E}[q_i] = \mathbb{E}[k_i] = 0$$ ，$$\text{Var}(q_i) = \text{Var}(k_i) = 1$$ ，点积运算 $q \cdot k^T$，它实际上是 $d_k$ 个乘积项的和，由于这 $d_k$ 个乘积项之间是相互独立的，根据**方差的可加性**（独立随机变量相加，方差直接相加）：
 $$
@@ -98,3 +98,4 @@ Value 加权聚合成输出：$\mathcal{O}(N \cdot N \cdot d) = \mathcal{O}(N^2 
 
 ------
 
+### Q：Multi-Attention 的原理和作用
