@@ -99,3 +99,152 @@ Value 加权聚合成输出：$\mathcal{O}(N \cdot N \cdot d) = \mathcal{O}(N^2 
 ------
 
 ### Q：Multi-Attention 的原理和作用
+
+单一的注意力头只能学习一种类型的语义依赖关系，多头注意力把 Query、Key、Value 投影到多个不同的子空间，并行执行多组注意力计算，最后拼接融合，让模型同时捕捉多种不同的关联模式。
+
+假设输入的向量维度为 $d_{model}$ ，头数为 h，每个头的维度 $d_k = d_v = d_{model}/h$ 。
+
+首先进行分头，将 Q，K，V 分别映射到 h 个子空间，得到 h 组 ($Q_i, K_i, V_i$) 。
+
+接着对每一组执行缩放点积注意力：
+$$
+Attention(Q_i, K_i, V_i) = softmax(\frac{Q_iK_i^T}{\sqrt{d_k}})V_i
+$$
+然后直接拼接所有头的输出：
+$$
+Concat = [head_1; head_2;...;head_h]
+$$
+最后进行线性变换融合：
+$$
+MultiHead(Q, K, V) = Concat \cdot W_O
+$$
+其中 $W_O$ 是多头拼接之后的输出投影矩阵，唯一任务是把多个头拼接在一起的向量，重新映射回模型原始维度 $d_{model}$，同时学习融合多头信息。
+
+通常来说 $d_{model}$ 能被头数 h 整除，保证均分维度。
+
+举个 NLP 例子：
+
+    Head1：关注语法主谓关系
+    Head2：关注长距离指代
+    Head3：关注局部相邻词语义
+    Head4：关注同义词语匹配
+
+单个注意力头很难同时学好全部；多头相当于同时启用多组不同关注点。
+
+代码示例如下：
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+def scaled_dot_product_attention(Q, K, V, mask=None):
+    """
+    Q,K,V: [batch, heads, seq_len, d_k]
+    mask: [batch, 1, seq_len, seq_len] 或者 [1,1,seq_len,seq_len]
+    """
+    d_k = Q.size(-1)
+
+    attn_score = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(d_k, dtype=torch.float32))
+
+    if mask is not None:
+        attn_score = attn_score.masked_fill(mask == 0, -1e9)
+
+    attn_weight = F.softmax(attn_score, dim=-1)
+    output = torch.matmul(attn_weight, V)
+    return output, attn_weight
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, n_heads):
+        super().__init__()
+        assert d_model % n_heads == 0, "d_model 必须能被头数整除"
+
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.d_k = d_model // n_heads
+
+        # Q, K, V 投影矩阵 W_Q, W_K, W_V
+        self.w_q = nn.Linear(d_model, d_model)
+        self.w_k = nn.Linear(d_model, d_model)
+        self.w_v = nn.Linear(d_model, d_model)
+
+        # 输出融合矩阵 W_O
+        self.w_o = nn.Linear(d_model, d_model)
+
+    def forward(self, q, k, v, mask=None):
+        # q: [B, Lq, d_model]
+        # k: [B, Lk, d_model]
+        # v: [B, Lv, d_model]
+
+        batch_size = q.shape[0]
+
+        # 线形投影
+        Q = self.w_q(q)   # [B, Lq, d_model]
+        K = self.w_k(k)   # [B, Lk, d_model]
+        V = self.w_v(v)   # [B, Lv, d_model]
+        
+        # 分头
+        # [B, seq_len, n_heads, d_k] -> [B, n_heads, seq_len, d_k]
+        Q = Q.view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+        K = K.view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+        V = V.view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+
+        # 缩放点积注意力
+        attn_out, attn_weights = scaled_dot_product_attention(Q, K, V, mask)
+        
+        # 拼接多头
+        # [B, n_heads, seq_len, d_k] -> [B, seq_len, n_heads, d_k]
+        attn_out = attn_out.transpose(1, 2).contiguous()
+        # concat：把所有头拼回 d_model
+        attn_out = attn_out.view(batch_size, -1, self.d_model)
+
+        # W_O 融合所有头信息
+        output = self.w_o(attn_out)
+
+        return output, attn_weights
+
+if __name__ == "__main__":
+    d_model = 512
+    n_heads = 8
+    mha = MultiHeadAttention(d_model, n_heads)
+    batch = 2
+    src_len = 12   # encoder序列长度
+    tgt_len = 10    # decoder序列长度
+
+    # 1. Encoder输入特征
+    x = torch.randn(batch, src_len, d_model)
+
+    print("===== 1. Encoder 自注意力 Q=K=V =====")
+    out1, attn1 = mha(x, x, x)
+    print("out shape:", out1.shape)      # [2, 12, 512]
+    print("attn weight shape:", attn1.shape, "\n") # [2,8,12,12]
+
+    # 构造Decoder因果掩码（下三角mask）
+    def get_causal_mask(seq_len):
+        mask = torch.tril(torch.ones(seq_len, seq_len))
+        return mask.unsqueeze(0).unsqueeze(0) # [1,1,L,L]
+    tgt_mask = get_causal_mask(tgt_len)
+
+    # 2. Decoder 掩码自注意力
+    tgt_x = torch.randn(batch, tgt_len, d_model)
+    print("===== 2. Decoder 掩码自注意力（带因果mask） =====")
+    out2, attn2 = mha(tgt_x, tgt_x, tgt_x, mask=tgt_mask)
+    print("out shape:", out2.shape)      # [2, 10, 512]
+    print("attn weight shape:", attn2.shape, "\n") # [2,8,10,10]
+
+    # 3. Decoder 交叉注意力
+    memory = x   # encoder最终输出作为K,V
+    print("===== 3. Decoder 交叉注意力 Cross-Attention =====")
+    out3, attn3 = mha(q=tgt_x, k=memory, v=memory)
+    print("out shape:", out3.shape)      # [2, 10, 512]
+    print("attn weight shape:", attn3.shape) # [2,8,10,12]
+```
+
+Encoder 自注意力 / Decoder 掩码自注意力场景，传入 MHA 的原始 q、k、v 初始均为同一特征向量x；经过内部各自独立的线性投影后，得到不同的 Q，K，V；Decoder 交叉注意力场景，q 来自解码器，k/v 来自编码器，三者初始输入不是同一个特征。
+
+只有 Decoder 的掩码自注意力使用下三角形式的因果掩码；Encoder 自注意力、交叉注意力使用 padding mask，和下三角无关。
+
+------
+
