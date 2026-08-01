@@ -302,3 +302,125 @@ RoPE 不需要像传统位置编码那样增加额外的 Embedding 查表操作�
 
 ------
 
+### Q：LayerNorm 与 BatchNorm 的区别？
+
+两个最主要的区别是：
+
+- BN 沿着 batch 维度进行归一化，计算均值和方差，也就是会跨样本计算，Batch Size 太小时均值/方差估计不稳定，效果急剧下降。主要应用场景是计算机视觉那边。
+- LN 是沿着特征通道维度进行归一化，计算均值和方差，是在单个样本内进行计算，Batch Size 可以为 1。主要应用场景是 NLP 。
+
+为什么 CV 常用 BN，而 NLP/Large Model 必须用 LN？
+
+NLP 中文本长度不一，Padding 填 0 会破坏 BatchNorm 跨 Batch 计算时的均值和方差；而 LN 是在每个 Token/样本内部做归一化，不受 padding 影响。大语言模型（LLM）或超大 Transformer 占用极高显存，单卡 Batch Size 往往非常小（甚至为 1 或 2）。此时 BN 统计量会严重失真，而 LN 表现依然稳定。
+
+------
+
+### Q：介绍 Pre-Norm 和 Post-Norm？
+
+Pre-Norm 与 Post-Norm 是 Transformer 架构中 Layer Normalization 放置位置的两种不同策略。
+
+它们的核心区别在于：LN 是放在残差连接的“主干分支上”还是“合并后的主路径上”。
+
+原始的 Trnsformer 论文中给出的是放在合并后的主路径上，也就是后归一化，输入 x，先进行子层的计算，然后和原始的 x 想加，想加得到的输出再进行归一化：
+$$
+x_{out} = LN(x + F(x))
+$$
+但是现在的大模型结构上一般是采用前归一化，就是输入 x ，先进行归一化，然后经过子层，再和原始 x 想加：
+$$
+x_{out} = x + F(LN(X))
+$$
+核心的差异是在梯度的传播上，后归一化，由于每次残差相加后都经过了 LN 的重新缩放，当模型层数变深（如 >30 层），浅层梯度会趋近于 0，导致深层网络极难训练，梯度容易消失。
+
+前归一化主路径上不存在任何 LN 缩放，形成了一条纯粹的恒等映射，反向传播时，输出和对输入的偏到为 1,梯度可以直接到达底层，训练很稳定。
+
+------
+
+### Q：RMSNorm 是什么？
+
+RMSNorm 是 LayerNorm 的简化变体，移除了均值中心化步骤与可学习偏置 β，只使用均方根做尺度归一；计算更快、参数更少，效果与 LN 接近。
+
+既然去掉均值中心化，为什么还能稳定训练？
+
+Transformer 每层都有多头注意力与 FFN 线性投影，线性层天然可以学习偏移量，网络有能力自行补偿均值漂移；归一化最核心作用是约束激活幅度、防止梯度爆炸 / 消失，由 RMS 缩放完成。
+
+------
+
+### Q：介绍一下标准的前馈层 FFN 和 SwiGLU
+
+原始论文中的结构是：
+$$
+FFN(x) = W_2 \cdot \sigma(W_1x)
+$$
+原始的激活函数基本上使用的是 ReLU。先通过一个线性层升高维度，然后经过激活函数激活，最后再经过一个线性层降低维度。参数量：
+$$
+Param = Param(W_1) + Param(W_2) = (d * 4d + 4d) + (4d * d + d) = 8d^2 + 5d
+$$
+
+```python
+import torch
+import torch.nn as nn
+
+class FFN(nn.Module):
+    def __init__(self, d_model: int):
+        super().__init__()
+        self.w1 = nn.Linear(d_model, 4*d_model)
+        self.w2 = nn.Linear(4*d_model, d_model)
+        self.act = nn.GELU()
+    def forward(self, x):
+        return self.w2(self.act(self.w1(x)))
+```
+
+SwiGLU 的公式为：
+$$
+SwiFLU(x) = W_2(\sigma(W_Vx) \odot (W_Ux))
+$$
+W_u 与 W_v 的输出维度各为 $\boldsymbol{\tfrac{8}{3}d}$  ，总参数量和原始 FFN 参数量几乎持平。
+
+```python
+class SwiGLU(nn.Module):
+    def __init__(self, d_model: int):
+        super().__init__()
+        hidden = int(8 * d_model / 3)
+        self.wu = nn.Linear(d_model, hidden)
+        self.wv = nn.Linear(d_model, hidden)
+        self.w2 = nn.Linear(hidden, d_model)
+        self.swish = lambda z: z * torch.sigmoid(z)
+    def forward(self, x):
+        u = self.wu(x)
+        v = self.wv(x)
+        h = u * self.swish(v)
+        return self.w2(h)
+```
+
+- 标准 FFN：单路映射 → 激活；信息流只有一条分支
+- SwiGLU：两路独立线性投影，一路经过 swish 激活，两路相乘融合；门控结构（Gated Linear Unit）
+
+GLU 引入乘法交互，能够建模更复杂非线性。
+
+------
+
+### Q：Encoder-Only/Decoder-Only/Encoder-Decoder 的区别？
+
+需要明确一些基础的组件：
+
+- Encoder Self-Attention：双向注意力，token 能看见上下文左右全部 token。
+- Decoder Self-Attention（Masked Self-Attention / 因果注意力 Causal Attention）：单向注意力，只能看到当前位置及左侧历史 token，看不到未来 token。
+- Cross-Attention（交叉注意力）：Decoder 查询 Query，从 Encoder 输出 Key/Value 提取信息。
+
+Encoder-Only 也就是仅编码器，代表模型有 BERT、RoBERT、ViT 等，结构上就是堆叠多层 Encoder Block，每个 Encoder Blok 包含一个双向自注意力和前馈层。它的特点就是利用完整的上下文信息，没有因果 mask，不能做自回归生成，在推理上就是输入一个完整句子，然后一次性全局建模。适合的任务有文本分析，情感分类，语义相似度等。
+
+Decoder-Only 也就是仅有解码器，是现在自回归大语言模型主要采用的架构，代表模型有 GPT 系列、LLaMA、Qwen、Mistral、Llama3。在结构上堆叠多层 Decoder Block（只含 Masked 自注意力 + FFN，无 Cross-Attention），每个 Block 是因果注意力和前馈层。天然支持自回归生成：从左到右逐 token 预测下一个词。输入与输出共享同一套权重。适合的任务就是对话、文本续写、翻译、摘要、代码生成；当前通用大模型主流方案。
+
+Encoder-Decoder 代表模型：原始 Transformer、T5、BART、mBART。
+
+- Encoder：双向 Self-Attention，编码源序列。
+- Decoder：Masked Self-Attention + Cross-Attention，读取 Encoder 编码，生成目标序列。
+
+适合的任务有机器翻译、文本摘要等。
+
+三者预训练目标：
+
+- Encoder-Only：MLM 掩码语言建模（BERT）
+- Decoder-Only：LM 自回归语言建模，预测下一个 token（GPT）
+- Encoder-Decoder：Span/Seq2Seq 掩码，目标序列重建（T5）
+
