@@ -82,19 +82,37 @@
       button.className = "copy-code";
       button.textContent = "复制";
       button.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(code.textContent);
-        button.textContent = "已复制";
+        try {
+          await navigator.clipboard.writeText(code.textContent);
+          button.textContent = "已复制";
+        } catch {
+          button.textContent = "复制失败";
+        }
         setTimeout(() => { button.textContent = "复制"; }, 1400);
       });
       pre.append(button);
     });
   }
 
+  function loadMermaid() {
+    return new Promise((resolve, reject) => {
+      if (window.mermaid) return resolve();
+      const script = document.createElement("script");
+      script.src = "../assets/vendor/mermaid.min.js";
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("图表渲染库加载失败"));
+      document.head.append(script);
+    });
+  }
+
   async function renderDiagrams() {
-    const nodes = article.querySelectorAll(".mermaid");
-    if (!nodes.length || !window.mermaid) return;
-    window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: document.documentElement.classList.contains("dark") ? "dark" : "neutral" });
-    try { await window.mermaid.run({ nodes }); } catch (error) { console.warn("Mermaid rendering failed", error); }
+    const nodes = [...article.querySelectorAll(".mermaid")];
+    if (!nodes.length) return;
+    try {
+      await loadMermaid();
+      window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });
+      await window.mermaid.run({ nodes });
+    } catch (error) { console.warn("Mermaid rendering failed", error); }
   }
 
   function updateProgress() {
@@ -102,6 +120,35 @@
     const distance = Math.max(article.offsetHeight - innerHeight, 1);
     const value = Math.min(1, Math.max(0, (scrollY - start + 120) / distance));
     progress.style.transform = `scaleX(${value})`;
+  }
+
+  function updateToc() {
+    const headings = [...article.querySelectorAll("h1, h2, h3, h4")];
+    const links = [...toc.querySelectorAll("a")];
+    if (!headings.length || !links.length) return;
+
+    let current = headings[0];
+    headings.forEach((heading) => {
+      if (heading.getBoundingClientRect().top <= 150) current = heading;
+    });
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) current = headings.at(-1);
+
+    links.forEach((link) => {
+      const isActive = link.getAttribute("href") === `#${current.id}`;
+      link.classList.toggle("active", isActive);
+      if (isActive) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+  }
+
+  let readingStateFrame = 0;
+  function scheduleReadingStateUpdate() {
+    if (readingStateFrame) return;
+    readingStateFrame = requestAnimationFrame(() => {
+      updateProgress();
+      updateToc();
+      readingStateFrame = 0;
+    });
   }
 
   async function load() {
@@ -133,11 +180,11 @@
         { left: "$", right: "$", display: false }, { left: "\\(", right: "\\)", display: false }
       ] });
       await renderDiagrams();
-      updateProgress();
+      scheduleReadingStateUpdate();
     } catch (error) { fail(error.message || "Markdown 文件读取失败。"); }
   }
 
-  addEventListener("scroll", updateProgress, { passive: true });
-  addEventListener("resize", updateProgress);
+  addEventListener("scroll", scheduleReadingStateUpdate, { passive: true });
+  addEventListener("resize", scheduleReadingStateUpdate);
   load();
 })();

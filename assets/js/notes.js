@@ -5,6 +5,7 @@ const categoryLabels = {
 };
 
 const notes = [
+  { date: "2026.08.01", category: "llm", title: "Qwen3-VL", desc: "梳理 Qwen3-VL 的视觉编码、DeepStack、多模态位置编码与主干数据流。", path: "posts/Qwen3-VL.md" },
   { date: "2026.07.10", category: "note", title: "LLM Basic Knowledge", desc: "从自回归解码、注意力机制、位置编码到前馈网络，梳理 LLM 的基础知识。", path: "posts/LLM_Basic_Knowledge.md" },
   { date: "2026.06.10", category: "note", title: "What is NAT traversal?", desc: "理解内网穿透中的地址转换、端口映射与通信路径。", path: "posts/Intranet_penetration.md" },
   { date: "2026.06.01", category: "agent", title: "OpenAI Function Calling Protocol", desc: "从消息协议与执行循环理解 Function Calling。", path: "posts/OpenAI_Function_Calling.md" },
@@ -47,25 +48,37 @@ function renderNotes() {
   }
 
   filtered.forEach((note) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "note-item";
-    button.innerHTML = `
-      <time>${note.date}</time>
-      <span class="note-title"><small>${categoryLabels[note.category]}</small><strong>${note.title}</strong></span>
-      <span class="note-description">${note.desc}</span>
-      <span aria-hidden="true">→</span>`;
-    button.addEventListener("click", () => {
-      window.location.href = `reader.html?src=${encodeURIComponent(note.path)}`;
-    });
-    list.append(button);
+    const link = document.createElement("a");
+    const time = document.createElement("time");
+    const title = document.createElement("span");
+    const titleText = document.createElement("strong");
+    const category = document.createElement("small");
+    const description = document.createElement("span");
+
+    link.className = "note-item";
+    link.href = `reader.html?src=${encodeURIComponent(note.path)}`;
+    time.dateTime = note.date.replaceAll(".", "-");
+    time.textContent = note.date;
+    title.className = "note-title";
+    titleText.textContent = note.title;
+    category.textContent = categoryLabels[note.category];
+    description.className = "note-description";
+    description.textContent = note.desc;
+
+    title.append(titleText, category);
+    link.append(time, title, description);
+    list.append(link);
   });
 }
 
 filters.forEach((button) => {
   button.addEventListener("click", () => {
     activeCategory = button.dataset.category;
-    filters.forEach((item) => item.classList.toggle("active", item === button));
+    filters.forEach((item) => {
+      const isActive = item === button;
+      item.classList.toggle("active", isActive);
+      item.setAttribute("aria-pressed", String(isActive));
+    });
     renderNotes();
   });
 });

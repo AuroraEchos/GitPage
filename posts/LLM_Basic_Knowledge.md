@@ -446,3 +446,12 @@ Encoder-Decoder 代表模型：原始 Transformer、T5、BART、mBART。
 ------
 
 #### Q：LLM 预训练使用什么损失函数？
+
+自回归大模型预训练标准是交叉熵损失。输入序列错位，用前面 token 预测后续 token，最大化文本序列对数似然，padding token 通过 ignore_index 忽略不计。注意：SFT 阶段也用交叉熵，只是 mask 掉 prompt 部分；RLHF 才引入 KL、奖励损失。
+
+------
+
+### Q: Adam vs AdamW 的区别？
+
+Adam 和 AdamW 的核心区别在于：如何实现权重衰减（weight decay）。
+
