@@ -1,7 +1,14 @@
-# Qwen3-VL 笔记
-### 1. 基础介绍
+---
+date: 2026-08-01
+category: llm
+title: Qwen3-VL
+description: 梳理 Qwen3-VL 的视觉编码、DeepStack、多模态位置编码与主干数据流。
+---
 
-Qwen3-VL 是阿里云通义千问团队于 2025 年 9 月份推出的新一代开源视觉语言多模态大模型，这是迄今为止 Qwen 系列中最强大的视觉语言模型，完整支持图片、短视频、长视频、混合图文输入，兼顾端侧轻量化部署与云端高性能推理，包含 2B、4B、8B、32B Dense 版本，以及 30B-A3B、235B-A22B MoE 版本，原生上下文长度为 256K，arxiv 链接：https://arxiv.org/pdf/2511.21631。
+# Qwen3-VL 笔记
+## 1. 基础介绍
+
+Qwen3-VL 是阿里巴巴 Qwen 团队于 2025 年 9 月开始发布的视觉语言模型系列，支持文本、图片、视频和交错多模态上下文。技术报告覆盖 2B、4B、8B、32B Dense 版本，以及 30B-A3B、235B-A22B MoE 版本，原生上下文长度为 256K。官方仓库还说明可以通过扩展配置达到 1M，但这不等同于所有部署默认支持 1M。
 
 Qwen3-VL 家族分为稠密 Dense、MoE 稀疏混合专家两大系列，每个规格提供 Instruct 、Thinking 两个版本：
 
@@ -12,7 +19,7 @@ Qwen3-VL 家族分为稠密 Dense、MoE 稀疏混合专家两大系列，每个�
 | Qwen3-VL-30B-A3B MoE   | 平衡算力与性能，云端批量推理          | SigLIP-2 400M              |
 | Qwen3-VL-235B-A22B MoE | 旗舰通用多模态，复杂 STEM、长视频推理 | SigLIP-2 400M              |
 
-### 2. 核心架构
+## 2. 核心架构
 
 Qwen3-VL 的核心可以概括为：
 
@@ -26,28 +33,17 @@ Qwen3-VL 的核心可以概括为：
 
 早期的视觉模型例如 Qwen-VL 在结构上是在视觉编码器后接 Query Transformer/Cross-Attention Adapter，而 Qwen3-VL 把连续的视觉特征转换成与文本 embedding 同维度的 visual tokens，直接放入语言模型上下文中，再由统一的自回归 Decoder 对文本、图像和视频进行建模。
 
-技术报告中对上述框架的原始描述如下：
-
->The Qwen3-VL framework integrates a vision encoder and a language model decoder to process
->multimodal inputs, including text, images, and video. The vision encoder is specifically designed to
->handle dynamic, native-resolution visual inputs, mapping them to visual tokens of variable length.
->To enhance perceptual capability and preserve rich visual information, we incorporate the pioneering
->DeepStack mechanism, which injects visual tokens from multiple layers of the vision encoder into
->corresponding layers of the LLM. Furthermore, we adopt Interleaved MRoPE to encode positional
->information for multimodal inputs with a balanced frequency spectrum, and introduce text-based
->timestamp tokens to more effectively capture the temporal structure of video sequences.
-
-Qwen3-VL 整体框架融合视觉编码器与大语言模型解码器，用于处理文本、图像、视频等多模态输入。该视觉编码器经过专门优化，可处理任意原生分辨率的动态视觉输入，并将像素信息映射为长度可变的视觉 Token。为提升模型视觉感知能力、完整保留丰富视觉细节，本文提出创新的 DeepStack 多层视觉融合机制：将视觉编码器不同层级输出的视觉特征 Token，分层注入大语言模型的对应解码层。除此之外，模型采用交错式多维旋转位置编码（Interleaved MRoPE），以均衡频谱分布对多模态输入完成位置信息编码；同时引入文本式时间戳 Token，能够更高效地捕捉视频序列的时序逻辑结构。
+技术报告将整体设计概括为：视觉编码器把动态原生分辨率输入映射为可变长度视觉 token；DeepStack 把 ViT 多个中间层的特征注入对应 LLM 层；Interleaved MRoPE 为文本、图像和视频分配多维位置频率；视频时间则通过文本时间戳对齐。DeepStack 的目标是保留多层视觉信息，但“完整保留所有细节”仍是过强表述。
 
 官方把它定义为三个主要模块：Vision Encoder、MLP-based Vision-Language Merger 和 Qwen3 LLM；DeepStack、Interleaved MRoPE 和视频文本时间戳是在这个基础上的关键增强。
 
 ------
 
-### 3. Qwen3-VL 主干链路数据流模拟
+## 3. Qwen3-VL 主干链路数据流模拟
 
-我们构造一个足够小、但覆盖完整多模态路径的输入，严格沿着这段 `Qwen3VLModel.forward()` 走一遍。代码来自于：https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3_vl/modeling_qwen3_vl.py 。
+我们构造一个足够小的输入，沿 Hugging Face Transformers 中 `Qwen3VLModel.forward()` 的主要路径走一遍。`main` 分支会持续变化，阅读时应同时核对所安装 Transformers 版本的源码：[modeling_qwen3_vl.py](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3_vl/modeling_qwen3_vl.py)。
 
-#### 固定一个模拟输入
+### 固定一个模拟输入
 
 为了让数字容易手算，我们使用：
 
@@ -69,7 +65,7 @@ N_{vision} = \frac{T \times H \times W}{2^2} = \frac{24}{4} = 6
 $$
 所以，我们的文本输入里必须恰好有 6 个图像占位 Token。
 
-#### 构造输入 Token 序列
+### 构造输入 Token 序列
 
 我们构造如下序列：
 
@@ -108,3 +104,37 @@ input_ids = [
 ]
 ```
 
+### 视觉特征与占位符替换
+
+`pixel_values` 先进入 SigLIP-2 架构的视觉编码器。示例网格包含 24 个 patch；主 merger 按 $2\times2$ 空间块合并并投影到 LLM hidden size，得到：
+
+```text
+image_embeds: [6, 4096]
+```
+
+视觉编码器还从三个选定的中间层各产生一组 DeepStack 特征；经过各自 merger 后，每组同样对应 6 个视觉位置：
+
+```text
+deepstack_visual_embeds: 3 × [6, 4096]
+```
+
+模型先把全部 `input_ids` 映射为 `[1, 13, 4096]` 的 token embeddings，再检查 6 个 `<image_pad>` 是否与 6 个主视觉 token 数量一致。通过检查后，使用 image mask 把这些占位符 embedding 替换为 `image_embeds`。占位符本身只是确定视觉特征写入序列的位置，并不是视觉内容。
+
+### Interleaved MRoPE 与 DeepStack
+
+处理器还需要提供图像/视频的模态类型信息。模型据此生成三轴 position IDs；文本位置三轴相同，图像位置则编码合并后网格的高和宽，视频还会包含时间轴。具体张量布局随 Transformers 版本演进，不能只靠 `input_ids` 推出正确的多模态位置。
+
+替换主视觉 embedding 后，统一序列进入 Qwen3 LLM。到达配置指定的前几个层时，模型只在视觉位置上把对应的 DeepStack 特征加到 hidden states：
+
+```text
+hidden_states[visual_positions] += deepstack_visual_embeds[layer_index]
+```
+
+因此 DeepStack 不是把额外 token 追加到上下文末尾，也不会把序列长度从 13 变大；它是在若干 LLM 层对同一批视觉位置做跨层特征注入。
+
+最后，Causal LM 输出每个序列位置的词表 logits。生成时仍从最后一个有效位置采样下一个文本 token，并使用 KV Cache 增量解码。
+
+参考资料：
+
+1. [Qwen3-VL Technical Report](https://arxiv.org/abs/2511.21631)
+2. [QwenLM/Qwen3-VL 官方仓库](https://github.com/QwenLM/Qwen3-VL)

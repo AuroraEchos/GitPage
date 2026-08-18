@@ -1,3 +1,10 @@
+---
+date: 2026-05-20
+category: llm
+title: What is KV Cache
+description: 为什么缓存 Key / Value 能加速自回归解码。
+---
+
 # KV Cache 介绍
 
 ## 什么是 KV Cache
@@ -8,7 +15,7 @@ KV Cache（Key-Value Cache）是大语言模型（LLM）推理阶段的一种核
 
 > 避免模型在生成文本时，重复计算历史 token 的 Attention Key 和 Value。
 
-KV Cache 只服务于推理阶段，不用于训练阶段。
+KV Cache 主要服务于自回归推理。标准的整段并行训练通常不会使用这种逐 token 缓存；某些分块训练、流式模型或前缀复用方案是例外。
 
 ---
 
@@ -25,7 +32,7 @@ KV Cache 只服务于推理阶段，不用于训练阶段。
 → 继续生成
 ```
 
-模型每次只能生成一个新的 token。
+标准贪心、采样和 beam search 解码通常每个序列每步生成一个新 token；推测解码等方法可以在一次验证中接受多个 token。
 
 ---
 
@@ -129,7 +136,7 @@ x1 ~ x1024
 - 重新计算所有 Attention
 - 重新计算所有 K/V
 
-这些计算结果实际上与上一轮完全一致。
+在推理模式下，只要历史 token、位置编码和注意力可见范围不变，这些历史 K/V 与上一轮一致，因而可以复用。
 
 ---
 
@@ -145,7 +152,7 @@ x1 ~ x1024
 
 前面的历史 token 会被反复重新计算数百次。
 
-计算量会呈等差数列增长：
+仅看每轮重复处理的 token 数，会呈等差数列增长：
 
 ```text
 1024
@@ -155,7 +162,9 @@ x1 ~ x1024
 1524
 ```
 
-导致：
+更精确地说，无缓存时每一步都对长度为 $t$ 的序列做完整前向，投影和 MLP 被重复计算，朴素注意力还会重复构造 $t\times t$ 分数矩阵；使用缓存后，每层只为新 token 计算 Q/K/V，但当前 Q 仍需读取并关注长度为 $t$ 的历史 K/V。
+
+这会导致：
 
 - 推理速度极慢
 - GPU 计算资源大量浪费
@@ -185,8 +194,8 @@ $$
 在自回归生成过程中：
 
 ```text
-历史 token 的 K/V 一旦计算完成，
-后续不会再发生变化。
+在标准因果 Transformer 的推理模式下，历史 token 的 K/V 一旦计算完成，
+后续解码可以直接复用。
 ```
 
 因此：
@@ -208,7 +217,7 @@ KV Cache 的核心思想非常简单：
 
 ## 使用 KV Cache 后
 
-第一次生成时：
+Prefill 时：
 
 ```text
 输入：
@@ -232,7 +241,7 @@ KV Cache
 
 ### 下一步生成
 
-生成新 token：
+已经从 prefill 的最后一个位置采样出新 token：
 
 ```text
 x1025
@@ -253,14 +262,15 @@ V1 ~ V1024
 直接读取缓存
 ```
 
-只新增计算：
+接下来把 `x1025` 作为本轮输入，只新增计算：
 
 ```text
+Q1025
 K1025
 V1025
 ```
 
-然后追加到缓存中。
+其中 K/V 追加到每一层的缓存中；Q 只用于本轮预测 `x1026`，无需保存。
 
 ---
 
@@ -283,8 +293,7 @@ V1025
 因为：
 
 ```text
-Q 只与当前 token 有关，
-不会被后续 token 复用。
+历史 Q 不会被后续 token 的注意力计算复用。
 ```
 
 而：
@@ -296,7 +305,7 @@ K/V 会被未来所有 token 使用。
 因此：
 
 ```text
-只需要缓存 K/V，
+标准增量解码只需要缓存 K/V，
 不需要缓存 Q。
 ```
 
@@ -329,29 +338,29 @@ Step1:
 计算 6 个 token 的全部 hidden states
 
 输出:
-只取最后一个位置 → [Transformer]
+只取最后一个位置的 logits → 采样得到 [是]
 
 
 Step2:
 输入:
-[请,介,绍,一,下,Transformer,Transformer]
+[请,介,绍,一,下,Transformer,是]
 
 模型:
 重新计算 7 个 token 的全部 hidden states
 
 输出:
-只取最后一个位置 → [是]
+只取最后一个位置的 logits → 采样得到 [一]
 
 
 Step3:
 输入:
-[请,介,绍,一,下,Transformer,Transformer,是]
+[请,介,绍,一,下,Transformer,是,一]
 
 模型:
 重新计算 8 个 token 的全部 hidden states
 
 输出:
-只取最后一个位置 → [一]
+只取最后一个位置的 logits → 采样得到 [种]
 
 ...
 
@@ -378,21 +387,21 @@ Prefill:
 K/V Cache(6 tokens)
 
 输出:
-[Transformer]
+最后一个位置的 logits → 采样得到 [是]
 
 
 Decode Step2:
 输入:
-[Transformer]
+[是]
 
 模型:
 只计算当前 token 的 Q/K/V
 
 Attention:
-Q_T attend 历史 6 token 的 KV Cache
+Q_是 attend 已缓存的 6 个 prompt token，并把 K_是/V_是 追加到缓存
 
 输出:
-[是]
+[一]
 
 Cache 更新:
 7 tokens
@@ -400,16 +409,16 @@ Cache 更新:
 
 Decode Step3:
 输入:
-[是]
+[一]
 
 模型:
 只计算当前 token 的 Q/K/V
 
 Attention:
-Q_是 attend 历史 7 token 的 KV Cache
+Q_一 attend 已缓存的 7 个 token，并追加 K_一/V_一
 
 输出:
-[一]
+[种]
 
 ...
 
@@ -497,7 +506,7 @@ KV Cache 虽然：
 
 因此：
 
-现代 LLM 推理的瓶颈逐渐变成：
+许多大模型的批量较小的 decode 阶段常常受限于：
 
 ```text
 HBM Memory Bandwidth
@@ -509,11 +518,10 @@ HBM Memory Bandwidth
 FLOPS
 ```
 
-这也是：
+相关优化关注的并不完全是同一问题：
 
-- vLLM
-- FlashDecoding
-- PagedAttention
-- GQA
+- GQA/MQA 减少需要读取和保存的 KV 头数；
+- FlashDecoding 等 kernel 优化长上下文 decode 的并行与访存；
+- PagedAttention/vLLM 重点改善 KV Cache 的内存管理、复用与服务吞吐。
 
 等技术存在的原因。

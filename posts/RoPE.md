@@ -1,3 +1,10 @@
+---
+date: 2025-09-10
+category: llm
+title: RoPE
+description: 旋转位置编码的直觉、公式与实现要点。
+---
+
 # 位置编码
 
 在 Transformer 模型中，由于 Self-Attention 机制本身是置换不变性的，也就是它无法识别输入序列中词语的顺序，我们需要通过 Positional Encoding (位置编码) 为模型引入位置信息。
@@ -39,17 +46,17 @@ $$
    $$
    其中频率 $\omega_i = 1/10000^{2i/d_{model}}$。这意味着模型可以通过注意力机制中的线性层，轻松捕捉到 token 之间的相对距离信息。
 
-2. 分母项 $10000^{2i/d_{model}}$ 构成了一个几何级数，使得波长在 $2\pi$ 到 $10000 \cdot 2\pi$ 之间变化：
+2. 分母项 $10000^{2i/d_{model}}$ 构成几何级数；在有限维度下，最低频率对应的最大波长接近、但通常略小于 $10000 \cdot 2\pi$：
 
-   低维分量 ($i \to 0$)具有高频率，能够捕捉局部的、精细的位置差异。高维分量 ($i \to d_{model}/2$)具有低频率，能够提供长距离的、宏观的位置骨架。这种设计类似于二进制计数器，确保了序列中每个位置的唯一性，同时保持了连续性。
+   低维分量 ($i \to 0$)频率高，对短距离变化更敏感；高维分量频率低，随位置变化更慢。多频率组合给模型提供连续的位置特征，但不应把它理解成严格的二进制计数器。
 
-3. 在 Self-Attention 中，位置编码的相似度直接影响注意力权重。两个位置编码的点积 $PE_{pos} \cdot PE_{pos+k}$ 随着距离 $k$ 的增加而呈现衰减趋势：
+3. 两个正弦位置编码的点积只依赖相对位移 $k$：
    
    $$
    PE_{pos} \cdot PE_{pos+k} = \sum_{i=0}^{d_{model}/2 - 1} \cos\left( \frac{k}{10000^{2i/d_{model}}} \right)
    $$
 
-   这种特性为模型提供了一个先验：物理距离较近的词通常具有更高的相关性，这符合自然语言处理直觉。
+   这个多频余弦和会随 $k$ 振荡，并不保证随距离单调衰减。它提供相对位移线索，而不是固定的“越近权重越大”规则。
 
 正弦位置编码的标准 Pytorch 实现如下：
 
@@ -131,25 +138,25 @@ $$
 
 需要特别注意的是，为什么只作用在 Q 和 K？
 
-因为 attention：
+设 Query 位于位置 $m$，Key 位于位置 $n$。二者分别使用不同的旋转矩阵：
 
 $$
-\mathbf{Q}\mathbf{K}^\top
+q_m = R_m q, \qquad k_n = R_n k
 $$
 
-旋转后：
+内积为：
 
 $$
-(QR)(KR)^T = QRR^TK^T
+(R_m q)^T(R_n k) = q^T R_m^T R_n k = q^T R_{n-m}k
 $$
 
-这里隐含了相对位置编码效果。V 不参与位置编码（否则会破坏内容表达）。
+因此注意力分数显式依赖相对位移 $n-m$。标准 RoPE 只旋转 Q 和 K，因为位置信息需要进入匹配分数；V 仍通过这些位置相关的注意力权重被聚合。
 
 RoPE 的 PyTorch 实现本质就是：
 
 > 把 embedding 的偶数/奇数维配对，当作复数，在不同位置上乘上不同相位，实现一个“位置相关的旋转”。
 
-Sinusoidal Positional Encoding 的结合方式是想加，仅在模型输入层一次性注入，Rotary Positional Embedding 的结合方式是乘法/旋转，在每一层的 Attention 计算时注入。
+Sinusoidal Positional Encoding 的典型结合方式是相加，并在模型输入处注入；RoPE 则在每层 Attention 内旋转 Q/K。不同模型可能采用不同位置编码组合，不能把这一点当作所有实现的硬性规定。
 
 ## RoPE 的 PyTorch 实现
 
@@ -186,6 +193,8 @@ class RoPE(nn.Module):
         k_rot = (k * cos) + (rotate_half(k) * sin)
         return q_rot, k_rot
 ```
+
+这里采用的是“前后半维配对”的 `rotate_half` 约定，而不是正文前面展示的相邻维配对；只要频率排列与旋转函数一致，两种布局在数学上等价。生产实现还需要接收真实 `position_ids`，才能正确处理 padding、KV Cache 和增量解码时的位置偏移。
 
 ## 与注意力机制集成
 
@@ -290,3 +299,7 @@ if __name__ == "__main__":
     print("GQA+RoPE 输出形状:", output.shape)  # [1, 1024, 768]
 
 ```
+
+上面的 GQA + RoPE 代码是教学示例，只适用于从位置 0 开始、无 padding 的整段前向；它没有实现 KV Cache。公式可以计算训练长度以外的位置，但这不保证模型在未训练过的长度上仍有可靠质量，长上下文通常还需要专门的训练或 RoPE scaling。
+
+参考：[RoFormer: Enhanced Transformer with Rotary Position Embedding](https://arxiv.org/abs/2104.09864)。

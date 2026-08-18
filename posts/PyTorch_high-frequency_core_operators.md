@@ -1,6 +1,13 @@
+---
+date: 2026-04-30
+category: note
+title: PyTorch High-Frequency Core Operators
+description: 张量形状、线性代数、掩码与 Softmax 的高频操作地图。
+---
+
 # PyTorch 高频核心算子
 
-这份笔记用于记录一些 Pytorch 框架下的高频算子，Pyotrch 核心其实就三类：
+这份笔记记录 PyTorch 中常见的张量操作。下面用三类操作建立基础地图：
 
 ```
 形状操作（view/permute）
@@ -12,7 +19,7 @@ mask + softmax（attention）
 
 ## 1. 张量形状操作（view、reshape、flatten）
 
-   一个 Tensor 由三个部分组成：storage（底层一维内存）；shape（逻辑形状）；stride（步长，决定如何从 storage 映射到多维）。view/reshape/flatten 本质上都是在“改 shape + stride”，而不是改数据。
+   理解 Tensor 视图时，最重要的是 storage（底层存储）、shape（逻辑形状）、stride（步长）和 storage offset。`view` 只改变张量的解释方式；`reshape` 和 `flatten` 会尽量返回视图，无法满足时可能复制数据。
 
    view 是纯视图变换，定义如下：
 
@@ -20,7 +27,7 @@ mask + softmax（attention）
    x = x.view(new_shape)
    ```
 
-   view 不拷贝内存，仅改变张量的“解释方式”，使用时必须满足 Tensor 在内存中是连续的。例如：
+   `view` 不拷贝内存，但要求新形状与原张量的 size/stride 兼容。连续张量通常满足这一条件；部分非连续张量也可能支持某些 `view`，因此“必须连续”是便于记忆但不完全精确的说法。例如：
 
    ```python
    x = torch.arange(6)
@@ -34,7 +41,7 @@ mask + softmax（attention）
            [3, 4, 5]])
    ```
 
-   permute、transpose 之后的张量不连续，不能直接用 view。连续的定义是：逻辑上相邻的元素，在底层内存里也是相邻的。例如一个张量：
+   `permute`、`transpose` 之后的张量通常不连续，很多目标形状不能直接 `view`。连续性更准确地说，是张量的 stride 符合所选 memory format 的连续布局。例如一个张量：
 
    ```python
    tensor([[0, 1, 2],
@@ -49,7 +56,7 @@ mask + softmax（attention）
            [2, 5]])
    ```
 
-   底层内存数据完全没变！还是：[0,1,2,3,4,5]，现在问题来了，逻辑上相邻的数字：0 旁边应该是 3、1 旁边应该是 4、2 旁边应该是 5，但底层内存里：0 旁边是 1、1 旁边是 2、2 旁边是 3，逻辑相邻 ≠ 内存相邻，那么就是不连续。PyTorch 张量内存连续的判定公式如下，可以自己学习理解：
+   底层 storage 没变，仍是 `[0,1,2,3,4,5]`，但转置后的 stride 发生了变化。对无 size-1 维的标准 contiguous format，可以用下面的递推关系理解连续布局；实际还要考虑 size 为 1 的维度、offset 和 channels-last 等其他 memory format：
    $$
    \text{stride}[i] = \text{stride}[i+1] \times \text{size}[i+1]
    $$
@@ -59,7 +66,7 @@ mask + softmax（attention）
    x = x.reshape(new_shape)
    ```
 
-   view 要求必须连续，不连续就报错。reshape 不要求连续，不连续就自动拷贝，永远不报错。如果张量内存连续，reshape = view（不拷贝数据，纯改形状）；如果张量内存不连续，reshape 自动调用 contiguous() 拷贝数据，变成连续后再 view。例如：
+   `reshape` 会在可能时返回视图，否则复制出兼容布局；调用方不应依赖它一定共享 storage。它仍可能因为元素数量不匹配等原因报错。需要明确强制连续副本时使用 `x.contiguous()`，需要确认是否共享存储时应直接检查，而不要根据 API 名称猜测。例如：
 
    ```python
    x = torch.arange(6)
@@ -92,9 +99,9 @@ mask + softmax（attention）
            [2, 5]])
    ```
 
-   下面给出一些工程上的建议：如果场景对性能比较敏感，那么就使用 `view + contiguous`；如果写代码追求稳一些，那么就使用 `reshape`。
+   工程上通常优先用表达意图最清楚的 API：能保证布局兼容且必须零拷贝时使用 `view`；允许实现自行选择视图或副本时使用 `reshape`；只有下游算子确实要求连续布局时才调用 `contiguous()`。`contiguous().view(...)` 会在必要时产生复制，并不天然比 `reshape` 更快。
 
-   下面介绍一下 flatten，flassten 就是把张量 “拍扁”，变成一维（或从某一维开始压扁），它本质上就是 reshape 的简化版，专门用来展平张量。最简单用法：
+   `flatten` 用于把指定范围的维度合并。根据布局，它可能返回原对象、视图或副本，不能一概认为只修改 stride。最简单用法：
 
    ```python
    x = torch.randn(2, 3, 4)    # shape: [2, 3, 4]
@@ -113,7 +120,7 @@ mask + softmax（attention）
    x.flatten(start_dim=1)
    ```
 
-   意思：从第 1 维开始往后全部压扁，第 0 维保持不动，第 0 维一般是 batch，不能压扁！
+   意思是从第 1 维开始向后合并，第 0 维保持不动。在常见神经网络输入中第 0 维是 batch，因此通常保留；是否能压扁取决于具体任务，而不是 API 限制。
 
    ```python
    x = torch.randn(32, 128, 7, 7)  # [batch, channel, H, W]
@@ -153,7 +160,7 @@ mask + softmax（attention）
 
 ## 3. 张量操作（permute / transpose）
 
-   transpose：只能交换两个维度；permute：可以任意重排所有维度。共同点：只改维度顺序、只改 stride，不拷贝底层数据，操作后张量**一定不连续**。例如：
+   `transpose` 交换两个维度，`permute` 重排所有维度。二者返回共享底层存储的视图，通常只改变 stride；结果常常不连续，但交换 size-1 维或做恒等排列等情况可能仍然连续。
 
    ```python
    import torch
@@ -191,7 +198,7 @@ mask + softmax（attention）
    print(d.shape)  # (3, 8)
    ```
 
-   torch.stack() 新增一个维度堆叠，新建一个维度，把多个张量叠起来。多个张量变成一个 batch，所有张量 shape 必须完全一样。
+   `torch.stack()` 新增一个维度，把多个同形状张量沿新维堆叠。新维可以表示 batch，也可以表示时间、视角或其他语义；所有输入 shape 必须完全一致。
 
    ```python
    a = torch.randn(3, 4)
@@ -201,4 +208,27 @@ mask + softmax（attention）
    print(c.shape)  # (2, 3, 4)
    ```
 
-   
+   `torch.split()` 按指定大小切分张量。参数既可以是统一的块大小，也可以是各块大小组成的列表；使用统一块大小时，最后一块可以更短。
+
+   ```python
+   x = torch.arange(10)
+
+   parts = torch.split(x, 4)
+   print([part.shape for part in parts])
+   # [torch.Size([4]), torch.Size([4]), torch.Size([2])]
+
+   parts = torch.split(x, [3, 2, 5])
+   print([part.shape for part in parts])
+   # [torch.Size([3]), torch.Size([2]), torch.Size([5])]
+   ```
+
+   `torch.chunk()` 尝试把张量切成指定数量的块；当该维度长度较小时，实际返回的块数可能少于请求值。需要严格控制每块大小时，优先使用 `split`。
+
+   ```python
+   x = torch.arange(10)
+   parts = torch.chunk(x, 3)
+   print([part.shape for part in parts])
+   # [torch.Size([4]), torch.Size([4]), torch.Size([2])]
+   ```
+
+   `split` 和 `chunk` 返回的张量通常是原张量的视图；对它们做原地修改时要留意共享存储带来的影响。

@@ -160,7 +160,9 @@
       const requestUrl = new URL(`../${src}`, location.href);
       const response = await fetch(requestUrl);
       if (!response.ok) throw new Error(`文件读取失败（${response.status}）`);
-      const markdown = await response.text();
+      const raw = await response.text();
+      // 剥掉 front-matter（tools/build_notes.py 使用的元数据块），避免被渲染成正文
+      const markdown = raw.replace(/^(?:\uFEFF)?---[ \t]*\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/, "");
       const math = preserveDisplayMath(markdown);
       const html = window.marked.parse(math.content, { gfm: true, breaks: false });
       article.innerHTML = window.DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel", "data-math-block"] });

@@ -1,3 +1,9 @@
+---
+date: 2025-08-05
+category: llm
+description: 从矩阵计算出发拆解注意力机制的核心操作。
+---
+
 # Scaled Dot-Product Attention
 
 缩放点积注意力（SDPA）是 Transformer 的核心组件。它通过将 Query 与 Key 进行匹配，计算注意力权重，并对 Value 进行加权求和，从而实现信息的高效聚合。
@@ -6,13 +12,14 @@
 
 SDPA 的公式如下：
 $$
-Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_{k}}})V
+\operatorname{Attention}(Q, K, V) = \operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
 $$
 下面进行该公式的推导，在此之前，我们需要先进行符号约定：
 
 - Query：$Q \in \mathbb{R}^{n \times d_k}$
 - Key：$K \in \mathbb{R}^{m \times d_k}$
 - Value：$V \in \mathbb{R}^{m \times d_v}$
+- Mask：$M$ 是可选的注意力掩码；被屏蔽位置通常加 $-\infty$，有效位置加 0
 
 其中：
 
@@ -51,8 +58,7 @@ $$
 
 我们希望用两个序列的内积来衡量 Query 与 Key 的相似度，这是很直观的假设：
 
-- 内积越大，说明两个向量方向越一致，相似度越高
-- 内积越小（甚至为负），说明相关性越弱
+- 在向量范数相近时，内积越大通常表示方向越一致；但内积也受向量模长影响，因此不能直接等同于余弦相似度
 
 因此，我们可以计算所有 Query 与 Key 的两两相似度，得到一个相似度矩阵：
 $$
@@ -113,7 +119,7 @@ $$
 
 因此，Scaled Dot-Product Attention 的完整形式为：
 $$
-Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_{k}}})V
+\operatorname{Attention}(Q, K, V) = \operatorname{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + M\right)V
 $$
 可以从表示学习角度理解：
 
@@ -133,4 +139,4 @@ $$
 
 当 Q，K，V 均来自同一个 X 时，它就是我们现在经常提到的自注意力（Self-Attention）；在 Encoder-Decoder 结构中，如果 Q 来自 Decoder，而 K，V 来自 Encoder，则称为交叉注意力（Cross-Attention）。
 
-在现在的 Decoder-only 架构（如大语言模型）中，因为本质是预测下一个 token，为了防止看到未来的信息，会在 Softmax 之前加入一个 $-\infty$ 的掩码（Mask），使得未来的权重在归一化后趋近于 0（即因果掩码 / Causal Mask）。
+在 Decoder-only 架构中，为了防止当前位置看到未来 token，会在 Softmax 前加入加性因果掩码 $M$：允许位置为 0，禁止位置为 $-\infty$（实际实现也可能使用足够小的有限值或布尔掩码）。这样被遮挡位置的 Softmax 权重为 0。

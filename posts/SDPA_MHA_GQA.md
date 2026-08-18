@@ -1,3 +1,10 @@
+---
+date: 2025-09-01
+category: llm
+title: SDPA → MHA → GQA
+description: 注意力变体在表达能力、显存和推理效率之间的权衡。
+---
+
 # SDPA → MHA → GQA 的演化路径
 
 缩放点积注意力（Scaled Dot-Product Attention, SDPA）是 Transformer 的核心组件。其公式如下：
@@ -8,8 +15,8 @@ $$
 
 - Query：[B, L_q, d]
 - Key：[B, L_k, d]
-- Value：[B, L_v, d]
-- Mask：[B, 1, L_q, L_k]（利用广播机制适配所有头）
+- Value：[B, L_k, d_v]（Key 与 Value 必须有相同的序列长度）
+- Mask：可广播到 `[B, L_q, L_k]`；带多头维时常写成 `[B, 1, L_q, L_k]`
 
 ## 标准 SDPA 与因果掩码
 
@@ -99,11 +106,11 @@ A =
 $$
 第 i 行表示第 i 个 token 只能关注前 i 个 token，从而保证生成过程的因果性。
 
-Dropout 的作用是随机 “丢弃” 一部分注意力权重，防止模型过度依赖某些特定位置，减少过拟合，让注意力分布更均匀、更鲁棒，加在 softmax 之后、乘 value 之前。
+Dropout 在训练时随机置零部分注意力权重并按 dropout 规则缩放保留项，用于正则化。它通常加在 softmax 之后、乘 Value 之前，但不保证注意力分布一定更均匀；推理时应关闭。
 
 以上就是关于标准 SDPA 的相关内容说明。
 
-可以明显看到，标准的 SDPA 需要在计算的过程中构造一个 L_q * L_k 矩阵，计算复杂度为 $O(L_q \cdot L_k \cdot d)$，内存复杂度为  $O(L_q \cdot L_k)$，如果序列很长，那么在计算过程中就会占用很大的 memory，直接爆显存，这正是 Transformer 的瓶颈来源，也是后续所有优化（FlashAttention / Linear Attention）的动机。
+朴素 SDPA 会显式物化 $L_q\times L_k$ 的分数和注意力矩阵，计算复杂度为 $O(L_qL_kd)$，额外内存复杂度为 $O(L_qL_k)$。长序列下它会成为重要瓶颈。FlashAttention 保留精确注意力语义并优化 IO 与中间存储；Linear Attention 则改变计算形式，两者不是同一种优化路线。
 
 下面我们来介绍 FlashAttention-2。
 
@@ -111,11 +118,7 @@ Dropout 的作用是随机 “丢弃” 一部分注意力权重，防止模型�
 
 一句话总结 FlashAttention-2 的目标就是：不存 $QK^T$、不存 softmax 权重，用分块 + 在线 softmax 把显存降到 O (N)，同时把并行拉满。具体的底层原理在这里就不进行阐述，我们直接看如何使用。
 
-**FlashAttention-2 现在已经有超级成熟、官方封装好的 API，一行调用就能用！**
-
-**直接替换原来的 ScaledDotProductAttention 就行**。
-
-PyTorch 2.1+ 自带 torch.nn.functional.scaled_dot_product_attention，这个函数 内部自动调用 FlashAttention-2 / Memory-Efficient Attention。
+PyTorch 提供 `torch.nn.functional.scaled_dot_product_attention`（SDPA）统一接口，并根据设备、数据类型、形状和掩码等条件，在可用的 fused kernel 与数学实现之间选择后端。调用这个接口不等于保证使用 FlashAttention-2。
 
 代码使用如下：
 
@@ -150,23 +153,23 @@ def scaled_dot_product_attention(
 这里需要有一些内容进行说明：
 
 1. attn_mask: Tensor | None = None：这个通常有两种作用，一个是padding mask：遮住填充的 `<pad>`，另外一个是encoder-decoder mask：遮住无效位置。
-2. is_causal: bool = False：如果我们在做自回归大语言模型（Decoder-only），不要自己写 mask，也就是 attn_mask 参数设置为 None，然后开启 is_causal，这会自动生成下三角掩码，禁止看到未来 token。
+2. `is_causal=True` 用于因果注意力。是否可以同时传 `attn_mask`、两者如何组合以及具体后端限制，会随 PyTorch 版本变化；可移植代码应按当前版本文档和测试结果处理。
 3. 这个 API 只返回输出，不返回权重（为了快 + 省显存）。
-4. 当传入的张量是 `fp16` 或 `bf16` 且在 Ampere 架构（如 A100, RTX 3090/4090）及以上显卡运行时，PyTorch 会自动优先使用 FlashAttention-2。否着直接回退到原始的标准 SDPA。
+4. PyTorch 会尝试选择可用的高效后端，也可能因为硬件、dtype、head dimension、mask、dropout 或构建选项等条件回退。需要确认后端时，可使用 PyTorch 提供的 SDPA backend 控制与日志能力，而不要只根据 GPU 世代猜测。
 
-我们上述提到的这个是 Pytorch 官方版本，如果需要更精细的控制（比如某些特定的 Mask 处理、变长序列优化等），直接使用作者 Tri Dao 维护的库是工业界的标准做法。通过下面命令安装：
+如确实需要上游 `flash-attn` 库提供的变长序列等接口，可以单独安装，但应先核对 CUDA、PyTorch、编译器和 GPU 的兼容矩阵：
 
 `pip install flash-attn --no-build-isolation`
 
-这个库更新最快，FlashAttention-3（针对 H100 等 Hopper 架构）也会在这个库里首发。
+生产环境应固定版本并做正确性与性能基准，不要假设第三方库在所有输入上都比 PyTorch SDPA 更快。
 
 F.scaled_dot_product_attention 中的最后一个关键参数是 enable_gqa: bool = False 。在介绍这个之前，我们需要先介绍一下多头注意力（Multi-Head Attention, MHA）。
 
 ## 多头注意力（MHA）
 
-单头注意力只能学到一种关注方式，表达能力太弱，多头注意力让模型同时学习 “多种不同的关注方式”，从而捕捉更丰富、更细粒度的语言结构。
+多头注意力让模型在多个独立投影子空间中并行计算注意力，增加了同一层可表示的匹配模式。不同头有时会呈现句法、指代或局部模式，但这些解释不是预先指定的，也不保证每个头只负责一种语义。
 
-我们回顾一下单头注意力，它做的事情是对每一个词，算一组注意力权重，也就是对每一个词只学习到了一种关注模式，这就像你读一句话，只能用一种视角去看，要么看语法，要么看语义，要么看指代，不能同时看。结果就是无法同时捕捉句法关系（主谓宾）、无法同时捕捉长距离依赖（it 指代谁）、无法同时捕捉局部搭配（good at）、注意力容易坍塌：只盯着一两个词，信息极度单一。
+单头并非绝对无法混合多种关系，但它只产生一张注意力图；多头结构为多个投影和注意力图提供了更直接的并行表示能力。
 
 多头注意力做的事情非常简单：把特征空间切成多个子空间，每个头学一种 “关注方式”。例如 8 个头，模型就可以同时学会 8 种不同的注意力：
 
@@ -178,7 +181,7 @@ F.scaled_dot_product_attention 中的最后一个关键参数是 enable_gqa: boo
 - 头 6：关注**搭配习惯**（good at）
 - ……
 
-多头 = 多视角 = 多理解方式 = 表达能力爆炸。
+直观上可以把多头理解为多个可学习的表示子空间，但头数增加并不保证质量单调提升。
 
 论文中的原话是：
 
@@ -223,12 +226,15 @@ class MultiHeadAttention(nn.Module):
         value: Tensor, 
         mask: Tensor = None, 
         is_causal: bool = False):
-        B, L, _ = query.size()
+        B, L_q, _ = query.size()
+        L_k = key.size(1)
+        if value.size(1) != L_k:
+            raise ValueError("key 和 value 的序列长度必须一致")
 
         # 拆多头
-        q = self.w_q(query).view(B, L, self.n_heads, self.d_k).transpose(1, 2)
-        k = self.w_k(key).view(B, L, self.n_heads, self.d_k).transpose(1, 2)
-        v = self.w_v(value).view(B, L, self.n_heads, self.d_k).transpose(1, 2)
+        q = self.w_q(query).view(B, L_q, self.n_heads, self.d_k).transpose(1, 2)
+        k = self.w_k(key).view(B, L_k, self.n_heads, self.d_k).transpose(1, 2)
+        v = self.w_v(value).view(B, L_k, self.n_heads, self.d_k).transpose(1, 2)
 
         # 核心：FlashAttention-2 内核
         attn_output = F.scaled_dot_product_attention(
@@ -239,7 +245,7 @@ class MultiHeadAttention(nn.Module):
         )
 
         # 拼接
-        attn_output = attn_output.transpose(1, 2).contiguous().view(B, L, self.d_model)
+        attn_output = attn_output.transpose(1, 2).contiguous().view(B, L_q, self.d_model)
         return self.dropout(self.w_o(attn_output))
 ```
 
@@ -281,9 +287,9 @@ class MultiHeadAttention(nn.Module):
 
    - Q 多头
 
-   - K、V 共用 1 组
+   - 所有 Q 头共享 1 个 K 头和 1 个 V 头
 
-     → KV Cache 极小，推理快，但效果掉得明显
+     → KV Cache 最小，通常有利于 decode；质量变化取决于模型与训练方式
 
 3. **GQA（Grouped-Query Attention）**
 
@@ -291,9 +297,9 @@ class MultiHeadAttention(nn.Module):
 
    - K、V 分成几组，组内共享
 
-     → 速度接近 MQA，效果接近 MHA
+     → 原始 GQA 论文的实验中达到接近 MQA 的速度与接近 MHA 的质量，但不是所有部署的固定结论
 
-例如，MHA（原版）：Q: 32 头、K: 32 头、V: 32 头，KV Cache 巨大。GQA：把 Q 头分成 G 组，每组 Q 共享 1 组 KV。Q 头 = 32，KV 组 = 8，每 4 个 Q 头共用 1 组 KV，KV Cache 缩小到 1/4，速度大幅提升，效果几乎不掉。
+例如，MHA 使用 32 个 Q 头和 32 个 KV 头；若 GQA 使用 32 个 Q 头、8 个 KV 头，则每 4 个 Q 头共享一个 KV 头，K/V 缓存的头维部分缩小到 MHA 的 1/4。实际端到端加速还取决于 batch、上下文长度、kernel 和其他模型计算。
 
 下面给出完整的 GQA 的 Pytorch 标准实现版本：
 
@@ -306,6 +312,8 @@ from torch import Tensor
 class GQA(nn.Module):
     def __init__(self, d_model: int, n_heads: int, n_kv_heads: int, dropout: float=0.1):
         super().__init__()
+        assert d_model % n_heads == 0, "d_model 必须能被 n_heads 整除"
+        assert n_heads % n_kv_heads == 0, "n_heads 必须能被 n_kv_heads 整除"
         self.d_model = d_model
         self.n_heads = n_heads
         self.n_kv_heads = n_kv_heads
@@ -352,6 +360,7 @@ class GQA(nn.Module):
 class GroupedQueryAttention(nn.Module):
     def __init__(self, d_model: int, n_heads: int, n_kv_heads: int, dropout: float = 0.0):
         super().__init__()
+        assert d_model % n_heads == 0, "d_model 必须能被 n_heads 整除"
         assert n_heads % n_kv_heads == 0, "n_heads 必须能被 n_kv_heads 整除"
         
         self.d_model = d_model

@@ -1,7 +1,12 @@
+---
+date: 2025-09-15
+category: llm
+description: RMSNorm 的计算方式，以及它为何常见于现代 LLM。
+---
+
 # RMSNorm
 
-RMSNorm（Root Mean Square Layer Normalization，均方根层归一化）是针对 Transformer 大模型优化的归一化方法，
-核心思想是移除均值中心化，仅保留按均方根缩放，在不损失性能的前提下提升计算效率与训练稳定性。
+RMSNorm（Root Mean Square Layer Normalization，均方根层归一化）是一种比 LayerNorm 更简洁的归一化方法，后来被许多 Transformer 大模型采用。它移除了均值中心化，仅按均方根缩放；原论文在多类任务上观察到与 LayerNorm 相当的效果和一定的计算效率收益，但这不是对所有模型与任务的无条件保证。
 
 ## 定义与公式
 
@@ -9,12 +14,12 @@ RMSNorm（Root Mean Square Layer Normalization，均方根层归一化）是针�
 
 均方根（RMS）定义：
 $$
-\text{RMS}(x) = \sqrt{\frac{1}{d}\sum_{i=1}^d x_i^2}
+\text{RMS}_\epsilon(x) = \sqrt{\frac{1}{d}\sum_{i=1}^d x_i^2 + \epsilon}
 $$
 RMSNorm 前向传播公式：
 $$
-\text{RMSNorm}(x) = \frac{x}{\text{RMS}(x) + \epsilon} \cdot \gamma
-= \frac{x}{\sqrt{\mathbb{E}[x^2]+\epsilon}} \cdot \gamma
+\text{RMSNorm}(x) = \frac{x}{\text{RMS}_\epsilon(x)} \odot \gamma
+= \frac{x}{\sqrt{\mathbb{E}[x^2]+\epsilon}} \odot \gamma
 $$
 
 ## 与 LayerNorm 的区别
@@ -25,12 +30,12 @@ $$
 $$
 从上述两个公式可以直观的看出差异：
 
-- RMSNorm：无均值减法、无偏置 $\beta$、仅做缩放
+- RMSNorm：无均值减法；常见实现只有可学习缩放 $\gamma$，不使用 $\beta$
 - LayerNorm：中心化 + 标准化 + 偏置
 
-无均值中心化意味着不改变向量的空间方向，仅缩放模长，且保留了方向信息，更加适配自注意力机制，计算更加轻量，无额外的均值依赖，深层传播更加稳定。
+忽略 $\gamma$ 时，RMS 缩放只是给整个向量乘一个标量，不改变方向；实际层中的逐维 $\gamma$ 仍可能改变方向。RMSNorm 的直接优势是少计算一次均值与中心化，而它是否比 LayerNorm 更稳定或更快，需要结合模型结构和具体实现评估。
 
-RMSNorm 是仅做模长缩放的轻量化归一化，凭借无中心化、计算简单、梯度稳定、保留方向四大特性，成为 LLaMA 等现代大模型的标配。
+RMSNorm 已被 LLaMA 等许多现代大模型采用，但 LayerNorm 仍然广泛存在。
 
 ## PyTorch 实现
 

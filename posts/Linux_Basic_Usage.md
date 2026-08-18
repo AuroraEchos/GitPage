@@ -1,3 +1,10 @@
+---
+date: 2026-04-16
+category: note
+title: Linux Basic Usage
+description: 面向日常研发环境的 Linux 命令行基础。
+---
+
 # Linux 基础使用
 
 今天我们来介绍一些在实际开发工作中需要掌握的基础 Linux 开发环境，请注意我们接下来所介绍的内容基本满足企业“熟悉 Linux 开发环境”的要求，不涉及内核或运维深水区。我们按照日常使用频率进行。
@@ -18,10 +25,11 @@ cd ~
 pwd
 
 mkdir -p a/b/c
-rm -rf folder
 cp -r src dst
 mv old new
 ```
+
+删除目录前先确认目标，优先使用可恢复方式；确需递归删除时再执行 `rm -r -- folder`。`rm -rf` 会跳过大部分确认且难以恢复，不适合作为默认示例，尤其不要把未检查的变量、通配符或宽泛路径交给它。
 
 ## 2. 查看文件
 
@@ -59,8 +67,9 @@ htop
 
 ```bash
 kill PID
-kill -9 PID
 ```
+
+`kill PID` 默认发送 `SIGTERM`，允许进程清理资源。只有进程确认无响应且目标 PID 无误时，才考虑 `kill -KILL PID`；`SIGKILL` 无法被捕获，可能留下未写完的数据或外部资源。
 
 ## 4. GPU 管理
 
@@ -106,10 +115,10 @@ nohup python train.py > train.log 2>&1 &
 
 含义：
 
-- nohup：后台运行
-- train.log：保存日志
-- 2>&1：保存错误
-- &：放入后台
+- `nohup`：让进程忽略挂断信号；
+- `> train.log`：把标准输出写入日志；
+- `2>&1`：把标准错误重定向到当前标准输出；
+- `&`：让 shell 在后台启动命令。
 
 查看后台任务：
 
@@ -175,10 +184,6 @@ tmux a -t mywork
 # 5. 删除指定会话
 tmux kill-session -t mywork
 
-# 6. 删除所有会话
-tmux kill-server
-
-
 # 分离 tmux（此时：你退出 tmux 但程序继续运行）
 # 按键：
 Ctrl + B
@@ -192,7 +197,7 @@ exit
 Ctrl + D
 ```
 
-nohup 的优点是简单，但是它无法交互、无法回到终端且不方便调试。tmux 解决了上述问题，可恢复终端、可交互、可调试、可多窗口。
+`nohup` 的优点是简单，但无法重新附着到原终端。tmux 支持恢复终端、交互和多窗口。`tmux kill-server` 会终止当前用户的全部 tmux 会话及其中的前台程序，除非明确要清空所有会话，否则不要使用。
 
 ## 7. 远程服务器开发
 
@@ -224,7 +229,7 @@ scp user@ip:/path/file .
 更快同步：
 
 ```bash
-rsync -avz project user@ip:/path
+rsync -avz project/ user@ip:/path/project/
 
 # 这条命令用于把本地 project 目录同步到远程服务器，而且是增量同步（只传变化的文件）。
 # 它比 scp 高效得多
@@ -235,14 +240,16 @@ rsync -avz project user@ip:/path
 
 # 远程：/home/lab/
 
-# 执行：rsync -avz project lab@192.168.1.10:/home/lab/
+# 执行：rsync -avz project/ lab@192.168.1.10:/home/lab/project/
 
-# 结果：远程变成：/home/lab/project
+# 结果：project 目录内容同步到远程 /home/lab/project/
 ```
+
+`rsync` 的源路径是否以 `/` 结尾会改变语义：`project/` 表示同步目录内容，`project` 表示把目录本身放进目标位置。执行带 `--delete` 的同步前务必先使用 `--dry-run` 检查。
 
 ## 8. 环境管理
 
-无论是高校还是企业，用的最多的是 conda。
+Python 环境管理常见方案包括 `venv`、conda/mamba、uv 等。下面以 conda 为例：
 
 ```bash
 # 创建环境
@@ -309,11 +316,15 @@ free -h
 chmod +x train.sh
 ```
 
-所有权限：
+查看权限并按最小权限原则修改：
 
 ```bash
-chmod 777 file
+ls -l file
+chmod u+rw,go-rwx secret.txt
+chmod 755 script.sh
 ```
+
+不要把 `chmod 777` 当作通用排错方式：它会给所有本机用户写权限，可能造成篡改风险。目录和文件需要的权限也不同。
 
 修改所有者：
 
@@ -385,14 +396,13 @@ project/
  ├── train.py
  └── dataset -> /data/datasets/ImageNet
 
-# 注意：dataset 只是一个“指针”，不占空间。
+# 注意：dataset 只保存目标路径，占用空间很小，不会复制 1TB 数据。
 # 但代码可以直接：path = "dataset/train"
 # 就像真的在项目里一样。
 
 # 一个非常重要的坑（相对路径）
 # 推荐使用绝对路径：ln -s /data/dataset dataset
-# 不推荐：ln -s ../dataset dataset
-# 因为：移动目录会失效。
+# 相对链接在整个链接目录树一起移动时可能更便携；单独移动链接或目标则可能失效。
 ```
 
 
@@ -466,7 +476,7 @@ Esc
 在普通模式下输入：
 
 ```
-: wq
+:wq
 ```
 
 然后回车。

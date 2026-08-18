@@ -1,648 +1,290 @@
+---
+date: 2026-06-01
+category: agent
+description: 从消息协议与执行循环理解 Function Calling。
+---
+
 # OpenAI Function Calling Protocol
 
-下面我们介绍一下大模型应用侧的一个核心概念：Tool Calling。这里的 Tool Calling，本质不是“模型真的执行函数”，而是：模型输出一段结构化 JSON，告诉你的程序：我想要调用哪个工具、参数是什么；真正执行函数的是你的应用代码；执行结果再作为下一轮输入交还给模型。OpenAI 官方也把 function calling 称为 tool calling，用于让模型连接外部系统和外部数据；function tool 是一种由 JSON Schema 定义的工具。
+Function calling（也称 tool calling）让模型向应用请求外部能力。对于自定义 function tool，模型返回工具名和参数；真正的函数执行、权限判断和副作用控制仍由应用负责。工具执行结果随后交回模型，模型可以生成最终回答或继续请求工具。
 
-------
+这里要区分两类工具：
 
-## 两套常见官方协议：Chat Completions 与 Responses API
+- **自定义 function tool**：由应用声明 JSON Schema，并在自己的代码或基础设施中执行。
+- **平台托管工具**：例如部分模型在 Responses API 中可用的 web search、file search 等，由 OpenAI 平台按对应协议执行。
 
-现在 OpenAI 工具调用主要有两种协议形态：
+本文重点讨论第一类。
 
-第一种是 Chat Completions API，也就是在 LangGraph / LangChain 里经常看到的`messages + tools + tool_calls` 模式。它的特点是：
+## Responses API 与 Chat Completions
+
+两套 API 都支持 function calling，但协议形态不同：
+
+| 环节 | Responses API | Chat Completions |
+|---|---|---|
+| 请求主体 | `input` 与 output items | `messages` |
+| 工具定义 | `{type, name, parameters, strict}` | `{type, function: {name, parameters, strict}}` |
+| 模型调用 | `output` 中的 `function_call` item | assistant message 中的 `tool_calls` |
+| 调用关联 | `call_id` | `tool_calls[].id` / `tool_call_id` |
+| 工具结果 | `function_call_output` item | `role: "tool"` message |
+
+OpenAI 当前建议在推理、工具调用和多轮工作流中优先使用 Responses API；已有 Chat Completions 集成仍可以继续使用。
+
+## 完整执行循环
+
+无论使用哪套 API，核心流程都相同：
+
+1. 应用向模型提供输入与可用工具。
+2. 模型返回零个、一个或多个 function call。
+3. 应用验证工具名、参数、权限和业务约束。
+4. 应用执行工具，把每个结果与对应 call ID 一起回传。
+5. 模型生成最终回答，或者继续请求工具。
+
+模型可能在一轮中并行请求多个函数，因此实现时不要只处理数组中的第一个调用。
+
+## Responses API 示例
+
+Responses API 的 function tool 定义是扁平结构：
+
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI()
+MODEL_ID = "gpt-5.6-terra"
+
+tools = [
+    {
+        "type": "function",
+        "name": "get_weather",
+        "description": "Get current weather for a city.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "City and country, for example Paris, France",
+                },
+                "unit": {
+                    "type": "string",
+                    "enum": ["celsius", "fahrenheit"],
+                },
+            },
+            "required": ["location", "unit"],
+            "additionalProperties": False,
+        },
+        "strict": True,
+    }
+]
+```
+
+发送第一轮请求：
+
+```python
+input_items = [
+    {"role": "user", "content": "What's the weather in Paris?"}
+]
+
+response = client.responses.create(
+    model=MODEL_ID,
+    input=input_items,
+    tools=tools,
+)
+```
+
+模型请求函数时，`response.output` 中会出现类似 item：
 
 ```json
 {
-  "model": "gpt-4.1",
-  "messages": [
+  "type": "function_call",
+  "call_id": "call_abc123",
+  "name": "get_weather",
+  "arguments": "{\"location\":\"Paris, France\",\"unit\":\"celsius\"}"
+}
+```
+
+`arguments` 是 JSON 编码的字符串，需要解析。把模型的 output items 与工具结果一起放回下一轮输入：
+
+```python
+def get_weather(location: str, unit: str) -> dict:
+    return {"location": location, "temperature": 25, "unit": unit}
+
+
+input_items.extend(response.output)
+
+for item in response.output:
+    if item.type != "function_call":
+        continue
+
+    if item.name != "get_weather":
+        raise ValueError(f"Unknown tool: {item.name}")
+
+    arguments = json.loads(item.arguments)
+    result = get_weather(**arguments)
+    input_items.append(
+        {
+            "type": "function_call_output",
+            "call_id": item.call_id,
+            "output": json.dumps(result, ensure_ascii=False),
+        }
+    )
+
+response = client.responses.create(
+    model=MODEL_ID,
+    input=input_items,
+    tools=tools,
+)
+
+print(response.output_text)
+```
+
+`call_id` 必须原样对应；它让模型知道某个结果属于哪个 function call。
+
+## Chat Completions 对照
+
+Chat Completions 的工具定义包在 `function` 字段中：
+
+```json
+{
+  "type": "function",
+  "function": {
+    "name": "get_weather",
+    "description": "Get current weather for a city.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "location": {"type": "string"},
+        "unit": {
+          "type": "string",
+          "enum": ["celsius", "fahrenheit"]
+        }
+      },
+      "required": ["location", "unit"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+}
+```
+
+模型可能返回：
+
+```json
+{
+  "role": "assistant",
+  "tool_calls": [
     {
-      "role": "user",
-      "content": "Add 3 and 4."
-    }
-  ],
-  "tools": [
-    {
+      "id": "call_abc123",
       "type": "function",
       "function": {
-        "name": "add",
-        "description": "Add two numbers.",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "a": { "type": "number" },
-            "b": { "type": "number" }
-          },
-          "required": ["a", "b"],
-          "additionalProperties": false
-        },
-        "strict": true
+        "name": "get_weather",
+        "arguments": "{\"location\":\"Paris, France\",\"unit\":\"celsius\"}"
       }
     }
   ]
 }
 ```
 
-第二种是 Responses API，也就是更新的统一接口风格，结构更偏向 input + output items。Responses API 的工具定义通常是更扁平的形式，例如：
+应用需要先把完整的 assistant message 追加到 `messages`，再为每个调用追加一条工具消息：
 
 ```json
 {
-  "model": "gpt-5.5",
-  "input": [
-    {
-      "role": "user",
-      "content": "Add 3 and 4."
-    }
-  ],
-  "tools": [
-    {
-      "type": "function",
-      "name": "add",
-      "description": "Add two numbers.",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "a": { "type": "number" },
-          "b": { "type": "number" }
-        },
-        "required": ["a", "b"],
-        "additionalProperties": false
-      },
-      "strict": true
-    }
-  ]
+  "role": "tool",
+  "tool_call_id": "call_abc123",
+  "content": "{\"location\":\"Paris, France\",\"temperature\":25,\"unit\":\"celsius\"}"
 }
 ```
 
-两者核心思想一致，但 JSON 形态不同。Chat Completions 中 function 定义嵌在 "function" 字段里；Responses API 中 function tool 通常直接写成 { "type": "function", "name": ..., "parameters": ... }。OpenAI API reference 也明确区分了 Chat Completions 与 Responses API 的工具定义形态。我们下面重点介绍一下 Chat Completions 。
+`function.arguments` 同样是 JSON 字符串。工具调用时 `finish_reason` 通常为 `tool_calls`，但循环实现应直接检查 `message.tool_calls`，不要只依赖停止原因或假设 `content` 一定是 `null`。
 
-------
+## Strict mode
 
-## Tool Calling 的完整五步流程
+OpenAI 官方建议启用 `strict: true`。严格模式要求：
 
-一般而言，工具调用的流程可以概括为五步：给模型发送可用工具列表；模型返回 tool call；应用侧执行函数；把工具执行结果发回模型；模型生成最终回答，或者继续请求更多工具调用。
+1. 每个 object schema 都设置 `additionalProperties: false`；
+2. `properties` 中的字段全部列入 `required`；
+3. 逻辑上的可选字段用包含 `null` 的类型表示，例如 `"type": ["string", "null"]`。
 
+当前默认行为也有区别：
+
+- Chat Completions 未显式启用时仍是 non-strict、best-effort。
+- Responses API 会在可能时尝试把 schema 规范化为 strict；若无法兼容会回退，并在返回的工具定义状态中体现 `strict: false`。需要确定行为时仍应显式写 `strict: true`。
+
+Strict mode 约束的是输出结构，不负责业务语义和授权。例如合法 schema 仍可能包含不存在的城市、越权账号或危险路径，所以执行前仍需验证：
+
+- 工具名是否在 allowlist；
+- 参数是否满足业务规则；
+- 当前用户是否有权限；
+- 操作是否需要确认、幂等键或审计；
+- URL、文件路径、SQL 和 shell 输入是否受到安全限制。
+
+## Tool choice 与并行调用
+
+`tool_choice` 可以控制模型是否使用工具：
+
+- `auto`：零个、一个或多个；
+- `required`：至少调用一个；
+- `none`：不调用；
+- 指定 function：强制调用某个工具；
+- allowed tools：把本轮可调用范围限制在工具子集。
+
+支持的模型可以在一轮中返回多个 function call。`parallel_tool_calls: false` 可把一轮限制为零个或一个调用。即便允许并行，应用也必须考虑依赖关系：两个只读查询可以并发，涉及余额、库存或文件写入的调用未必可以。
+
+## 一个更稳健的循环
+
+```python
+MAX_TOOL_ROUNDS = 5
+
+for _ in range(MAX_TOOL_ROUNDS):
+    response = client.responses.create(
+        model=MODEL_ID,
+        input=input_items,
+        tools=tools,
+    )
+    input_items.extend(response.output)
+
+    calls = [item for item in response.output if item.type == "function_call"]
+    if not calls:
+        print(response.output_text)
+        break
+
+    for call in calls:
+        try:
+            arguments = json.loads(call.arguments)
+            result = dispatch_allowed_tool(call.name, arguments)
+            output = {"ok": True, "result": result}
+        except Exception:
+            # 完整异常只写服务端日志；返回给模型的是稳定、已清洗的错误。
+            output = {"ok": False, "error": "tool_execution_failed"}
+
+        input_items.append(
+            {
+                "type": "function_call_output",
+                "call_id": call.call_id,
+                "output": json.dumps(output, ensure_ascii=False),
+            }
+        )
+else:
+    raise RuntimeError("Tool calling exceeded max rounds")
 ```
-User
-  ↓
-你的程序：messages + tools
-  ↓
-OpenAI 模型
-  ↓
-assistant message: tool_calls
-  ↓
-你的程序解析 tool_calls，执行本地函数
-  ↓
-你的程序追加 tool result
-  ↓
-再次请求模型
-  ↓
-assistant final answer
-```
 
-模型只负责“提出调用请求”，不负责真正执行工具。
+真实系统还应加入总超时、重试预算、取消、工具级超时、速率限制、可观测性和人工确认。不能把“模型停止调用工具”直接等同于“业务任务已经正确完成”；高风险任务需要外部验证。
 
-------
+## 模型实际看到什么
 
-## Chat Completions API 的官方 JSON 协议
+开发者能观察到三层中的两层：
 
-1. **请求：声明工具**
+1. 应用发送的 API JSON；
+2. OpenAI 服务端使用的内部序列化形式；
+3. API 返回的 JSON / SDK 对象。
 
-   Chat Completions 的工具列表大概长这样：
+第 2 层不是公开协议，不应根据猜测编写解析逻辑。官方文档说明，function definitions 会以模型训练过的语法注入上下文，因此会占用上下文窗口并按输入 token 计费。工具很多或 schema 很大时，应缩短描述、按需加载工具，或在受支持模型上使用 tool search。
 
-   ```json
-   {
-     "tools": [
-       {
-         "type": "function",
-         "function": {
-           "name": "get_weather",
-           "description": "Get current weather for a given location.",
-           "parameters": {
-             "type": "object",
-             "properties": {
-               "location": {
-                 "type": "string",
-                 "description": "City and country, e.g. Paris, France"
-               },
-               "unit": {
-                 "type": "string",
-                 "enum": ["celsius", "fahrenheit"]
-               }
-             },
-             "required": ["location", "unit"],
-             "additionalProperties": false
-           },
-           "strict": true
-         }
-       }
-     ]
-   }
-   ```
+## 核心结论
 
-   这里有几个字段非常重要：
+- 模型提出 function call；应用决定是否以及如何执行。
+- Responses 使用 `function_call` / `function_call_output` items；Chat Completions 使用 `tool_calls` / `role: tool` messages。
+- 参数是 JSON 字符串，需要解析；strict mode 不能代替业务验证和权限检查。
+- 一轮可能有多个调用，结果必须逐一通过 call ID 对应。
+- 循环必须有最大轮数、超时、错误处理与外部成功判定。
 
-   - `type: "function"` 表示这是一个函数工具。Chat Completions 当前的 tool call 类型就是 function。
-   - `function.name` 是工具名。模型后面会通过这个名字告诉你要调用哪个函数。
-   - `function.description` 是工具说明。这个字段非常重要，因为模型会根据 description 判断什么时候调用这个工具。
-   - `function.parameters` 是 JSON Schema。它约束模型生成哪些参数、参数类型是什么、哪些字段必填。
-   - `function.strict` 开启严格模式。OpenAI 官方建议启用 strict mode，因为它能让 function call 更可靠地遵循 schema；strict mode 要求对象 schema 设置 `additionalProperties: false`，并且 properties 里的字段都放入 `required`。
-
-2. **模型响应：assistant 返回 tool_calls**
-
-   当模型决定需要调用工具时，Chat Completions 返回的 assistant message 中会带 `tool_calls`：
-
-   ```json
-   {
-     "role": "assistant",
-     "content": null,
-     "tool_calls": [
-       {
-         "id": "call_abc123",
-         "type": "function",
-         "function": {
-           "name": "get_weather",
-           "arguments": "{\"location\":\"Paris, France\",\"unit\":\"celsius\"}"
-         }
-       }
-     ]
-   }
-   ```
-
-   注意这里最容易踩坑的地方：`function.arguments` **是一个 JSON 字符串，不是已经解析好的 JSON 对象**。也就是说你拿到的是：
-
-   ```json
-   "{\"location\":\"Paris, France\",\"unit\":\"celsius\"}"
-   ```
-
-   你的程序需要自己做：`args = json.loads(tool_call.function.arguments)`。
-
-   模型不一定总是生成合法 JSON，也可能生成 schema 外的参数，因此应用代码应该在真正调用函数前验证参数。
-
-3. **finish_reason: tool_calls**
-
-   如果模型调用工具，Chat Completions 的 `finish_reason` 通常是：
-
-   ```json
-   "finish_reason": "tool_calls"
-   ```
-
-   这表示模型这一轮不是给最终自然语言答案，而是停在了“请求调用工具”的阶段。
-
-4. **应用侧执行工具**
-
-   假设你本地有函数：
-
-   ```python
-   def get_weather(location: str, unit: str) -> dict:
-       return {
-           "location": location,
-           "temperature": 25,
-           "unit": unit
-       }
-   ```
-
-   你需要根据模型返回的 `function.name` 路由到本地函数：
-
-   ```python
-   tool_call = response.choices[0].message.tool_calls[0]
-   
-   name = tool_call.function.name
-   args = json.loads(tool_call.function.arguments)
-   
-   if name == "get_weather":
-       result = get_weather(**args)
-   else:
-       raise ValueError(f"Unknown tool: {name}")
-   ```
-
-   这里的执行权完全在你的应用侧。模型不会访问你的数据库、不会调用你的 Python 函数、不会自动执行 shell 命令。它只是输出协议化 JSON。
-
-5. **把工具结果追加回 messages**
-
-   执行完后，需要把工具结果作为一条 `role: "tool"` 消息追加回上下文：
-
-   ```json
-   {
-     "role": "tool",
-     "tool_call_id": "call_abc123",
-     "content": "{\"location\":\"Paris, France\",\"temperature\":25,\"unit\":\"celsius\"}"
-   }
-   ```
-
-   完整的下一轮 messages 是：
-
-   ```json
-   [
-     {
-       "role": "user",
-       "content": "What's the weather in Paris?"
-     },
-     {
-       "role": "assistant",
-       "content": null,
-       "tool_calls": [
-         {
-           "id": "call_abc123",
-           "type": "function",
-           "function": {
-             "name": "get_weather",
-             "arguments": "{\"location\":\"Paris, France\",\"unit\":\"celsius\"}"
-           }
-         }
-       ]
-     },
-     {
-       "role": "tool",
-       "tool_call_id": "call_abc123",
-       "content": "{\"location\":\"Paris, France\",\"temperature\":25,\"unit\":\"celsius\"}"
-     }
-   ]
-   ```
-
-   其中 `tool_call_id` 必须和 assistant message 里的 tool call `id` 对上。先把模型的 assistant tool call message 加入 `messages`，然后追加 `role: "tool"`、`tool_call_id`、`content`，再请求模型生成最终回答。
-
-6. **再次请求模型，得到最终回答**
-
-   第二次调用：
-
-   ```json
-   {
-     "model": "gpt-4.1",
-     "messages": [
-       "... 上面的完整 messages ..."
-     ],
-     "tools": [
-       "... 同样的 tools ..."
-     ]
-   }
-   ```
-
-   模型此时看到：
-
-   1. 用户问天气；
-   2. 自己刚才请求调用 `get_weather`；
-   3. 工具已经返回结果；
-
-   于是它可以生成自然语言答案：
-
-   ```json
-   {
-     "role": "assistant",
-     "content": "The weather in Paris is 25°C."
-   }
-   ```
-
-------
-
-以上就是一个经典的过程，这里有几个问题需要阐述一下：
-
-1. **`content: null` 的原因？**
-
-   用一句简要的话概括就是这一轮 assistant message 不是给用户看的最终回答，而是给程序看的工具调用指令；真正的自然语言回答要等工具执行结果返回后，模型下一轮再生成。
-
-2. **模型知道接下来需要调用工具了，那么模型这个时候的原始输出是什么？**
-
-   这个问题的答案是模型知道要调用工具时，它的“原始输出”不是一句普通文本，而是一个结构化的 tool call 对象，在 API 请求里通过 `tools` 参数正式声明了一组工具。模型看到这些工具定义后，如果判断需要使用工具，就会通过 API 协议返回 `tool_calls` 结构。。更准确地说，要区分两层：
-
-   ```
-   1. 模型内部到底逐 token 生成了什么
-      → 这个 OpenAI 不暴露，外部看不到。
-   
-   2. API 返回给你的原始响应 JSON 是什么
-      → 你能看到的是 assistant message 里的 tool_calls 字段。
-   ```
-
-   所以从开发者角度，模型此时的原始可见输出就是 tool_calls，不是 content。当模型决定调用工具时，它对外暴露的原始输出就是一个结构化的 tool_calls 对象；content 为 null，因为这一轮模型生成的是“调用动作”，不是“自然语言答案”。模型内部到底是如何生成这个结构的，OpenAI API 不暴露；你作为开发者只需要遵循 API 返回的 JSON 协议处理即可。
-
-3. **现在将问题上升一个层次：模型到底吃进去的是什么？模型到底吐出来的是什么？**
-
-   要分三层看：
-
-   ```
-   第 1 层：你代码里发送给 OpenAI API 的 HTTP JSON
-   第 2 层：OpenAI 服务端真正喂给模型的内部序列化输入
-   第 3 层：OpenAI API 返回给你代码的 JSON 响应
-   ```
-
-   其中，第 1 层和第 3 层你能看到；第 2 层你看不到，只能根据官方说明理解其大致机制。
-
-   以 Chat Completions API 为例，你代码里真正发送的是类似这样的 JSON：
-
-   ```json
-   {
-     "model": "gpt-4.1",
-     "messages": [
-       {
-         "role": "developer",
-         "content": "You are a helpful assistant. Use tools when needed."
-       },
-       {
-         "role": "user",
-         "content": "What's the weather in Paris?"
-       }
-     ],
-     "tools": [
-       {
-         "type": "function",
-         "function": {
-           "name": "get_weather",
-           "description": "Get current weather for a given location.",
-           "parameters": {
-             "type": "object",
-             "properties": {
-               "location": {
-                 "type": "string"
-               }
-             },
-             "required": ["location"],
-             "additionalProperties": false
-           },
-           "strict": true
-         }
-       }
-     ],
-     "tool_choice": "auto"
-   }
-   ```
-
-   这就是**应用侧可见的原始输入**。
-
-   它里面有三类信息：
-
-   ```
-   messages:
-       对话上下文，包括 developer / system / user / assistant / tool 消息。
-   
-   tools:
-       工具定义，包括工具名、工具描述、参数 JSON Schema。
-   
-   tool_choice:
-       工具选择策略，比如 auto、required、none、强制某个工具。
-   ```
-
-   OpenAI 官方文档说明，请求中可以包含模型可考虑使用的工具列表；如果模型判断需要工具，就可能返回一个 tool call。函数工具由 JSON Schema 定义，用来让模型把数据传给你的应用代码。
-
-   但模型内部真正看到的输入不是你看到的 JSON 原样，这一点很关键。
-
-   你发送的是：
-
-   ```json
-   {
-     "messages": [...],
-     "tools": [...]
-   }
-   ```
-
-   但模型内部不一定是直接看见这份 JSON 原文。OpenAI 官方文档明确说，**在底层，函数会以模型训练过的某种语法注入到 system message 中，因此函数定义会占用上下文窗口并按输入 token 计费**。
-
-   也就是说，服务端大致会把你的输入转换成某种内部提示序列，近似可以理解成：
-
-   ```
-   [developer]
-   You are a helpful assistant. Use tools when needed.
-   
-   [available_tools]
-   function get_weather(location: string)
-   description: Get current weather for a given location.
-   parameters schema:
-   {
-     "type": "object",
-     "properties": {
-       "location": {"type": "string"}
-     },
-     "required": ["location"],
-     "additionalProperties": false
-   }
-   
-   [user]
-   What's the weather in Paris?
-   ```
-
-   但注意：**这只是便于理解的近似表示，不是 OpenAI 暴露的真实内部格式。**
-
-   你作为开发者能确定的是：
-
-   ```
-   tools 会进入模型上下文；
-   工具定义会影响模型判断；
-   工具 schema 会影响模型生成参数；
-   具体内部序列化格式不对外暴露。
-   ```
-
-   那么模型决定“不调用工具”时的原始输出是什么？如果模型认为自己可以直接回答，它返回的 assistant message 类似：
-
-   ```json
-   {
-     "choices": [
-       {
-         "message": {
-           "role": "assistant",
-           "content": "Paris is the capital of France."
-         },
-         "finish_reason": "stop"
-       }
-     ]
-   }
-   ```
-
-   这时输出主体是：`"content": "Paris is the capital of France."`
-
-   也就是普通自然语言答案。
-
-   那么模型决定“调用工具”时的原始输出又是什么？如果模型认为需要工具，它返回的不是普通文本，而是：
-
-   ```json
-   {
-     "choices": [
-       {
-         "message": {
-           "role": "assistant",
-           "content": null,
-           "tool_calls": [
-             {
-               "id": "call_abc123",
-               "type": "function",
-               "function": {
-                 "name": "get_weather",
-                 "arguments": "{\"location\":\"Paris\"}"
-               }
-             }
-           ]
-         },
-         "finish_reason": "tool_calls"
-       }
-     ]
-   }
-   ```
-
-   这就是你能看到的**模型原始输出 JSON**。这里的核心字段是：
-
-   ```
-   role: assistant
-       说明这是模型生成的 assistant 消息。
-   
-   content: null
-       说明这一轮不是自然语言回答。
-   
-   tool_calls:
-       说明模型请求调用工具。
-   
-   tool_calls[0].id:
-       这次工具调用的唯一 ID，后面 tool result 要用它对应回来。
-   
-   tool_calls[0].function.name:
-       模型想调用的函数名。
-   
-   tool_calls[0].function.arguments:
-       模型生成的函数参数，是 JSON 字符串。
-   
-   finish_reason: tool_calls
-       说明模型停止生成的原因是调用了工具。
-   ```
-
-   一句话总结：
-
-   > 模型的可见原始输入是 API JSON 里的 messages 和 tools；模型的可见原始输出不是普通文本，而可能是 assistant.content，也可能是 assistant.tool_calls。至于 OpenAI 服务端如何把这些 JSON 精确序列化成模型内部 token 序列，这个不对外暴露，只能知道工具定义会被注入上下文并参与模型生成。
-
-4. **最后一个问题：什么时候此次对话结束？**
-
-   循环结束有两个层面的判断：
-
-   ```
-   协议层结束：
-       模型这一轮没有返回 tool_calls
-   
-   工程层结束：
-       你的 Agent 判断任务已经完成，或者达到最大循环次数 / 出错 / 被安全策略拦截
-   ```
-
-   最核心的一句话是：只要模型返回 `tool_calls`，循环就继续；如果模型没有返回 `tool_calls`，而是返回普通 `content`，循环就结束。
-
-   OpenAI 官方工具调用流程也是这个结构：模型可能返回 function call，你的应用执行函数并把结果返回给模型；如果模型继续返回 function call，就继续执行；如果模型返回最终响应，就结束。
-
-   我们可以给出一个最标准的结束条件伪代码：
-
-   ```python
-   while True:
-       response = client.chat.completions.create(
-           model=model,
-           messages=messages,
-           tools=tools,
-       )
-   
-       assistant_message = response.choices[0].message
-       messages.append(assistant_message)
-   
-       # 结束条件：没有工具调用
-       if not assistant_message.tool_calls:
-           return assistant_message.content
-   
-       # 继续条件：有工具调用
-       for tool_call in assistant_message.tool_calls:
-           result = execute_tool(tool_call)
-   
-           messages.append({
-               "role": "tool",
-               "tool_call_id": tool_call.id,
-               "content": json.dumps(result, ensure_ascii=False)
-           })
-   ```
-
-   从 finish_reason 看循环状态，如果模型决定调用工具，通常会看到：
-
-   ```json
-   {
-     "finish_reason": "tool_calls"
-   }
-   ```
-
-   这表示这一轮模型停止的原因是它请求了工具调用。如果模型已经完成最终回答，通常是：
-
-   ```json
-   {
-     "finish_reason": "stop"
-   }
-   ```
-
-   这时一般没有 `tool_calls`，而是有普通文本：
-
-   ```json
-   {
-     "role": "assistant",
-     "content": "Paris 当前天气是 25°C。"
-   }
-   ```
-
-   但工程上更稳妥的判断是：**优先看 `assistant_message.tool_calls` 是否为空**，不要只依赖 `finish_reason`。
-
-   为什么不能让模型自己输出 `finish` 来结束？
-
-   如果你是手写 ReAct Agent，可能会设计这种格式：
-
-   ```
-   Thought: ...
-   Action: search
-   Action Input: ...
-   
-   或者：
-   
-   Final Answer: ...
-   ```
-
-   这时结束条件通常是：
-
-   ```
-   模型输出 Final Answer
-   → 结束
-   ```
-
-   但 OpenAI 官方 Tool Calling 不需要你自己设计 `finish` 标记。它已经把状态分成了两类：
-
-   ```
-   Action 阶段：
-       assistant.tool_calls 不为空
-   
-   Answer 阶段：
-       assistant.tool_calls 为空，assistant.content 有最终答案
-   ```
-
-   所以官方 Tool Calling 的结束条件更干净：
-
-   ```
-   if not assistant_message.tool_calls:
-       break
-   ```
-
-   虽然理论上模型最后会停止调用工具并返回答案，但真实系统里必须加保护：最大循环次数。
-
-   ```python
-   MAX_TOOL_ROUNDS = 5
-   
-   for step in range(MAX_TOOL_ROUNDS):
-       response = call_model(messages, tools)
-       assistant_message = response.choices[0].message
-       messages.append(assistant_message)
-   
-       if not assistant_message.tool_calls:
-           return assistant_message.content
-   
-       for tool_call in assistant_message.tool_calls:
-           result = execute_tool(tool_call)
-           messages.append(make_tool_message(tool_call.id, result))
-   
-   raise RuntimeError("Tool calling exceeded max rounds")
-   ```
-
-   模型可能陷入这种循环：
-
-   ```
-   调用 search
-   → 工具返回信息不足
-   → 再调用 search
-   → 工具返回信息不足
-   → 再调用 search
-   → ...
-   ```
-
-
-
-上述就是这次分享的内容，可以对 Tool Calling 有一个更加清晰的认知。
+参考：OpenAI 官方文档 [Function calling](https://developers.openai.com/api/docs/guides/function-calling)。

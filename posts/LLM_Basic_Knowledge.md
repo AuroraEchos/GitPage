@@ -1,24 +1,31 @@
+---
+date: 2026-07-10
+category: note
+title: LLM Basic Knowledge
+description: 从自回归解码、注意力机制、位置编码到前馈网络，梳理 LLM 的基础知识。
+---
+
 # LLM 基础知识点
 
 ### Q：请描述 Transformer 的整体架构？
 
-Transformer 由 Encoder 和 Decoder 两部分组成，然后其中的每个部分由 N 个相同的层堆叠而成。
+原始 *Attention Is All You Need* 中的 Transformer 是 Encoder–Decoder 架构，两部分都由 $N$ 个结构相同但参数不共享的层堆叠而成。后来的 BERT 只保留 Encoder，GPT、LLaMA、Qwen 等生成模型通常只使用带因果掩码的 Decoder 风格堆叠。
 
 Encoder 层首先输入是一个完整的序列，然后进行通过 Embedding 层进行特征向量化，输出为稠密的低维度的连续向量，接着进行位置编码去注入时序信息，因为 Transformer 内部的注意力机制在计算的时候是并行的，天然丢失了位置信息，比如对模型来说，“我爱深度学习”和“深度学习爱我”在没有位置信息时是一样的，所以我们需要让模型知道序列中 Token 的先后顺序，也就是在我们拿到的向量上加上位置编码，接下来就是由 N 个相同的层堆叠，以 Encoder 中一个为例子，首先经过多头注意力，然后是残差连接与层归一化，接着是前馈神经网络，然后再经过一个残差连接与归一化，接着就是堆叠，残差连接就是把这一层的输入直接加到输出上，防止深层网络梯度消失。
 
-Decoder 的整体架构 Encoder 极其相似，也是 N 个相同的层堆叠，输入是目标序列，在训练时，是将真实标签序列整体向右平移一个位置，这个序列同样先通过 Embedding 层进行特征向量化，转化为稠密的低维连续向量，接着通过位置编码注入时序信息，让模型感知目标端 Token 的先后顺序。接下来，就是由 N 个相同的层堆叠。以 Decoder 中的单个层为例，第一步先经过掩码多都注意力，为什么使用掩码，是因为在生成文本时，模型不能看到未来的词，通过掩码，就可以确保模型在预测第 t 个位置的词时，只能看到前 t - 1 个位置的序列信息，然后就是残差连接与层归一化，接下来经过一个交叉注意力，在这部分，注意力机制的 Q 来自 Decoder 上一步的输出，K 和 V 来自于 Encoder 最终的完整输出，通过这一步，Decoder 能够去注意输入序列中的关键信息，将两边的数据连接起来。然后再次进行残差连接与层归一化，接着进行前馈神经网络，对当前融合后的特征进行非线性变换和映射，接着再进行一次残差连接与层归一化。
+Decoder 与 Encoder 类似，也是 $N$ 层堆叠。训练时使用右移后的目标序列作为输入：位置 $t$ 的表示可以看到当前位置及更早的输入 token，并用于预测下一个 token；因果掩码阻止它读取未来位置。原始 Encoder–Decoder Transformer 的每个 Decoder 层依次包含掩码自注意力、读取 Encoder 输出的交叉注意力以及前馈网络，并配有残差连接和归一化。Decoder-only LLM 则没有 Encoder 和交叉注意力。
 
-在经过 N 个这样的 Decoder 层堆叠并输出最终完整的特征序列后，最后再经过一个线型变换层和 Softmax 层，最终输出每个位置预测下一个 token 的概率分布。
+经过 Decoder 堆叠后，隐藏状态通过语言模型输出投影得到 logits；Softmax 将 logits 转为词表上的概率分布。训练通常直接把 logits 交给交叉熵损失，推理时再按需要做 Softmax、采样或取最大值。
 
 ------
 
 ### Q：为什么 Transformer 比 RNN 要好？
 
-第一点：RNN 是串行计算，无法有效的利用大规模 GPU 集群进行计算。Transformer 中的自注意力机制可以一次性同时计算整个序列中所有 Token 之间的相关性，可以大规模分布式训练。
+第一点：RNN 沿序列维存在递归依赖，训练时难以把所有时间步完全并行化；Transformer 在整段训练时可以并行处理 token，更适合 GPU/TPU。不过自回归生成仍然具有逐 token 的串行依赖。
 
 第二点：长距离信息依赖，RNN 会发生梯度消失或者信息遗忘，但是 Transformer 计算时，序列中的任意两个 Token 都可以通过注意力矩阵直接计算。
 
-第三点：RNN 如果序列的长度为 L，那么第一个词的信息传递到第 L 个词需要跨越 L 步，但是 Transformer 中每个词之间的信息传输路径长度永远为 O(1)。
+第三点：在一层全局自注意力中，任意两个未被 mask 隔开的 token 之间路径长度是 $O(1)$；RNN 则需要沿时间步传播。若使用局部/稀疏注意力，或者讨论跨多层信息处理，这个结论需要相应调整。
 
 ------
 
@@ -58,7 +65,7 @@ O = A \cdot V \quad (O \in \mathbb{R}^{N \times d_v})
 $$
 输出矩阵 $O$ 的每一行，就是融合了上下文信息后，该 Token 的全新向量表示。
 
-在理论上，$d_v$ 可以独立于 $d_k$，甚至不需要等于 $d_{model}$。但在工程实践中（例如标准的 Transformer 架构），为了方便搭建多层残差连接（Residual Connection，需要将输入 $X$ 与输出 $O$ 直接相加：$X + O$），通常直接令 $d_v = d_k$。
+理论上 $d_v$ 可以独立于 $d_k$。在多头注意力中，各头输出先拼接，再经过 $W_O$ 投影回 $d_{model}$ 后才与残差分支相加，因此残差连接要求的是最终输出维度为 $d_{model}$，并不直接要求单头的 $d_v=d_k$。标准实现常令二者相等以简化设计。
 
 ------
 
@@ -74,7 +81,7 @@ $$
 $$
 这意味着，随着维度 $d_k$ 的增大，点积结果的波动范围（标准差）会以 $\sqrt{d_k}$ 的速度随之扩大。
 
-Softmax 的公式为 $f(x_i) = \frac{e^{x_i}}{\sum e^{x_j}}$。如果我们不除以 $\sqrt{d_k}$，当 $d_k$ 很大时极大值会把其他指数项压到接近 0 ，Softmax 输出趋近 one-hot，最大值位置概率接近 1，其余全为 0，一旦 Softmax 逼近 One-Hot，由于其输出几乎变成了常数，在该区域的导数（梯度）会趋近于 0。反向传播时，梯度传不回去，整个模型就会停止学习。通过除以 $\sqrt{d_k}$，我们成功把点积结果的方差从 $d_k$ 重新拉回到了 1，完美阻止了 Softmax 进入饱和区。
+Softmax 的公式为 $f(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}$。如果不缩放，较大的 $d_k$ 会让 logits 的典型尺度增大，使 Softmax 更容易进入梯度很小的饱和区域。除以 $\sqrt{d_k}$ 在上述独立、单位方差假设下把点积方差归一到 1，从而降低饱和风险；真实网络并不严格满足这些分布假设，因此这是一种有效的尺度控制，而不是“完美阻止”饱和。
 
 ------
 
@@ -94,13 +101,13 @@ Value 加权聚合成输出：$\mathcal{O}(N \cdot N \cdot d) = \mathcal{O}(N^2 
 
 忽略低阶项和常数项，最终的时间复杂度为：$$\mathcal{O}(N \cdot d^2 + N^2 \cdot d)$$ 。
 
-在绝大多数大模型或标准 NLP 场景中，当序列增长或处理长文本时，**$N$ 的增长远快于 $d$**，或者说 $N^2 \cdot d$ 占据了绝对主导。因此我们通常将注意力机制的时间复杂度挂钩到其致命的瓶颈：**$\mathcal{O}(N^2 \cdot d)$**。
+完整 Attention 模块的主要项是 $\mathcal{O}(Nd^2 + N^2d)$。当 $N\gg d$ 时二次注意力项占主导；当序列较短而隐藏维度很大时，QKV/输出投影甚至 FFN 可能占更多计算。通常说 Self-Attention 对序列长度是二次复杂度，指的是 $N^2d$ 这一项。
 
 ------
 
 ### Q：Multi-Attention 的原理和作用
 
-单一的注意力头只能学习一种类型的语义依赖关系，多头注意力把 Query、Key、Value 投影到多个不同的子空间，并行执行多组注意力计算，最后拼接融合，让模型同时捕捉多种不同的关联模式。
+多头注意力把 Query、Key、Value 投影到多个子空间，并行执行多组注意力计算，最后拼接融合。单头也可能混合多种关系，但多头为不同匹配模式提供了更直接的独立表示通道。
 
 假设输入的向量维度为 $d_{model}$ ，头数为 h，每个头的维度 $d_k = d_v = d_{model}/h$ 。
 
@@ -134,6 +141,7 @@ $$
 代码示例如下：
 
 ```python
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -146,7 +154,7 @@ def scaled_dot_product_attention(Q, K, V, mask=None):
     """
     d_k = Q.size(-1)
 
-    attn_score = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(d_k, dtype=torch.float32))
+    attn_score = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(d_k)
 
     if mask is not None:
         attn_score = attn_score.masked_fill(mask == 0, -1e9)
@@ -252,10 +260,10 @@ Encoder 自注意力 / Decoder 掩码自注意力场景，传入 MHA 的原始 q
 
 在 Transformer 架构中，Self-Attention 机制本身是排列不变的，不关注 token 的顺序，因此必须要注入位置信息。
 
-传统位置编码分为两种类型：
+常见位置编码可以粗略分为绝对位置表示和直接建模相对位移的方案，但具体实现不只下面两种：
 
 - 绝对位置编码：直接加在词向量上，告诉模型这是第几个词，这种编码方式无法直接体现两个词之间的相对距离。
-- 相对位置编码：直接在 Attention 的 Score 矩阵上加上与相对距离相关的偏置，也就是直接建模相对位置，但是破坏了词向量本身的独立性，且计算和显存开销比较大。
+- 相对位置编码：可以在 Attention score 上加入相对位置偏置，也可以修改 Q/K 表示；不同方案的计算与显存开销不同。
 
 RoPE 的编码思想是在形式上是对词向量进行绝对位置编码，但是在计算 Attention 的内积的时候，只依赖相对位置，通过向量旋转来实现。
 
@@ -284,9 +292,9 @@ $$
 
 高频部分（$i$ 较小，$\theta_i$ 较大）：旋转角度变化快，用于捕捉短距离的局部位置关系。低频部分（$i$ 较大，$\theta_i$ 较小）：旋转角度变化慢，用于捕捉长距离的全局位置关系。
 
-RoPE 不需要像传统位置编码那样增加额外的 Embedding 查表操作。旋转矩阵可以提前计算好，或者通过极其简单的三角函数和向量加减法实现，甚至可以直接融合到 QKV 的线性投影层的权重中，在推理时几乎不增加计算量。
+RoPE 不需要可学习的位置 Embedding 表。cos/sin 可以预计算或缓存，再对每层 Q/K 做逐元素旋转；由于旋转依赖 token 位置，不能一般性地合并进一组固定的 QKV 投影权重。
 
-理论上，由于 RoPE 是基于绝对位置 m 的函数，即使推理时遇到了训练时没有看见过的更长的序列，公式仍然成立。
+RoPE 公式可以计算训练长度以外的位置，但“可计算”不等于模型能够可靠外推；实际长上下文模型常使用位置插值、频率缩放和继续训练。
 
 ------
 
@@ -298,7 +306,8 @@ RoPE 不需要像传统位置编码那样增加额外的 Embedding 查表操作�
 | **分词后**       | ID 列表    | `[L]`                 | Int      | 离散的符号索引                            |
 | **批处理后**     | ID 矩阵    | **`[B, L]`**          | Int      | 包含 Batch 和 Sequence 维度的纯索引       |
 | **Embedding 后** | 向量张量   | **`[B, L, d_model]`** | Float    | **纯语义信息（位置编码前的最终状态）**    |
-| **RoPE 后**      | 旋转后张量 | **`[B, L, d_model]`** | Float    | 语义 + 绝对位置信息（准备进入 Attention） |
+| **Q/K 投影并分头后** | Q/K 张量 | **`[B, H, L, d_head]`** | Float | 每个注意力头的查询/键表示 |
+| **RoPE 后**      | 旋转后的 Q/K | **`[B, H, L, d_head]`** | Float | 注入位置相位，随后计算 Attention |
 
 ------
 
@@ -309,9 +318,9 @@ RoPE 不需要像传统位置编码那样增加额外的 Embedding 查表操作�
 - BN 沿着 batch 维度进行归一化，计算均值和方差，也就是会跨样本计算，Batch Size 太小时均值/方差估计不稳定，效果急剧下降。主要应用场景是计算机视觉那边。
 - LN 是沿着特征通道维度进行归一化，计算均值和方差，是在单个样本内进行计算，Batch Size 可以为 1。主要应用场景是 NLP 。
 
-为什么 CV 常用 BN，而 NLP/Large Model 必须用 LN？
+为什么传统 CNN 常用 BN，而 Transformer 更常用 LN/RMSNorm？
 
-NLP 中文本长度不一，Padding 填 0 会破坏 BatchNorm 跨 Batch 计算时的均值和方差；而 LN 是在每个 Token/样本内部做归一化，不受 padding 影响。大语言模型（LLM）或超大 Transformer 占用极高显存，单卡 Batch Size 往往非常小（甚至为 1 或 2）。此时 BN 统计量会严重失真，而 LN 表现依然稳定。
+BN 通常按通道使用 batch（以及卷积中的空间位置）统计量，训练行为依赖 batch 组成，并需要维护运行均值/方差；小 batch、变长序列与分布变化会让它更难使用。LN/RMSNorm 对每个 token 的特征维独立归一化，不依赖其他样本，更契合 Transformer。它们是主流选择，但并非理论上“必须”。
 
 ------
 
@@ -329,9 +338,9 @@ $$
 $$
 x_{out} = x + F(LN(X))
 $$
-核心的差异是在梯度的传播上，后归一化，由于每次残差相加后都经过了 LN 的重新缩放，当模型层数变深（如 >30 层），浅层梯度会趋近于 0，导致深层网络极难训练，梯度容易消失。
+核心差异在梯度传播和表示尺度。Post-Norm 的深层网络通常更难直接优化，往往需要更谨慎的初始化、学习率或其他稳定化方法；不能用固定的“超过 30 层就梯度趋近 0”作为普遍边界。
 
-前归一化主路径上不存在任何 LN 缩放，形成了一条纯粹的恒等映射，反向传播时，输出和对输入的偏到为 1,梯度可以直接到达底层，训练很稳定。
+Pre-Norm 保留了一条跨层的恒等残差路径。其总导数不是简单等于 1，而是包含恒等项与子层导数；这条直接路径通常让深层训练更稳定，但也有深度利用不足等讨论。
 
 ------
 
@@ -341,7 +350,7 @@ RMSNorm 是 LayerNorm 的简化变体，移除了均值中心化步骤与可学�
 
 既然去掉均值中心化，为什么还能稳定训练？
 
-Transformer 每层都有多头注意力与 FFN 线性投影，线性层天然可以学习偏移量，网络有能力自行补偿均值漂移；归一化最核心作用是约束激活幅度、防止梯度爆炸 / 消失，由 RMS 缩放完成。
+RMSNorm 原论文的结论是：LayerNorm 的重中心化性质在所测任务中并非必需，而重缩放性质是主要贡献。许多现代 Transformer 的线性层甚至不使用 bias，因此不能把效果简单归因于“线性层补偿均值”。
 
 ------
 
@@ -372,7 +381,7 @@ class FFN(nn.Module):
 
 SwiGLU 的公式为：
 $$
-SwiFLU(x) = W_2(\sigma(W_Vx) \odot (W_Ux))
+\operatorname{SwiGLU}(x) = W_2(\operatorname{Swish}(W_Vx) \odot (W_Ux))
 $$
 W_u 与 W_v 的输出维度各为 $\boldsymbol{\tfrac{8}{3}d}$  ，总参数量和原始 FFN 参数量几乎持平。
 
@@ -409,7 +418,7 @@ GLU 引入乘法交互，能够建模更复杂非线性。
 
 Encoder-Only 也就是仅编码器，代表模型有 BERT、RoBERT、ViT 等，结构上就是堆叠多层 Encoder Block，每个 Encoder Blok 包含一个双向自注意力和前馈层。它的特点就是利用完整的上下文信息，没有因果 mask，不能做自回归生成，在推理上就是输入一个完整句子，然后一次性全局建模。适合的任务有文本分析，情感分类，语义相似度等。
 
-Decoder-Only 也就是仅有解码器，是现在自回归大语言模型主要采用的架构，代表模型有 GPT 系列、LLaMA、Qwen、Mistral、Llama3。在结构上堆叠多层 Decoder Block（只含 Masked 自注意力 + FFN，无 Cross-Attention），每个 Block 是因果注意力和前馈层。天然支持自回归生成：从左到右逐 token 预测下一个词。输入与输出共享同一套权重。适合的任务就是对话、文本续写、翻译、摘要、代码生成；当前通用大模型主流方案。
+Decoder-Only 是现在自回归大语言模型常用的架构，代表模型有 GPT 系列、LLaMA、Qwen、Mistral 等。它堆叠因果自注意力和 FFN，通常没有 Encoder–Decoder Cross-Attention。词嵌入与输出头可以权重共享，也可以不共享，取决于具体模型。
 
 Encoder-Decoder 代表模型：原始 Transformer、T5、BART、mBART。
 
@@ -440,14 +449,16 @@ Encoder-Decoder 代表模型：原始 Transformer、T5、BART、mBART。
 
 1. 初始化词表为所有字符
 2. 统计所有相邻字符对的频率
-3. 合并频率最高的字符对，假如词表
-4. 重复前两个步骤，直到达到目标词表大小
+3. 合并频率最高的相邻符号对，并把新符号加入词表
+4. 重新统计并继续合并，直到达到目标词表大小或合并次数
+
+实际 tokenizer 还涉及预分词、特殊 token、Unicode/字节处理；byte-level BPE 的初始符号是字节映射，不是简单的“所有字符”。
 
 ------
 
 #### Q：LLM 预训练使用什么损失函数？
 
-自回归大模型预训练标准是交叉熵损失。输入序列错位，用前面 token 预测后续 token，最大化文本序列对数似然，padding token 通过 ignore_index 忽略不计。注意：SFT 阶段也用交叉熵，只是 mask 掉 prompt 部分；RLHF 才引入 KL、奖励损失。
+自回归大模型通常使用 next-token cross-entropy，即最小化真实下一个 token 的负对数似然。Padding 常通过 loss mask 或 `ignore_index` 排除。SFT 也常用交叉熵，但是否 mask prompt 取决于数据与训练目标；偏好优化/RL 阶段可能再引入奖励、KL 或成对偏好等目标。
 
 ------
 
@@ -455,3 +466,9 @@ Encoder-Decoder 代表模型：原始 Transformer、T5、BART、mBART。
 
 Adam 和 AdamW 的核心区别在于：如何实现权重衰减（weight decay）。
 
+- 在常见的“Adam + L2 正则”写法中，$\lambda\theta$ 被加入梯度，再一起经过 Adam 的一阶/二阶矩自适应缩放；因此它不等价于经典的直接权重衰减。
+- AdamW 把衰减与梯度更新解耦，单独执行类似 $\theta \leftarrow (1-\eta\lambda)\theta$ 的更新，使衰减项不经过 Adam 的自适应预条件。
+
+对普通 SGD，适当换算后 L2 正则与 weight decay 等价；对 Adam 这类自适应优化器通常不等价。这也是现代 Transformer 训练普遍使用 AdamW 的主要原因之一。
+
+参考：[Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101)。

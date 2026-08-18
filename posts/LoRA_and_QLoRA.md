@@ -1,3 +1,10 @@
+---
+date: 2025-09-18
+category: llm
+title: LoRA & QLoRA
+description: 大语言模型参数高效微调方法的原理与实践。
+---
+
 # LoRA 与 QLoRA：从低秩适配到 4-bit 微调
 
 LoRA 对应论文 **LoRA: Low-Rank Adaptation of Large Language Models**，最早于 2021 年发布，后发表于 ICLR 2022，核心作者来自微软等机构。

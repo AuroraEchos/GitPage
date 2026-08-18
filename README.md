@@ -12,6 +12,36 @@
 
 根目录的 `index.html` 会自动跳转到 `about/`。
 
+## 笔记管理
+
+笔记元数据（日期、分类、标题、简介）以 front-matter 形式写在每篇 Markdown 顶部，示例：
+
+```markdown
+---
+date: 2026-08-01
+category: llm
+title: Qwen3-VL
+description: 梳理 Qwen3-VL 的视觉编码与主干数据流。
+listed: true
+---
+
+# 正文标题
+```
+
+新增或修改笔记后，在仓库根目录运行：
+
+```bash
+python3 tools/build_notes.py
+```
+
+`date` 是已发布笔记的必填字段，必须是真实的 `YYYY-MM-DD` 日期。`category` 可取 `llm`、`agent` 或 `note`，省略时使用 `note`；`title` 省略时取正文首个一级标题；`description` 可省略；`listed: false` 可隐藏草稿。
+
+脚本会严格校验所有元数据，同时检查未闭合的代码围栏和失效的本地图片引用，再重新生成 `assets/js/notes-data.js`。该生成文件需要和代码一起提交，不要手动编辑。CI 或提交前可以使用下面的命令检查数据是否为最新：
+
+```bash
+python3 tools/build_notes.py --check
+```
+
 ## 本地预览
 
 Markdown 阅读器需要通过 HTTP 读取文章，不能直接用 `file://` 打开。可在仓库根目录运行：
