@@ -4,9 +4,16 @@ window.noteCatalog = {
   "categoryLabels": {
     "llm": "LLM 架构",
     "agent": "Agent 与应用",
-    "note": "其他"
+    "note": "学习笔记"
   },
   "notes": [
+    {
+      "date": "2026.08.18",
+      "category": "note",
+      "title": "《A Programming Paradigm for Spatiotemporal Composability》阅读分析报告",
+      "description": "阅读分析《A Programming Paradigm for Spatiotemporal Composability》，总结论文的核心贡献、优点、限制和对自演化 agent harness 的启发。",
+      "path": "posts/paper_reading_analysis_zh.md"
+    },
     {
       "date": "2026.08.12",
       "category": "agent",
