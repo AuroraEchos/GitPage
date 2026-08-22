@@ -1,6 +1,6 @@
 ---
 date: 2026-05-09
-category: note
+category: other
 title: Traffic Path of Proxy Networking
 description: 梳理客户端、DNS、隧道、端口与远程服务器之间的流量路径。
 ---

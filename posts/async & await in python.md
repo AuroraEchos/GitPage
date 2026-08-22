@@ -1,6 +1,6 @@
 ---
 date: 2025-09-20
-category: note
+category: other
 title: Async/Await in Python
 description: 用清晰的心智模型理解协程与异步程序。
 ---

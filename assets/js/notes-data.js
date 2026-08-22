@@ -2,21 +2,22 @@
 // 修改 posts/ 下的 front-matter 后运行：python3 tools/build_notes.py
 window.noteCatalog = {
   "categoryLabels": {
-    "llm": "LLM 架构",
-    "agent": "Agent 与应用",
-    "note": "学习笔记"
+    "llm": "LLM",
+    "agent": "Agent",
+    "paper": "Paper Reading",
+    "other": "Other"
   },
   "notes": [
     {
       "date": "2026.08.20",
-      "category": "note",
+      "category": "other",
       "title": "Ubuntu 26.04 LTS ChatGPT 桌面端代理生效但消息发送失败",
       "description": "Ubuntu 新版 ChatGPT 桌面端代理失效的核心不是网络问题，而是 GUI 启动环境隔离。最优解为修改本地 desktop 文件注入代理环境变量，一次配置永久生效，无需终端、无需重复操作，完美解决消息转圈、断流、发送失败问题。",
       "path": "posts/Ubuntu_26_04_LTS_ChatGPT.md"
     },
     {
       "date": "2026.08.18",
-      "category": "note",
+      "category": "other",
       "title": "《A Programming Paradigm for Spatiotemporal Composability》阅读分析报告",
       "description": "一个正在运行的软件系统，怎样才能像搭积木一样安全地添加、删除和替换组件，而不必重启整个系统？",
       "path": "posts/paper_reading_analysis_zh.md"
@@ -37,14 +38,14 @@ window.noteCatalog = {
     },
     {
       "date": "2026.07.10",
-      "category": "note",
+      "category": "other",
       "title": "LLM Basic Knowledge",
       "description": "从自回归解码、注意力机制、位置编码到前馈网络，梳理 LLM 的基础知识。",
       "path": "posts/LLM_Basic_Knowledge.md"
     },
     {
       "date": "2026.06.10",
-      "category": "note",
+      "category": "other",
       "title": "What is NAT traversal?",
       "description": "理解内网穿透中的地址转换、端口映射与通信路径。",
       "path": "posts/Intranet_penetration.md"
@@ -72,21 +73,21 @@ window.noteCatalog = {
     },
     {
       "date": "2026.05.09",
-      "category": "note",
+      "category": "other",
       "title": "Traffic Path of Proxy Networking",
       "description": "梳理客户端、DNS、隧道、端口与远程服务器之间的流量路径。",
       "path": "posts/Traffic_Path_of_Proxy_Networking.md"
     },
     {
       "date": "2026.04.30",
-      "category": "note",
+      "category": "other",
       "title": "PyTorch High-Frequency Core Operators",
       "description": "张量形状、线性代数、掩码与 Softmax 的高频操作地图。",
       "path": "posts/PyTorch_high-frequency_core_operators.md"
     },
     {
       "date": "2026.04.16",
-      "category": "note",
+      "category": "other",
       "title": "Linux Basic Usage",
       "description": "面向日常研发环境的 Linux 命令行基础。",
       "path": "posts/Linux_Basic_Usage.md"
@@ -100,7 +101,7 @@ window.noteCatalog = {
     },
     {
       "date": "2025.09.20",
-      "category": "note",
+      "category": "other",
       "title": "Async/Await in Python",
       "description": "用清晰的心智模型理解协程与异步程序。",
       "path": "posts/async & await in python.md"
@@ -149,7 +150,7 @@ window.noteCatalog = {
     },
     {
       "date": "2025.06.15",
-      "category": "note",
+      "category": "other",
       "title": "Random Seed 42",
       "description": "可复现实验为什么仍然需要完整的上下文。",
       "path": "posts/Random_seed_42.md"

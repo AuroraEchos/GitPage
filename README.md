@@ -7,6 +7,7 @@
 - `about/`：关于，也是网站默认入口
 - `projects/`：公开项目
 - `notes/`：技术笔记列表与阅读页
+- `songs/`：喜欢的苏联时期歌曲与中俄歌词
 - `posts/`：Markdown 原文与笔记图片；新增正文继续放在这里
 - `assets/vendor/`：随站点部署的 Markdown、公式、图表和代码高亮依赖
 
@@ -34,7 +35,7 @@ listed: true
 python3 tools/build_notes.py
 ```
 
-`date` 是已发布笔记的必填字段，必须是真实的 `YYYY-MM-DD` 日期。`category` 可取 `llm`、`agent` 或 `note`，省略时使用 `note`；`title` 省略时取正文首个一级标题；`description` 可省略；`listed: false` 可隐藏草稿。
+`date` 是已发布笔记的必填字段，必须是真实的 `YYYY-MM-DD` 日期。`category` 可取 `llm`、`agent`、`paper` 或 `other`，省略时使用 `other`；`title` 省略时取正文首个一级标题；`description` 可省略；`listed: false` 可隐藏草稿。
 
 脚本会严格校验所有元数据，同时检查未闭合的代码围栏和失效的本地图片引用，再重新生成 `assets/js/notes-data.js`。该生成文件需要和代码一起提交，不要手动编辑。CI 或提交前可以使用下面的命令检查数据是否为最新：
 

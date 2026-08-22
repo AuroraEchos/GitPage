@@ -156,6 +156,23 @@ button, input { font: inherit; }
 .note-description { grid-column: 2; color: var(--muted); font-size: 11px; line-height: 1.6; }
 .empty { margin: 0; padding: 24px 0; color: var(--muted); font-size: 12px; }
 
+/* Songbook */
+.song-index { display: flex; flex-wrap: wrap; gap: 0; margin: -8px 0 28px; color: var(--muted); font-size: 12px; }
+.song-index a { color: var(--muted); }
+.song-index a:hover, .song-index a:focus-visible { color: var(--link); }
+.song-index a + a::before { display: inline-block; margin: 0 8px; color: #aaa; content: "·"; }
+.song-list { border-top: 1px solid var(--line); }
+.song { scroll-margin-top: 24px; padding: 34px 0 42px; border-bottom: 1px solid var(--line); }
+.song-heading { margin-bottom: 24px; }
+.song-number { display: block; margin-bottom: 5px; color: var(--muted); font-family: var(--mono); font-size: 9px; letter-spacing: .05em; text-transform: uppercase; }
+.song-heading h2 { margin: 0; font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 1.45; }
+.song-heading h2 span { margin-left: 8px; color: var(--muted); font-family: var(--sans); font-size: 14px; font-weight: 400; letter-spacing: 0; }
+.lyrics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 42px; }
+.lyrics-column { min-width: 0; }
+.lyrics-column h3 { margin: 0 0 15px; color: var(--muted); font-family: var(--mono); font-size: 9px; font-weight: 400; letter-spacing: .05em; text-transform: uppercase; }
+.lyrics-column p { margin: 0 0 17px; font-family: var(--serif); font-size: 14px; line-height: 1.9; }
+.lyrics-column[lang="ru"] p { font-family: var(--serif); line-height: 1.85; }
+
 /* Footer */
 .site-footer { display: block; width: min(calc(100% - 36px), var(--page-width)); margin: 0 auto; padding: 14px 0 40px; color: #888; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 9px; letter-spacing: .02em; }
 
@@ -227,6 +244,12 @@ button, input { font: inherit; }
   .note-description { display: none; }
   .note-item time { grid-row: 1; }
   .about-facts div { grid-template-columns: 78px 1fr; gap: 12px; }
+  .song-index { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .song-index a + a::before { display: none; }
+  .song { padding: 29px 0 34px; }
+  .song-heading h2 span { display: block; margin: 3px 0 0; }
+  .lyrics-grid { grid-template-columns: 1fr; gap: 12px; }
+  .lyrics-column + .lyrics-column { margin-top: 5px; padding-top: 22px; border-top: 1px dashed var(--line); }
   .reader-heading h1 { font-size: 26px; }
   .markdown-body { font-size: 15px; }
   .markdown-body pre { margin-right: -14px; margin-left: -14px; border-right: 0; border-left: 0; }

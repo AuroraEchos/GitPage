@@ -1,6 +1,6 @@
 ---
 date: 2026-04-16
-category: note
+category: other
 title: Linux Basic Usage
 description: 面向日常研发环境的 Linux 命令行基础。
 ---

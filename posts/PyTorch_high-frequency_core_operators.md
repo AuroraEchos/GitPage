@@ -1,6 +1,6 @@
 ---
 date: 2026-04-30
-category: note
+category: other
 title: PyTorch High-Frequency Core Operators
 description: 张量形状、线性代数、掩码与 Softmax 的高频操作地图。
 ---

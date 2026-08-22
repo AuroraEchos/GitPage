@@ -1,6 +1,6 @@
 ---
 date: 2026-08-20
-category: note
+category: other
 title: Ubuntu 26.04 LTS ChatGPT 桌面端代理生效但消息发送失败
 description: Ubuntu 新版 ChatGPT 桌面端代理失效的核心不是网络问题，而是 GUI 启动环境隔离。最优解为修改本地 desktop 文件注入代理环境变量，一次配置永久生效，无需终端、无需重复操作，完美解决消息转圈、断流、发送失败问题。
 listed: true

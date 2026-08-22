@@ -1,6 +1,6 @@
 ---
 date: 2025-06-15
-category: note
+category: other
 title: Random Seed 42
 description: 可复现实验为什么仍然需要完整的上下文。
 ---

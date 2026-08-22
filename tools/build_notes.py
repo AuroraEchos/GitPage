@@ -18,7 +18,12 @@ ROOT = Path(__file__).resolve().parent.parent
 POSTS_DIR = ROOT / "posts"
 OUT_PATH = ROOT / "assets" / "js" / "notes-data.js"
 
-CATEGORY_LABELS = {"llm": "LLM 架构", "agent": "Agent 与应用", "note": "学习笔记"}
+CATEGORY_LABELS = {
+    "llm": "LLM",
+    "agent": "Agent",
+    "paper": "Paper Reading",
+    "other": "Other",
+}
 VALID_CATEGORIES = set(CATEGORY_LABELS)
 VALID_FIELDS = {"date", "category", "title", "description", "listed"}
 
@@ -160,7 +165,7 @@ def collect_notes():
         if not validate_date(date):
             errors.append(f"{path.name}: date 必须是真实的 YYYY-MM-DD 日期")
 
-        category = fields.get("category", "note")
+        category = fields.get("category", "other")
         if category not in VALID_CATEGORIES:
             choices = " | ".join(CATEGORY_LABELS)
             errors.append(f"{path.name}: category 必须是 {choices} 之一")
