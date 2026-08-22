@@ -8,10 +8,17 @@ window.noteCatalog = {
   },
   "notes": [
     {
+      "date": "2026.08.20",
+      "category": "note",
+      "title": "Ubuntu 26.04 LTS ChatGPT 桌面端代理生效但消息发送失败",
+      "description": "Ubuntu 新版 ChatGPT 桌面端代理失效的核心不是网络问题，而是 GUI 启动环境隔离。最优解为修改本地 desktop 文件注入代理环境变量，一次配置永久生效，无需终端、无需重复操作，完美解决消息转圈、断流、发送失败问题。",
+      "path": "posts/Ubuntu_26_04_LTS_ChatGPT.md"
+    },
+    {
       "date": "2026.08.18",
       "category": "note",
       "title": "《A Programming Paradigm for Spatiotemporal Composability》阅读分析报告",
-      "description": "阅读分析《A Programming Paradigm for Spatiotemporal Composability》，总结论文的核心贡献、优点、限制和对自演化 agent harness 的启发。",
+      "description": "一个正在运行的软件系统，怎样才能像搭积木一样安全地添加、删除和替换组件，而不必重启整个系统？",
       "path": "posts/paper_reading_analysis_zh.md"
     },
     {
