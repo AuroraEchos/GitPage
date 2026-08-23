@@ -135,6 +135,13 @@ window.noteCatalog = {
       "path": "posts/SDPA_MHA_GQA.md"
     },
     {
+      "date": "2025.08.23",
+      "category": "other",
+      "title": "海康威视 MF5681（800 万 4K USB 摄像头）Ubuntu 使用记录",
+      "description": "",
+      "path": "posts/MF5681.md"
+    },
+    {
       "date": "2025.08.05",
       "category": "llm",
       "title": "Scaled Dot-Product Attention",
