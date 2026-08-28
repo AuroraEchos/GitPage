@@ -4,13 +4,6 @@ category: agent
 title: 从“点错位置”到坐标协议层：视觉智能体跨模型坐标系统的可能性解决方案
 description: 一次真实 Android 真机故障如何揭示视觉模型坐标协议的不确定性，以及如何用显式契约、零触摸协商、canonical 坐标、失败关闭和完整审计构建跨模型的可靠执行系统。
 listed: true
-# tags:
-#   - Visual Agent
-#   - GUI Agent
-#   - Computer Use
-#   - Android
-#   - Coordinate System
-#   - Agent Engineering
 ---
 
 # 从“点错位置”到坐标协议层：视觉智能体跨模型坐标系统的可能性解决方案

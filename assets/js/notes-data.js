@@ -9,6 +9,13 @@ window.noteCatalog = {
   },
   "notes": [
     {
+      "date": "2026.08.28",
+      "category": "agent",
+      "title": "内部状态驱动控制流，事件流驱动观察与持久化",
+      "description": "以 PhoneAgent 的 `state.py` 与 `events.py` 为例，理解“内部状态驱动控制流，事件流驱动观察与持久化”。",
+      "path": "posts/Internal_State_driven_Control_Flow_And_Envent_Driven_Observation_Persistence.md"
+    },
+    {
       "date": "2026.08.25",
       "category": "agent",
       "title": "从“点错位置”到坐标协议层：视觉智能体跨模型坐标系统的可能性解决方案",
