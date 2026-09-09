@@ -1,10 +1,11 @@
 ---
 date: 2026-06-01
 category: agent
+title: OpenAI Function Calling：协议与执行循环
 description: 从消息协议与执行循环理解 Function Calling。
 ---
 
-# OpenAI Function Calling Protocol
+# OpenAI Function Calling：协议与执行循环
 
 Function calling（也称 tool calling）让模型向应用请求外部能力。对于自定义 function tool，模型返回工具名和参数；真正的函数执行、权限判断和副作用控制仍由应用负责。工具执行结果随后交回模型，模型可以生成最终回答或继续请求工具。
 

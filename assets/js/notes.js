@@ -50,7 +50,7 @@ function initializeNotes() {
     const keyword = search.value.trim().toLowerCase();
     const filtered = notes.filter((note) => {
       const categoryMatch = activeCategory === "all" || note.category === activeCategory;
-      const queryMatch = !keyword || `${note.title} ${note.description || ""}`.toLowerCase().includes(keyword);
+      const queryMatch = !keyword || note.title.toLowerCase().includes(keyword);
       return categoryMatch && queryMatch;
     });
 
@@ -80,12 +80,6 @@ function initializeNotes() {
       title.append(titleText, category);
       link.append(time, title);
 
-      if (note.description) {
-        const description = document.createElement("span");
-        description.className = "note-description";
-        description.textContent = note.description;
-        link.append(description);
-      }
       list.append(link);
     });
   }

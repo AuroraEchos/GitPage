@@ -1,11 +1,11 @@
 ---
 date: 2026-08-12
 category: agent
-title: PhoneAgent v0.2.0 Runtime Architecture
+title: PhoneAgent v0.2.0：运行时架构与执行闭环
 description: PhoneAgent 核心运行时架构与执行流程的设计说明与代码导读。
 ---
 
-# PhoneAgent v0.2.0：Runtime Architecture 与执行闭环
+# PhoneAgent v0.2.0：运行时架构与执行闭环
 
 > 文档类型：实现导向的运行时架构说明（Implementation-Oriented Runtime Architecture Document）
 >

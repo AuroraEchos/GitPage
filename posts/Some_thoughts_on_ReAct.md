@@ -1,11 +1,11 @@
 ---
 date: 2026-05-21
 category: agent
-title: Some Thoughts on ReAct
+title: ReAct：推理—行动循环与错误恢复
 description: 关于 reasoning-action 循环、工具调用与错误恢复的思考。
 ---
 
-# 关于 ReAct 的一些思考
+# ReAct：推理—行动循环与错误恢复
 
 在谈论 ReAct 之前，我们需要先对 Agent 这一概念进行一个叙述。毫无疑问，Agent 是大模型落地的主线之一，可以按照下面四个阶段来理解。
 

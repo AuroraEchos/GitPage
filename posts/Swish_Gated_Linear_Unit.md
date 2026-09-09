@@ -1,11 +1,11 @@
 ---
 date: 2025-07-10
 category: llm
-title: Swish Gated Linear Unit (SwiGLU)
+title: SwiGLU：门控前馈网络
 description: 现代 Transformer 前馈网络中的门控激活函数。
 ---
 
-# SwiGLU（Swish Gated Linear Unit）
+# SwiGLU：门控前馈网络
 
 SwiGLU 是 Gated Linear Unit（GLU，门控线性单元）家族中的重要变体，由 Noam Shazeer 在 2020 年的 *GLU Variants Improve Transformer* 中系统提出并验证，后来被 PaLM、LLaMA 等模型采用。GPT-3 使用的则是 GELU，而不是 SwiGLU。
 

@@ -1,11 +1,11 @@
 ---
 date: 2026-05-09
 category: other
-title: Traffic Path of Proxy Networking
+title: 代理网络的流量链路
 description: 梳理客户端、DNS、隧道、端口与远程服务器之间的流量路径。
 ---
 
-# 科学上网的流量链路
+# 代理网络的流量链路
 
 > 首先需要强调：不同国家和地区对于代理、VPN、跨境访问、加密通信有不同的法律法规和使用要求。从技术学习角度看，理解代理、DNS、TLS、VPS 和网络链路非常有价值。但技术本身只是工具，关键在于使用边界。
 

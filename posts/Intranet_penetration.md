@@ -1,11 +1,11 @@
 ---
 date: 2026-06-10
 category: other
-title: What is NAT traversal?
+title: NAT Traversal：内网穿透原理
 description: 理解内网穿透中的地址转换、端口映射与通信路径。
 ---
 
-# 内网穿透的原理
+# NAT Traversal：内网穿透原理
 
 内网穿透的核心目标是让公网用户访问位于内网、没有公网 IP 的服务，例如让家里电脑上的 Web 服务、公司内网测试环境、NAS、SSH 服务等。
 

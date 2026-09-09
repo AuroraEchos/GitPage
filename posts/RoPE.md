@@ -1,11 +1,11 @@
 ---
 date: 2025-09-10
 category: llm
-title: RoPE
+title: RoPE：旋转位置编码
 description: 旋转位置编码的直觉、公式与实现要点。
 ---
 
-# 位置编码
+# RoPE：旋转位置编码
 
 在 Transformer 模型中，由于 Self-Attention 机制本身是置换不变性的，也就是它无法识别输入序列中词语的顺序，我们需要通过 Positional Encoding (位置编码) 为模型引入位置信息。
 

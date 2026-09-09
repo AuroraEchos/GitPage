@@ -1,10 +1,11 @@
 ---
 date: 2026-04-06
 category: agent
+title: LLM 与 Agent 的记忆机制
 description: 短期上下文、外部存储、检索与长期记忆的工程模式。
 ---
 
-# LLM Memory Mechanisms
+# LLM 与 Agent 的记忆机制
 
 在谈论这个问题前，我们先给出结论：
 

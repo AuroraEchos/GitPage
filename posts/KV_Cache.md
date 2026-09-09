@@ -1,11 +1,11 @@
 ---
 date: 2026-05-20
 category: llm
-title: What is KV Cache
+title: KV Cache：原理与推理加速
 description: 为什么缓存 Key / Value 能加速自回归解码。
 ---
 
-# KV Cache 介绍
+# KV Cache：原理与推理加速
 
 ## 什么是 KV Cache
 

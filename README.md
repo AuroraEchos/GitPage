@@ -21,8 +21,8 @@
 ---
 date: 2026-08-01
 category: llm
-title: Qwen3-VL
-description: 梳理 Qwen3-VL 的视觉编码与主干数据流。
+title: Agent Runtime Notes
+description: 梳理 Agent 运行时的核心设计与执行流程。
 listed: true
 ---
 

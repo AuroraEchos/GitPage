@@ -1,14 +1,11 @@
 (() => {
   const article = document.querySelector("#article");
   const titleNode = document.querySelector("#reader-title");
-  const sourceNode = document.querySelector("#reader-source");
-  const toc = document.querySelector("#toc-list");
   const progress = document.querySelector("#reading-progress-bar");
   const src = new URLSearchParams(location.search).get("src") || "";
 
   const validSource = /^posts\/[^/\\]+\.md$/i.test(src) && !src.includes("..");
   const escapeHtml = (value) => value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
-  const slugify = (text, index) => `${text.toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "") || "section"}-${index + 1}`;
 
   function preserveDisplayMath(markdown) {
     const blocks = [];
@@ -30,9 +27,7 @@
 
   function fail(message) {
     titleNode.textContent = "无法打开这篇笔记";
-    sourceNode.textContent = "请返回笔记列表重新选择";
     article.innerHTML = `<div class="reader-error"><p>${escapeHtml(message)}</p><a href="./">返回笔记</a></div>`;
-    toc.closest(".toc").hidden = true;
   }
 
   function resolveRelativeUrls(baseUrl) {
@@ -46,24 +41,6 @@
       if (!/^(?:[a-z]+:|\/|#)/i.test(value)) link.href = new URL(value, baseUrl).href;
       if (/^https?:/i.test(link.href)) { link.target = "_blank"; link.rel = "noopener noreferrer"; }
     });
-  }
-
-  function buildToc() {
-    const headings = [...article.querySelectorAll("h1, h2, h3, h4")];
-    const baseLevel = headings.length
-      ? Math.min(...headings.map((heading) => Number(heading.tagName.slice(1))))
-      : 1;
-    toc.replaceChildren();
-    headings.forEach((heading, index) => {
-      heading.id = slugify(heading.textContent, index);
-      const level = Number(heading.tagName.slice(1)) - baseLevel + 1;
-      const link = document.createElement("a");
-      link.href = `#${heading.id}`;
-      link.className = `toc-level-${level}`;
-      link.textContent = heading.textContent;
-      toc.append(link);
-    });
-    toc.closest(".toc").hidden = headings.length < 2;
   }
 
   function enhanceCode() {
@@ -122,31 +99,11 @@
     progress.style.transform = `scaleX(${value})`;
   }
 
-  function updateToc() {
-    const headings = [...article.querySelectorAll("h1, h2, h3, h4")];
-    const links = [...toc.querySelectorAll("a")];
-    if (!headings.length || !links.length) return;
-
-    let current = headings[0];
-    headings.forEach((heading) => {
-      if (heading.getBoundingClientRect().top <= 150) current = heading;
-    });
-    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) current = headings.at(-1);
-
-    links.forEach((link) => {
-      const isActive = link.getAttribute("href") === `#${current.id}`;
-      link.classList.toggle("active", isActive);
-      if (isActive) link.setAttribute("aria-current", "location");
-      else link.removeAttribute("aria-current");
-    });
-  }
-
   let readingStateFrame = 0;
   function scheduleReadingStateUpdate() {
     if (readingStateFrame) return;
     readingStateFrame = requestAnimationFrame(() => {
       updateProgress();
-      updateToc();
       readingStateFrame = 0;
     });
   }
@@ -171,11 +128,9 @@
       const fallback = decodeURIComponent(src.split("/").pop()).replace(/\.md$/i, "").replace(/_/g, " ");
       const title = firstHeading?.textContent.trim() || fallback;
       titleNode.textContent = title;
-      sourceNode.textContent = fallback;
       document.title = `${title} · Wenhao Liu`;
       if (firstHeading?.tagName === "H1") firstHeading.remove();
       resolveRelativeUrls(requestUrl);
-      buildToc();
       enhanceCode();
       window.renderMathInElement?.(article, { throwOnError: false, delimiters: [
         { left: "$$", right: "$$", display: true }, { left: "\\[", right: "\\]", display: true },

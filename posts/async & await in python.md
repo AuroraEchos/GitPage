@@ -1,11 +1,11 @@
 ---
 date: 2025-09-20
 category: other
-title: Async/Await in Python
+title: Python Async/Await：协程与异步编程
 description: 用清晰的心智模型理解协程与异步程序。
 ---
 
-# async & await in Python
+# Python Async/Await：协程与异步编程
 
 `async` 和 `await` 是 Python 编写协程的核心语法。它们最适合处理“等待占比高”的任务，例如网络请求、异步数据库驱动和定时等待：一个任务等待时，事件循环可以运行其他已经就绪的任务。
 

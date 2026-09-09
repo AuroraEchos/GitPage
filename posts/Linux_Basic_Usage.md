@@ -1,7 +1,7 @@
 ---
 date: 2026-04-16
 category: other
-title: Linux Basic Usage
+title: Linux 基础使用
 description: 面向日常研发环境的 Linux 命令行基础。
 ---
 
